@@ -24,9 +24,7 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        working-directory: ./front
         run: bun install
 
       - name: Run Biome check
-        working-directory: ./front
         run: bun run check
