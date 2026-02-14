@@ -19,32 +19,49 @@ export default function GuessList({ guesses }: GuessListProps) {
                             Aucun essai
                         </p>
                     ) : (
-                        guesses.map((g, i) => (
-                            <div
-                                key={`${g.word}-${i}`}
-                                className={[
-                                    "flex items-center justify-between px-4 py-1.5 text-sm",
-                                    g.found
-                                        ? "bg-emerald-50/60"
-                                        : "bg-red-50/60",
-                                ].join(" ")}
-                            >
-                                <span
-                                    className={
+                        guesses.map((g, i) => {
+                            const isClose =
+                                !g.found && (g.similarity ?? 0) >= 0.55;
+                            return (
+                                <div
+                                    key={`${g.word}-${i}`}
+                                    className={[
+                                        "flex items-center justify-between px-4 py-1.5 text-sm",
                                         g.found
-                                            ? "text-emerald-800"
-                                            : "text-red-400 line-through"
-                                    }
+                                            ? "bg-emerald-50/60"
+                                            : isClose
+                                              ? "bg-amber-50/60"
+                                              : "bg-red-50/60",
+                                    ].join(" ")}
                                 >
-                                    {g.word}
-                                </span>
-                                {g.found && (
-                                    <span className="text-emerald-600 font-mono text-xs">
-                                        ×{g.occurrences}
+                                    <span
+                                        className={
+                                            g.found
+                                                ? "text-emerald-800"
+                                                : isClose
+                                                  ? "text-amber-700"
+                                                  : "text-red-400 line-through"
+                                        }
+                                    >
+                                        {g.word}
                                     </span>
-                                )}
-                            </div>
-                        ))
+                                    {g.found && (
+                                        <span className="text-emerald-600 font-mono text-xs">
+                                            ×{g.occurrences}
+                                        </span>
+                                    )}
+                                    {isClose && (
+                                        <span className="text-amber-500 font-mono text-xs">
+                                            ~
+                                            {Math.round(
+                                                (g.similarity ?? 0) * 100,
+                                            )}
+                                            %
+                                        </span>
+                                    )}
+                                </div>
+                            );
+                        })
                     )}
                 </div>
             </div>

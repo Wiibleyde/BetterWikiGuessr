@@ -10,6 +10,7 @@ interface GameHeaderProps {
     guessing: boolean;
     input: string;
     lastGuessFound: boolean | null;
+    lastGuessSimilarity: number;
     inputRef: RefObject<HTMLInputElement | null>;
     onInputChange: (value: string) => void;
     onSubmit: (e?: FormEvent) => void;
@@ -23,6 +24,7 @@ export default function GameHeader({
     guessing,
     input,
     lastGuessFound,
+    lastGuessSimilarity,
     inputRef,
     onInputChange,
     onSubmit,
@@ -70,11 +72,14 @@ export default function GameHeader({
                             className={[
                                 "flex-1 px-4 py-2 border rounded-lg text-sm transition-colors",
                                 "focus:outline-none focus:ring-2 focus:ring-blue-400",
-                                lastGuessFound === false
-                                    ? "border-red-300 bg-red-50"
-                                    : lastGuessFound === true
-                                      ? "border-emerald-300 bg-emerald-50"
-                                      : "border-gray-300",
+                                lastGuessFound === false &&
+                                lastGuessSimilarity >= 0.55
+                                    ? "border-amber-400 bg-amber-50"
+                                    : lastGuessFound === false
+                                      ? "border-red-300 bg-red-50"
+                                      : lastGuessFound === true
+                                        ? "border-emerald-300 bg-emerald-50"
+                                        : "border-gray-300",
                             ].join(" ")}
                             disabled={guessing}
                         />

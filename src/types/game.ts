@@ -37,12 +37,14 @@ export interface GuessResult {
     word: string;
     positions: WordPosition[];
     occurrences: number;
+    similarity: number;
 }
 
 export interface StoredGuess {
     word: string;
     found: boolean;
     occurrences: number;
+    similarity: number;
 }
 
 export type RevealedMap = Record<string, string>;

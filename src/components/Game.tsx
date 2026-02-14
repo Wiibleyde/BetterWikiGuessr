@@ -17,6 +17,7 @@ export default function Game() {
         won,
         error,
         lastGuessFound,
+        lastGuessSimilarity,
         lastRevealedWord,
         setLastGuessFound,
         inputRef,
@@ -54,6 +55,7 @@ export default function Game() {
                 guessing={guessing}
                 input={input}
                 lastGuessFound={lastGuessFound}
+                lastGuessSimilarity={lastGuessSimilarity}
                 inputRef={inputRef}
                 onInputChange={(value) => {
                     setInput(value);

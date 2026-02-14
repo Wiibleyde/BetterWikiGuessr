@@ -28,6 +28,36 @@ function normalizeWord(word: string): string {
 
 const TOKEN_REGEX = /([a-zA-ZÀ-ÿ0-9]+)|(\n)|(\s+)|([^\sa-zA-ZÀ-ÿ0-9]+)/g;
 
+const REVEAL_THRESHOLD = 0.8;
+const MIN_FUZZY_LENGTH = 4;
+
+function levenshteinDistance(a: string, b: string): number {
+    const m = a.length;
+    const n = b.length;
+    const dp: number[][] = Array.from({ length: m + 1 }, () =>
+        Array(n + 1).fill(0),
+    );
+    for (let i = 0; i <= m; i++) dp[i][0] = i;
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+    for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            dp[i][j] = Math.min(
+                dp[i - 1][j] + 1,
+                dp[i][j - 1] + 1,
+                dp[i - 1][j - 1] + cost,
+            );
+        }
+    }
+    return dp[m][n];
+}
+
+function wordSimilarity(a: string, b: string): number {
+    const maxLen = Math.max(a.length, b.length);
+    if (maxLen === 0) return 1;
+    return 1 - levenshteinDistance(a, b) / maxLen;
+}
+
 interface InternalWord {
     normalized: string;
     display: string;
@@ -77,21 +107,56 @@ function tokenize(text: string, prefix = ""): TokenizeResult {
     return { tokens, words };
 }
 
-function findMatchingPositions(
-    text: string,
-    normalizedGuess: string,
-    section: number,
-    part: "title" | "content",
-): WordPosition[] {
-    const { words } = tokenize(text);
-    return words
-        .filter((w) => w.normalized === normalizedGuess)
-        .map((w) => ({
-            section,
-            part,
-            wordIndex: w.index,
+interface CollectedWord {
+    normalized: string;
+    display: string;
+    section: number;
+    part: "title" | "content";
+    wordIndex: number;
+}
+
+function collectAllWords(
+    title: string,
+    sections: { title: string; content: string }[],
+): CollectedWord[] {
+    const result: CollectedWord[] = [];
+
+    const { words: titleWords } = tokenize(title);
+    for (const w of titleWords) {
+        result.push({
+            normalized: w.normalized,
             display: w.display,
-        }));
+            section: -1,
+            part: "title",
+            wordIndex: w.index,
+        });
+    }
+
+    for (let i = 0; i < sections.length; i++) {
+        const { words: stw } = tokenize(sections[i].title);
+        for (const w of stw) {
+            result.push({
+                normalized: w.normalized,
+                display: w.display,
+                section: i,
+                part: "title",
+                wordIndex: w.index,
+            });
+        }
+
+        const { words: scw } = tokenize(sections[i].content);
+        for (const w of scw) {
+            result.push({
+                normalized: w.normalized,
+                display: w.display,
+                section: i,
+                part: "content",
+                wordIndex: w.index,
+            });
+        }
+    }
+
+    return result;
 }
 
 export async function getMaskedArticle(): Promise<MaskedArticle> {
@@ -131,26 +196,85 @@ export async function checkGuess(word: string): Promise<GuessResult> {
 
     const normalizedGuess = normalizeWord(word.trim());
     if (!normalizedGuess) {
-        return { found: false, word: "", positions: [], occurrences: 0 };
+        return {
+            found: false,
+            word: "",
+            positions: [],
+            occurrences: 0,
+            similarity: 0,
+        };
     }
 
-    const positions: WordPosition[] = [
-        ...findMatchingPositions(page.title, normalizedGuess, -1, "title"),
-        ...sections.flatMap((sec, i) => [
-            ...findMatchingPositions(sec.title, normalizedGuess, i, "title"),
-            ...findMatchingPositions(
-                sec.content,
-                normalizedGuess,
-                i,
-                "content",
-            ),
-        ]),
-    ];
+    const allWords = collectAllWords(page.title, sections);
+
+    // Group by normalized form
+    const wordGroups = new Map<string, WordPosition[]>();
+    for (const w of allWords) {
+        const existing = wordGroups.get(w.normalized);
+        const pos: WordPosition = {
+            section: w.section,
+            part: w.part,
+            wordIndex: w.wordIndex,
+            display: w.display,
+        };
+        if (existing) {
+            existing.push(pos);
+        } else {
+            wordGroups.set(w.normalized, [pos]);
+        }
+    }
+
+    // Exact match
+    const exactPositions = wordGroups.get(normalizedGuess);
+    if (exactPositions && exactPositions.length > 0) {
+        return {
+            found: true,
+            word: normalizedGuess,
+            positions: exactPositions,
+            occurrences: exactPositions.length,
+            similarity: 1,
+        };
+    }
+
+    // Fuzzy matching (only for words >= MIN_FUZZY_LENGTH)
+    let bestSimilarity = 0;
+    const fuzzyPositions: WordPosition[] = [];
+
+    if (normalizedGuess.length >= MIN_FUZZY_LENGTH) {
+        for (const [normalized, positions] of wordGroups) {
+            if (normalized.length < MIN_FUZZY_LENGTH) continue;
+
+            const sim = wordSimilarity(normalizedGuess, normalized);
+
+            if (sim > bestSimilarity) {
+                bestSimilarity = sim;
+            }
+
+            // Reveal if high similarity AND first character matches
+            if (
+                sim >= REVEAL_THRESHOLD &&
+                normalizedGuess[0] === normalized[0]
+            ) {
+                fuzzyPositions.push(...positions);
+            }
+        }
+    }
+
+    if (fuzzyPositions.length > 0) {
+        return {
+            found: true,
+            word: normalizedGuess,
+            positions: fuzzyPositions,
+            occurrences: fuzzyPositions.length,
+            similarity: bestSimilarity,
+        };
+    }
 
     return {
-        found: positions.length > 0,
+        found: false,
         word: normalizedGuess,
-        positions,
-        occurrences: positions.length,
+        positions: [],
+        occurrences: 0,
+        similarity: bestSimilarity,
     };
 }

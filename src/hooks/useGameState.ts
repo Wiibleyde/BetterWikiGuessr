@@ -91,6 +91,7 @@ export function useGameState() {
     const [won, setWon] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [lastGuessFound, setLastGuessFound] = useState<boolean | null>(null);
+    const [lastGuessSimilarity, setLastGuessSimilarity] = useState<number>(0);
     const [lastRevealedWord, setLastRevealedWord] = useState<string | null>(
         null,
     );
@@ -142,6 +143,7 @@ export function useGameState() {
 
             setGuessing(true);
             setLastGuessFound(null);
+            setLastGuessSimilarity(0);
             setLastRevealedWord(null);
 
             try {
@@ -159,6 +161,7 @@ export function useGameState() {
                     word: result.word,
                     found: result.found,
                     occurrences: result.occurrences,
+                    similarity: result.similarity,
                 };
 
                 const newGuesses = [newGuess, ...guesses];
@@ -171,8 +174,9 @@ export function useGameState() {
                 setGuesses(newGuesses);
                 setRevealed(newRevealed);
                 setLastGuessFound(result.found);
+                setLastGuessSimilarity(result.similarity);
 
-                if (result.found) {
+                if (result.found && result.similarity === 1) {
                     setLastRevealedWord(result.word);
                     setTimeout(() => setLastRevealedWord(null), 1500);
                 }
@@ -187,7 +191,7 @@ export function useGameState() {
             } finally {
                 setGuessing(false);
                 setInput("");
-                inputRef.current?.focus();
+                setTimeout(() => inputRef.current?.focus(), 0);
             }
         },
         [input, article, guessing, won, guesses, revealed],
@@ -204,6 +208,7 @@ export function useGameState() {
         won,
         error,
         lastGuessFound,
+        lastGuessSimilarity,
         lastRevealedWord,
         setLastGuessFound,
         inputRef,
