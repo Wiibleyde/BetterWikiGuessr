@@ -14,6 +14,7 @@ import type {
     MaskedArticle,
     RevealedMap,
     StoredGuess,
+    WordPosition,
     WordToken,
 } from "@/types/game";
 
@@ -130,6 +131,38 @@ export function useGameState() {
     const percentage =
         totalWords > 0 ? Math.round((revealedCount / totalWords) * 100) : 0;
 
+    /** Fetch all word positions from the server and reveal every word. */
+    const revealAllWords = useCallback(
+        async (
+            art: MaskedArticle,
+            words: string[],
+            currentGuesses: StoredGuess[],
+            currentRevealed: RevealedMap,
+        ) => {
+            try {
+                const res = await fetch("/api/game/reveal", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ words }),
+                });
+                if (!res.ok) return;
+                const data = (await res.json()) as {
+                    positions: WordPosition[];
+                };
+                const fullRevealed = { ...currentRevealed };
+                for (const pos of data.positions) {
+                    fullRevealed[posKey(pos.section, pos.part, pos.wordIndex)] =
+                        pos.display;
+                }
+                setRevealed(fullRevealed);
+                saveCache(art.date, currentGuesses, fullRevealed);
+            } catch {
+                console.error("[reveal] failed to reveal all words");
+            }
+        },
+        [],
+    );
+
     useEffect(() => {
         fetch("/api/game")
             .then((res) => {
@@ -149,6 +182,13 @@ export function useGameState() {
                     }
                     if (checkWinCondition(data, cache.revealed ?? {})) {
                         setWon(true);
+                        const words = (cache.guesses ?? []).map((g) => g.word);
+                        revealAllWords(
+                            data,
+                            words,
+                            cache.guesses ?? [],
+                            cache.revealed ?? {},
+                        );
                     }
                 }
                 setLoading(false);
@@ -157,7 +197,7 @@ export function useGameState() {
                 setError("Impossible de charger l'article du jour");
                 setLoading(false);
             });
-    }, []);
+    }, [revealAllWords]);
 
     /**
      * Synchronize state with the database after login.
@@ -294,6 +334,8 @@ export function useGameState() {
 
                 if (checkWinCondition(article, newRevealed)) {
                     setWon(true);
+                    const allWords = newGuesses.map((g) => g.word);
+                    revealAllWords(article, allWords, newGuesses, newRevealed);
                 }
             } catch {
                 setError("Erreur lors de la soumission");
@@ -303,7 +345,7 @@ export function useGameState() {
                 setTimeout(() => inputRef.current?.focus(), 0);
             }
         },
-        [input, article, guessing, won, guesses, revealed],
+        [input, article, guessing, won, guesses, revealed, revealAllWords],
     );
 
     const markSaved = useCallback(() => {

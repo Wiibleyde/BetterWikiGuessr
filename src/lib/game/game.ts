@@ -296,6 +296,17 @@ export async function checkGuess(word: string): Promise<GuessResult> {
     };
 }
 
+export async function getAllWordPositions(): Promise<WordPosition[]> {
+    const cache = await getArticleCache();
+    const allPositions: WordPosition[] = [];
+    for (const positions of cache.wordGroups.values()) {
+        for (const pos of positions) {
+            allPositions.push(pos);
+        }
+    }
+    return allPositions;
+}
+
 export async function verifyWin(guessedWords: string[]): Promise<boolean> {
     const cache = await getArticleCache();
     const normalizedGuesses = guessedWords.map(normalizeWord);
