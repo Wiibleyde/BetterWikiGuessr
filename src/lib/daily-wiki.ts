@@ -48,17 +48,36 @@ export async function ensureDailyWikiPage(): Promise<DailyWikiPage> {
 
     const wikiPage = await fetchRandomWikiPage(1500);
 
-    const created = await prisma.dailyWikiPage.create({
-        data: {
-            title: wikiPage.title,
-            sections: JSON.parse(JSON.stringify(wikiPage.sections)),
-            images: wikiPage.images,
-            date: today,
-        },
-    });
+    try {
+        const created = await prisma.dailyWikiPage.create({
+            data: {
+                title: wikiPage.title,
+                sections: JSON.parse(JSON.stringify(wikiPage.sections)),
+                images: wikiPage.images,
+                date: today,
+            },
+        });
 
-    setCache(created);
-    return created;
+        setCache(created);
+        return created;
+    } catch (error: unknown) {
+        // Handle race condition: another request may have created the page
+        const isUniqueViolation =
+            error instanceof Error &&
+            error.message.includes("Unique constraint");
+
+        if (isUniqueViolation) {
+            const fallback = await prisma.dailyWikiPage.findUnique({
+                where: { date: today },
+            });
+            if (fallback) {
+                setCache(fallback);
+                return fallback;
+            }
+        }
+
+        throw error;
+    }
 }
 
 export function startDailyCron(): () => void {

@@ -195,6 +195,9 @@ const WIKI_API = "https://fr.wikipedia.org/w/api.php";
 
 async function fetchJson<T>(url: string): Promise<T> {
     const res = await fetch(url);
+    if (!res.ok) {
+        throw new Error(`[wiki] HTTP ${res.status} fetching ${url}`);
+    }
     return res.json() as Promise<T>;
 }
 

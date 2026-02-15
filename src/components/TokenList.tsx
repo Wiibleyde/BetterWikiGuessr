@@ -1,6 +1,7 @@
 "use client";
 
 import { posKey } from "@/hooks/useGameState";
+import { normalizeWord } from "@/lib/normalize";
 import type { RevealedMap, Token } from "@/types/game";
 
 interface TokenListProps {
@@ -35,10 +36,7 @@ export default function TokenList({
 
                 if (displayText) {
                     const isArticleTitle = section === -1;
-                    const normalized = displayText
-                        .toLowerCase()
-                        .normalize("NFD")
-                        .replace(/[\u0300-\u036f]/g, "");
+                    const normalized = normalizeWord(displayText);
                     const isJustRevealed =
                         lastRevealedWord !== null &&
                         normalized === lastRevealedWord;

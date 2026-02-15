@@ -1,11 +1,35 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { checkGuess } from "@/lib/game";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
+interface GuessRequest {
+    word: string;
+}
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
     try {
-        const { word } = await request.json();
+        const ip =
+            request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+            request.headers.get("x-real-ip") ??
+            "unknown";
+
+        const { allowed, retryAfterMs } = checkRateLimit(ip);
+        if (!allowed) {
+            return NextResponse.json(
+                { error: "Trop de requêtes, réessayez dans quelques secondes" },
+                {
+                    status: 429,
+                    headers: {
+                        "Retry-After": String(Math.ceil(retryAfterMs / 1000)),
+                    },
+                },
+            );
+        }
+
+        const body = (await request.json()) as GuessRequest;
+        const { word } = body;
 
         if (!word || typeof word !== "string") {
             return NextResponse.json(

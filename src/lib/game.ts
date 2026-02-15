@@ -1,3 +1,4 @@
+import { normalizeWord } from "@/lib/normalize";
 import type {
     GuessResult,
     MaskedArticle,
@@ -19,37 +20,45 @@ export type {
     GuessResult,
 };
 
-function normalizeWord(word: string): string {
-    return word
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-}
-
 const TOKEN_REGEX = /([a-zA-ZÀ-ÿ0-9]+)|(\n)|(\s+)|([^\sa-zA-ZÀ-ÿ0-9]+)/g;
 
 const REVEAL_THRESHOLD = 0.8;
 const MIN_FUZZY_LENGTH = 4;
 
+/**
+ * Two-row Levenshtein distance — O(min(m,n)) space instead of O(m*n).
+ */
 function levenshteinDistance(a: string, b: string): number {
+    if (a.length < b.length) {
+        const tmp = a;
+        a = b;
+        b = tmp;
+    }
+
     const m = a.length;
     const n = b.length;
-    const dp: number[][] = Array.from({ length: m + 1 }, () =>
-        Array(n + 1).fill(0),
-    );
-    for (let i = 0; i <= m; i++) dp[i][0] = i;
-    for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+    let prev = new Array<number>(n + 1);
+    let curr = new Array<number>(n + 1);
+
+    for (let j = 0; j <= n; j++) prev[j] = j;
+
     for (let i = 1; i <= m; i++) {
+        curr[0] = i;
         for (let j = 1; j <= n; j++) {
             const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-            dp[i][j] = Math.min(
-                dp[i - 1][j] + 1,
-                dp[i][j - 1] + 1,
-                dp[i - 1][j - 1] + cost,
+            curr[j] = Math.min(
+                prev[j] + 1,
+                curr[j - 1] + 1,
+                prev[j - 1] + cost,
             );
         }
+        const swap = prev;
+        prev = curr;
+        curr = swap;
     }
-    return dp[m][n];
+
+    return prev[n];
 }
 
 function wordSimilarity(a: string, b: string): number {
@@ -107,64 +116,27 @@ function tokenize(text: string, prefix = ""): TokenizeResult {
     return { tokens, words };
 }
 
-interface CollectedWord {
-    normalized: string;
-    display: string;
-    section: number;
-    part: "title" | "content";
-    wordIndex: number;
+interface ArticleCache {
+    maskedArticle: MaskedArticle;
+    wordGroups: Map<string, WordPosition[]>;
+    titleWords: InternalWord[];
+    date: string;
 }
 
-function collectAllWords(
+let articleCache: ArticleCache | null = null;
+
+interface WikiSection {
+    title: string;
+    content: string;
+}
+
+function buildArticleCache(
     title: string,
-    sections: { title: string; content: string }[],
-): CollectedWord[] {
-    const result: CollectedWord[] = [];
-
-    const { words: titleWords } = tokenize(title);
-    for (const w of titleWords) {
-        result.push({
-            normalized: w.normalized,
-            display: w.display,
-            section: -1,
-            part: "title",
-            wordIndex: w.index,
-        });
-    }
-
-    for (let i = 0; i < sections.length; i++) {
-        const { words: stw } = tokenize(sections[i].title);
-        for (const w of stw) {
-            result.push({
-                normalized: w.normalized,
-                display: w.display,
-                section: i,
-                part: "title",
-                wordIndex: w.index,
-            });
-        }
-
-        const { words: scw } = tokenize(sections[i].content);
-        for (const w of scw) {
-            result.push({
-                normalized: w.normalized,
-                display: w.display,
-                section: i,
-                part: "content",
-                wordIndex: w.index,
-            });
-        }
-    }
-
-    return result;
-}
-
-export async function getMaskedArticle(): Promise<MaskedArticle> {
-    const page = await ensureDailyWikiPage();
-    const sections = page.sections as { title: string; content: string }[];
-
+    sections: WikiSection[],
+    date: string,
+): ArticleCache {
     const { tokens: articleTitleTokens, words: titleWords } = tokenize(
-        page.title,
+        title,
         "at-",
     );
     let totalWords = titleWords.length;
@@ -182,18 +154,77 @@ export async function getMaskedArticle(): Promise<MaskedArticle> {
         return { titleTokens, contentTokens };
     });
 
-    return {
+    const maskedArticle: MaskedArticle = {
         articleTitleTokens,
         sections: maskedSections,
         totalWords,
-        date: page.date.toISOString().split("T")[0],
+        date,
     };
+
+    const wordGroups = new Map<string, WordPosition[]>();
+
+    for (const w of titleWords) {
+        const pos: WordPosition = {
+            section: -1,
+            part: "title",
+            wordIndex: w.index,
+            display: w.display,
+        };
+        const existing = wordGroups.get(w.normalized);
+        if (existing) existing.push(pos);
+        else wordGroups.set(w.normalized, [pos]);
+    }
+
+    for (let i = 0; i < sections.length; i++) {
+        const { words: stw } = tokenize(sections[i].title, `s${i}t-`);
+        for (const w of stw) {
+            const pos: WordPosition = {
+                section: i,
+                part: "title",
+                wordIndex: w.index,
+                display: w.display,
+            };
+            const existing = wordGroups.get(w.normalized);
+            if (existing) existing.push(pos);
+            else wordGroups.set(w.normalized, [pos]);
+        }
+
+        const { words: scw } = tokenize(sections[i].content, `s${i}c-`);
+        for (const w of scw) {
+            const pos: WordPosition = {
+                section: i,
+                part: "content",
+                wordIndex: w.index,
+                display: w.display,
+            };
+            const existing = wordGroups.get(w.normalized);
+            if (existing) existing.push(pos);
+            else wordGroups.set(w.normalized, [pos]);
+        }
+    }
+
+    return { maskedArticle, wordGroups, titleWords, date };
+}
+
+async function getArticleCache(): Promise<ArticleCache> {
+    const page = await ensureDailyWikiPage();
+    const dateKey = page.date.toISOString().split("T")[0];
+
+    if (articleCache && articleCache.date === dateKey) {
+        return articleCache;
+    }
+
+    const sections = page.sections as unknown as WikiSection[];
+    articleCache = buildArticleCache(page.title, sections, dateKey);
+    return articleCache;
+}
+
+export async function getMaskedArticle(): Promise<MaskedArticle> {
+    const cache = await getArticleCache();
+    return cache.maskedArticle;
 }
 
 export async function checkGuess(word: string): Promise<GuessResult> {
-    const page = await ensureDailyWikiPage();
-    const sections = page.sections as { title: string; content: string }[];
-
     const normalizedGuess = normalizeWord(word.trim());
     if (!normalizedGuess) {
         return {
@@ -205,26 +236,9 @@ export async function checkGuess(word: string): Promise<GuessResult> {
         };
     }
 
-    const allWords = collectAllWords(page.title, sections);
+    const cache = await getArticleCache();
+    const { wordGroups } = cache;
 
-    // Group by normalized form
-    const wordGroups = new Map<string, WordPosition[]>();
-    for (const w of allWords) {
-        const existing = wordGroups.get(w.normalized);
-        const pos: WordPosition = {
-            section: w.section,
-            part: w.part,
-            wordIndex: w.wordIndex,
-            display: w.display,
-        };
-        if (existing) {
-            existing.push(pos);
-        } else {
-            wordGroups.set(w.normalized, [pos]);
-        }
-    }
-
-    // Exact match
     const exactPositions = wordGroups.get(normalizedGuess);
     if (exactPositions && exactPositions.length > 0) {
         return {
@@ -236,7 +250,6 @@ export async function checkGuess(word: string): Promise<GuessResult> {
         };
     }
 
-    // Fuzzy matching (only for words >= MIN_FUZZY_LENGTH)
     let bestSimilarity = 0;
     const fuzzyPositions: WordPosition[] = [];
 
@@ -250,7 +263,6 @@ export async function checkGuess(word: string): Promise<GuessResult> {
                 bestSimilarity = sim;
             }
 
-            // Reveal if high similarity AND first character matches
             if (
                 sim >= REVEAL_THRESHOLD &&
                 normalizedGuess[0] === normalized[0]
@@ -277,4 +289,11 @@ export async function checkGuess(word: string): Promise<GuessResult> {
         occurrences: 0,
         similarity: bestSimilarity,
     };
+}
+
+export async function verifyWin(guessedWords: string[]): Promise<boolean> {
+    const cache = await getArticleCache();
+    const normalizedGuesses = new Set(guessedWords.map(normalizeWord));
+
+    return cache.titleWords.every((w) => normalizedGuesses.has(w.normalized));
 }

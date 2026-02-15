@@ -7,6 +7,7 @@ import {
     useRef,
     useState,
 } from "react";
+import { normalizeWord } from "@/lib/normalize";
 import type {
     GameCache,
     GuessResult,
@@ -17,13 +18,6 @@ import type {
 } from "@/types/game";
 
 const STORAGE_KEY_PREFIX = "wikiguessr-";
-
-function normalizeWord(word: string): string {
-    return word
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-}
 
 export function posKey(
     section: number,

@@ -1,11 +1,14 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { useGameState } from "@/hooks/useGameState";
 import ArticleView from "./ArticleView";
 import GameHeader from "./GameHeader";
 import GuessList from "./GuessList";
 
 export default function Game() {
+    const { user, loading: authLoading, login, logout } = useAuth();
     const {
         article,
         guesses,
@@ -24,6 +27,20 @@ export default function Game() {
         percentage,
         submitGuess,
     } = useGameState();
+
+    const savedRef = useRef(false);
+    useEffect(() => {
+        if (!won || !user || savedRef.current) return;
+        savedRef.current = true;
+        fetch("/api/game/complete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                guessCount: guesses.length,
+                guessedWords: guesses.map((g) => g.word),
+            }),
+        }).catch((err) => console.error("[game/complete]", err));
+    }, [won, user, guesses]);
 
     if (loading) {
         return (
@@ -57,6 +74,10 @@ export default function Game() {
                 lastGuessFound={lastGuessFound}
                 lastGuessSimilarity={lastGuessSimilarity}
                 inputRef={inputRef}
+                user={user}
+                authLoading={authLoading}
+                onLogin={login}
+                onLogout={logout}
                 onInputChange={(value) => {
                     setInput(value);
                     setLastGuessFound(null);

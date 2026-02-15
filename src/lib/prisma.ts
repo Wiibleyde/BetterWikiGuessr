@@ -6,9 +6,20 @@ const globalForPrisma = globalThis as unknown as {
     prisma: PrismaClient | undefined;
 };
 
+const AMBIGUOUS_SSL_MODES = /\bsslmode=(prefer|require|verify-ca)\b/i;
+
+function buildConnectionString(): string {
+    const raw = process.env.DATABASE_URL ?? "";
+    // Explicitly set verify-full to silence the pg deprecation warning
+    if (AMBIGUOUS_SSL_MODES.test(raw)) {
+        return raw.replace(AMBIGUOUS_SSL_MODES, "sslmode=verify-full");
+    }
+    return raw;
+}
+
 function createPrismaClient(): PrismaClient {
     const adapter = new PrismaPg({
-        connectionString: process.env.DATABASE_URL,
+        connectionString: buildConnectionString(),
     });
     return new PrismaClient({ adapter });
 }
