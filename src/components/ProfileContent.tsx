@@ -81,26 +81,34 @@ export default function ProfileContent() {
                         <span className="text-gray-400">·</span>
                         <span className="text-sm text-gray-500">Profil</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                        {user.avatar && (
-                            <Image
-                                src={`https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png?size=32`}
-                                alt=""
-                                width={28}
-                                height={28}
-                                className="w-7 h-7 rounded-full"
-                            />
-                        )}
-                        <span className="text-sm text-gray-700">
-                            {user.username}
-                        </span>
-                        <button
-                            type="button"
-                            onClick={logout}
-                            className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                    <div className="flex items-center gap-4">
+                        <a
+                            href="/leaderboard"
+                            className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
                         >
-                            Déconnexion
-                        </button>
+                            Classement
+                        </a>
+                        <div className="flex items-center gap-3">
+                            {user.avatar && (
+                                <Image
+                                    src={`https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png?size=32`}
+                                    alt=""
+                                    width={28}
+                                    height={28}
+                                    className="w-7 h-7 rounded-full"
+                                />
+                            )}
+                            <span className="text-sm text-gray-700">
+                                {user.username}
+                            </span>
+                            <button
+                                type="button"
+                                onClick={logout}
+                                className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                            >
+                                Déconnexion
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
