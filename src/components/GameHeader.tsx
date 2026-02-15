@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import type { FormEvent, RefObject } from "react";
+import type { AuthUser } from "@/types/auth";
 
 interface GameHeaderProps {
     date: string;
@@ -12,6 +14,10 @@ interface GameHeaderProps {
     lastGuessFound: boolean | null;
     lastGuessSimilarity: number;
     inputRef: RefObject<HTMLInputElement | null>;
+    user: AuthUser | null;
+    authLoading: boolean;
+    onLogin: () => void;
+    onLogout: () => void;
     onInputChange: (value: string) => void;
     onSubmit: (e?: FormEvent) => void;
 }
@@ -26,13 +32,17 @@ export default function GameHeader({
     lastGuessFound,
     lastGuessSimilarity,
     inputRef,
+    user,
+    authLoading,
+    onLogin,
+    onLogout,
     onInputChange,
     onSubmit,
 }: GameHeaderProps) {
     return (
         <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-200 shadow-sm">
             <div className="max-w-5xl mx-auto px-4 py-3 space-y-2">
-                <div className="flex items-center justify-between gap-4 flex-wrap">
+                <div className="flex items-center gap-4 flex-wrap">
                     <h1 className="text-xl font-extrabold tracking-tight text-gray-800">
                         WikiGuessr
                     </h1>
@@ -44,6 +54,42 @@ export default function GameHeader({
                         </span>
                         <span className="hidden sm:inline">·</span>
                         <span>{percentage}% révélé</span>
+                    </div>
+                    <div className="ml-auto flex items-center gap-2">
+                        {authLoading ? null : user ? (
+                            <>
+                                {user.avatar && (
+                                    <Image
+                                        src={`https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png?size=32`}
+                                        alt=""
+                                        width={24}
+                                        height={24}
+                                        className="w-6 h-6 rounded-full"
+                                    />
+                                )}
+                                <a
+                                    href="/profile"
+                                    className="text-xs text-gray-600 hover:text-gray-800 transition-colors"
+                                >
+                                    {user.username}
+                                </a>
+                                <button
+                                    type="button"
+                                    onClick={onLogout}
+                                    className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                                >
+                                    ✕
+                                </button>
+                            </>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={onLogin}
+                                className="px-3 py-1 bg-indigo-600 text-white text-xs font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+                            >
+                                Connexion Discord
+                            </button>
+                        )}
                     </div>
                 </div>
 

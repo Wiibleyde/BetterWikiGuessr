@@ -27,8 +27,22 @@ src/
 │   └── api/
 │       ├── game/
 │       │   ├── route.ts    # GET  → returns masked article
-│       │   └── guess/
-│       │       └── route.ts # POST → checks a word guess
+│       │   ├── guess/
+│       │   │   └── route.ts # POST → checks a word guess
+│       │   └── complete/
+│       │       └── route.ts # POST → saves game result (auth required)
+│       ├── auth/
+│       │   ├── login/
+│       │   │   └── route.ts # GET  → redirects to Discord OAuth2
+│       │   ├── callback/
+│       │   │   └── route.ts # GET  → handles OAuth2 callback
+│       │   ├── me/
+│       │   │   └── route.ts # GET  → returns current user
+│       │   └── logout/
+│       │       └── route.ts # POST → clears auth cookie
+│       ├── profile/
+│       │   └── stats/
+│       │       └── route.ts # GET  → returns user game stats
 │       └── daily-wiki/
 │           └── route.ts    # GET  → returns the full daily wiki page
 ├── components/             # React client components
@@ -38,14 +52,18 @@ src/
 │   ├── TokenList.tsx       # Renders token sequences (words & punctuation)
 │   └── GuessList.tsx       # Sidebar list of past guesses
 ├── hooks/
-│   └── useGameState.ts     # Core game state hook (guesses, reveals, cache)
+│   ├── useGameState.ts     # Core game state hook (guesses, reveals, cache)
+│   └── useAuth.ts          # Authentication state hook (Discord OAuth2)
 ├── lib/
 │   ├── game.ts             # Server-side game logic (tokenization, guess checking)
 │   ├── wiki.ts             # Wikipedia API integration
 │   ├── daily-wiki.ts       # Daily page selection & caching (DB + in-memory)
-│   └── prisma.ts           # Prisma client singleton
+│   ├── prisma.ts           # Prisma client singleton
+│   ├── jwt.ts              # JWT sign/verify (HMAC-SHA256 via node:crypto)
+│   └── auth.ts             # Auth helpers (session, cookies)
 ├── types/
-│   └── game.ts             # Shared type definitions
+│   ├── game.ts             # Shared game type definitions
+│   └── auth.ts             # Auth & profile type definitions
 └── instrumentation.ts      # Next.js instrumentation (daily cron bootstrap)
 prisma/
 ├── schema.prisma           # Database schema
@@ -147,6 +165,17 @@ generated/prisma/           # Generated Prisma client (do not edit)
 5. Response includes `found`, `positions`, `occurrences`, and `similarity` score.
 6. Client updates `RevealedMap` and stores progress in `localStorage`.
 7. Win condition: all words in the article title are revealed.
+8. If the user is authenticated, the win is automatically saved to the database via `POST /api/game/complete`.
+
+### Authentication (Optional)
+
+1. User clicks "Connexion Discord" → `GET /api/auth/login` redirects to Discord OAuth2 with CSRF state cookie.
+2. Discord redirects back to `/api/auth/callback` with an authorization code.
+3. Server exchanges code for access token, fetches Discord user info, upserts `User` in DB.
+4. Server signs a JWT (HMAC-SHA256 via `node:crypto`) and sets it as an `httpOnly` cookie (30 days).
+5. Client calls `GET /api/auth/me` on mount to check auth state.
+6. Authentication is optional — the game is fully playable without a Discord account.
+7. Authenticated users get their game results saved in `GameResult` table and can view stats at `/profile`.
 
 ### Key Concepts
 
@@ -157,9 +186,13 @@ generated/prisma/           # Generated Prisma client (do not edit)
 
 ## Environment Variables
 
-| Variable       | Required | Description                  |
-| -------------- | -------- | ---------------------------- |
-| `DATABASE_URL` | Yes      | PostgreSQL connection string |
+| Variable               | Required | Description                                                    |
+| ---------------------- | -------- | -------------------------------------------------------------- |
+| `DATABASE_URL`         | Yes      | PostgreSQL connection string                                   |
+| `DISCORD_CLIENT_ID`    | No       | Discord OAuth2 application client ID                           |
+| `DISCORD_CLIENT_SECRET`| No       | Discord OAuth2 application client secret                       |
+| `DISCORD_REDIRECT_URI` | No       | Discord OAuth2 callback URL (e.g. `http://localhost:3000/api/auth/callback`) |
+| `JWT_SECRET`           | No       | Secret key for signing JWT tokens (required if auth is used)   |
 
 ## Common Commands
 
