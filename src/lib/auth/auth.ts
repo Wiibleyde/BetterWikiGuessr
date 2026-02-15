@@ -1,8 +1,8 @@
 import { cookies } from "next/headers";
 import type { NextResponse } from "next/server";
 import type { AuthUser } from "@/types/auth";
+import { prisma } from "../prisma";
 import { verifyJWT } from "./jwt";
-import { prisma } from "./prisma";
 
 const AUTH_COOKIE = "wikiguessr-auth";
 const STATE_COOKIE = "wikiguessr-oauth-state";

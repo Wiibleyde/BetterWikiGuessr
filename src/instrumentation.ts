@@ -1,7 +1,7 @@
 export async function register() {
     if (process.env.NEXT_RUNTIME === "nodejs") {
         const { ensureDailyWikiPage, startDailyCron } = await import(
-            "@/lib/daily-wiki"
+            "@/lib/game/daily-wiki"
         );
 
         try {

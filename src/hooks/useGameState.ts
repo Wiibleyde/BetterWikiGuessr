@@ -7,7 +7,7 @@ import {
     useRef,
     useState,
 } from "react";
-import { normalizeWord } from "@/lib/normalize";
+import { normalizeWord } from "@/lib/game/normalize";
 import type {
     GameCache,
     GuessResult,

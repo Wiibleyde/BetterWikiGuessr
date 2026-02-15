@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { setStateCookie } from "@/lib/auth";
-import { generateState } from "@/lib/jwt";
+import { setStateCookie } from "@/lib/auth/auth";
+import { generateState } from "@/lib/auth/jwt";
 
 export const dynamic = "force-dynamic";
 

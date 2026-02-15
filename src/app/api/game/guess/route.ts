@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { checkGuess } from "@/lib/game";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit } from "@/lib/auth/rate-limit";
+import { checkGuess } from "@/lib/game/game";
 
 export const dynamic = "force-dynamic";
 

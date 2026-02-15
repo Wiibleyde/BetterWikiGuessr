@@ -1,7 +1,7 @@
 "use client";
 
 import { posKey } from "@/hooks/useGameState";
-import { normalizeWord } from "@/lib/normalize";
+import { normalizeWord } from "@/lib/game/normalize";
 import type { RevealedMap, Token } from "@/types/game";
 
 interface TokenListProps {

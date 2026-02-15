@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser } from "@/lib/auth/auth";
 import { prisma } from "@/lib/prisma";
 import type { ProfileStats } from "@/types/auth";
 

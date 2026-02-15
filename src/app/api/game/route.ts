@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getMaskedArticle } from "@/lib/game";
+import { getMaskedArticle } from "@/lib/game/game";
 
 export const dynamic = "force-dynamic";
 

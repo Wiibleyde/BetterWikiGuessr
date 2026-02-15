@@ -55,7 +55,13 @@ export default function GameHeader({
                         <span className="hidden sm:inline">·</span>
                         <span>{percentage}% révélé</span>
                     </div>
-                    <div className="ml-auto flex items-center gap-2">
+                    <div className="ml-auto flex items-center gap-3">
+                        <a
+                            href="/leaderboard"
+                            className="text-xs text-gray-500 hover:text-gray-800 transition-colors"
+                        >
+                            Classement
+                        </a>
                         {authLoading ? null : user ? (
                             <>
                                 {user.avatar && (

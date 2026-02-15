@@ -1,4 +1,4 @@
-import { normalizeWord } from "@/lib/normalize";
+import { normalizeWord } from "@/lib/game/normalize";
 import type {
     GuessResult,
     MaskedArticle,

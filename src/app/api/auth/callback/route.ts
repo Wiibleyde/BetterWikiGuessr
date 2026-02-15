@@ -1,6 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { clearStateCookie, getStateCookie, setAuthCookie } from "@/lib/auth";
-import { signJWT } from "@/lib/jwt";
+import {
+    clearStateCookie,
+    getStateCookie,
+    setAuthCookie,
+} from "@/lib/auth/auth";
+import { signJWT } from "@/lib/auth/jwt";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";

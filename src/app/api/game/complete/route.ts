@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth";
-import { ensureDailyWikiPage } from "@/lib/daily-wiki";
-import { verifyWin } from "@/lib/game";
+import { getSessionUser } from "@/lib/auth/auth";
+import { ensureDailyWikiPage } from "@/lib/game/daily-wiki";
+import { verifyWin } from "@/lib/game/game";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
