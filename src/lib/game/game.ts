@@ -293,7 +293,21 @@ export async function checkGuess(word: string): Promise<GuessResult> {
 
 export async function verifyWin(guessedWords: string[]): Promise<boolean> {
     const cache = await getArticleCache();
-    const normalizedGuesses = new Set(guessedWords.map(normalizeWord));
+    const normalizedGuesses = guessedWords.map(normalizeWord);
 
-    return cache.titleWords.every((w) => normalizedGuesses.has(w.normalized));
+    return cache.titleWords.every((titleWord) => {
+        for (const guess of normalizedGuesses) {
+            if (guess === titleWord.normalized) return true;
+
+            if (
+                guess.length >= MIN_FUZZY_LENGTH &&
+                titleWord.normalized.length >= MIN_FUZZY_LENGTH &&
+                guess[0] === titleWord.normalized[0] &&
+                wordSimilarity(guess, titleWord.normalized) >= REVEAL_THRESHOLD
+            ) {
+                return true;
+            }
+        }
+        return false;
+    });
 }

@@ -16,11 +16,12 @@ datasource db {
 model DailyWikiPage {
   id          Int          @id @default(autoincrement())
   title       String
-  sections    Json         // WikiSection[]
-  images      String[]     // URLs des images filtrées
+  sections    Json // WikiSection[]
+  images      String[] // URLs des images filtrées
   date        DateTime     @unique @db.Date // Une seule page par jour
   createdAt   DateTime     @default(now())
   gameResults GameResult[]
+  gameStates  GameState[]
 }
 
 model User {
@@ -31,6 +32,7 @@ model User {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   gameResults GameResult[]
+  gameStates  GameState[]
 }
 
 model GameResult {
@@ -39,6 +41,21 @@ model GameResult {
   dailyWikiPageId Int
   guessCount      Int
   won             Boolean
+  createdAt       DateTime      @default(now())
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dailyWikiPage   DailyWikiPage @relation(fields: [dailyWikiPageId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dailyWikiPageId])
+}
+
+model GameState {
+  id              Int           @id @default(autoincrement())
+  userId          Int
+  dailyWikiPageId Int
+  guesses         Json // StoredGuess[]
+  revealed        Json // RevealedMap
+  won             Boolean       @default(false)
+  updatedAt       DateTime      @updatedAt
   createdAt       DateTime      @default(now())
   user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   dailyWikiPage   DailyWikiPage @relation(fields: [dailyWikiPageId], references: [id], onDelete: Cascade)

@@ -18,6 +18,7 @@ export default function Game() {
         loading,
         guessing,
         won,
+        saved,
         error,
         lastGuessFound,
         lastGuessSimilarity,
@@ -26,12 +27,50 @@ export default function Game() {
         inputRef,
         percentage,
         submitGuess,
+        markSaved,
+        syncWithDatabase,
+        syncToDatabase,
+        startPeriodicSync,
+        stopPeriodicSync,
+        synced,
     } = useGameState();
 
-    const savedRef = useRef(false);
+    // After auth resolves and game is loaded, sync state with database
+    const syncInitRef = useRef(false);
     useEffect(() => {
-        if (!won || !user || savedRef.current) return;
-        savedRef.current = true;
+        if (authLoading || loading || !article || syncInitRef.current) return;
+        if (!user) {
+            syncInitRef.current = true;
+            return;
+        }
+        syncInitRef.current = true;
+        syncWithDatabase();
+    }, [authLoading, loading, article, user, syncWithDatabase]);
+
+    // Start/stop periodic sync based on auth state
+    useEffect(() => {
+        if (user && synced) {
+            startPeriodicSync();
+        }
+        return () => {
+            stopPeriodicSync();
+        };
+    }, [user, synced, startPeriodicSync, stopPeriodicSync]);
+
+    // Sync to DB after each guess (when logged in and synced)
+    const prevGuessCount = useRef(guesses.length);
+    useEffect(() => {
+        if (!user || !synced) return;
+        if (guesses.length > prevGuessCount.current) {
+            syncToDatabase();
+        }
+        prevGuessCount.current = guesses.length;
+    }, [guesses.length, user, synced, syncToDatabase]);
+
+    const savingRef = useRef(false);
+    useEffect(() => {
+        if (!won || !user || saved || savingRef.current) return;
+        savingRef.current = true;
         fetch("/api/game/complete", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -39,8 +78,22 @@ export default function Game() {
                 guessCount: guesses.length,
                 guessedWords: guesses.map((g) => g.word),
             }),
-        }).catch((err) => console.error("[game/complete]", err));
-    }, [won, user, guesses]);
+        })
+            .then((res) => {
+                if (res.ok) {
+                    markSaved();
+                    // Also sync the final state (with saved=true) to DB
+                    syncToDatabase();
+                } else {
+                    console.error("[game/complete] server error:", res.status);
+                    savingRef.current = false;
+                }
+            })
+            .catch((err) => {
+                console.error("[game/complete]", err);
+                savingRef.current = false;
+            });
+    }, [won, user, saved, guesses, markSaved, syncToDatabase]);
 
     if (loading) {
         return (

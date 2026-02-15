@@ -18,6 +18,7 @@ import type {
 } from "@/types/game";
 
 const STORAGE_KEY_PREFIX = "wikiguessr-";
+const SYNC_INTERVAL_MS = 30_000;
 
 export function posKey(
     section: number,
@@ -56,10 +57,11 @@ function saveCache(
     date: string,
     guesses: StoredGuess[],
     revealed: RevealedMap,
+    saved?: boolean,
 ) {
     localStorage.setItem(
         `${STORAGE_KEY_PREFIX}${date}`,
-        JSON.stringify({ guesses, revealed }),
+        JSON.stringify({ guesses, revealed, saved }),
     );
 }
 
@@ -75,6 +77,34 @@ function clearOldCaches(currentDate: string) {
     }
 }
 
+/** Push current game state to the server (fire-and-forget). */
+async function pushStateToServer(cache: GameCache): Promise<boolean> {
+    try {
+        const res = await fetch("/api/game/state", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(cache),
+        });
+        return res.ok;
+    } catch {
+        console.error("[sync] failed to push state to server");
+        return false;
+    }
+}
+
+/** Fetch the saved game state from the server. */
+async function fetchStateFromServer(): Promise<GameCache | null> {
+    try {
+        const res = await fetch("/api/game/state");
+        if (!res.ok) return null;
+        const data = (await res.json()) as { state: GameCache | null };
+        return data.state;
+    } catch {
+        console.error("[sync] failed to fetch state from server");
+        return null;
+    }
+}
+
 export function useGameState() {
     const [article, setArticle] = useState<MaskedArticle | null>(null);
     const [guesses, setGuesses] = useState<StoredGuess[]>([]);
@@ -83,13 +113,17 @@ export function useGameState() {
     const [loading, setLoading] = useState(true);
     const [guessing, setGuessing] = useState(false);
     const [won, setWon] = useState(false);
+    const [saved, setSaved] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [lastGuessFound, setLastGuessFound] = useState<boolean | null>(null);
     const [lastGuessSimilarity, setLastGuessSimilarity] = useState<number>(0);
     const [lastRevealedWord, setLastRevealedWord] = useState<string | null>(
         null,
     );
+    const [synced, setSynced] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
+    const syncTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const lastSyncedGuessCount = useRef<number>(0);
 
     const revealedCount = Object.keys(revealed).length;
     const totalWords = article?.totalWords ?? 0;
@@ -110,6 +144,9 @@ export function useGameState() {
                 if (cache) {
                     setGuesses(cache.guesses ?? []);
                     setRevealed(cache.revealed ?? {});
+                    if (cache.saved) {
+                        setSaved(true);
+                    }
                     if (checkWinCondition(data, cache.revealed ?? {})) {
                         setWon(true);
                     }
@@ -120,6 +157,84 @@ export function useGameState() {
                 setError("Impossible de charger l'article du jour");
                 setLoading(false);
             });
+    }, []);
+
+    /**
+     * Synchronize state with the database after login.
+     * - If DB has state → replace localStorage & React state with DB values.
+     * - If DB is empty but localStorage has data → push localStorage to DB.
+     * - If both empty → do nothing.
+     */
+    const syncWithDatabase = useCallback(async () => {
+        if (!article || synced) return;
+
+        const dbState = await fetchStateFromServer();
+        const localCache = loadCache(article.date);
+
+        if (dbState && dbState.guesses.length > 0) {
+            setGuesses(dbState.guesses);
+            setRevealed(dbState.revealed);
+            if (dbState.saved) {
+                setSaved(true);
+            }
+            if (checkWinCondition(article, dbState.revealed)) {
+                setWon(true);
+            }
+            saveCache(
+                article.date,
+                dbState.guesses,
+                dbState.revealed,
+                dbState.saved,
+            );
+            lastSyncedGuessCount.current = dbState.guesses.length;
+        } else if (localCache && localCache.guesses.length > 0) {
+            await pushStateToServer(localCache);
+            lastSyncedGuessCount.current = localCache.guesses.length;
+        }
+
+        setSynced(true);
+    }, [article, synced]);
+
+    /** Push current state to the DB (called on each guess when logged in). */
+    const syncToDatabase = useCallback(async () => {
+        if (!article) return;
+        const cache: GameCache = { guesses, revealed, saved };
+        await pushStateToServer(cache);
+        lastSyncedGuessCount.current = guesses.length;
+    }, [article, guesses, revealed, saved]);
+
+    /** Start periodic background sync. */
+    const startPeriodicSync = useCallback(() => {
+        if (syncTimerRef.current) return;
+        syncTimerRef.current = setInterval(() => {
+            if (
+                article &&
+                guesses.length > 0 &&
+                guesses.length !== lastSyncedGuessCount.current
+            ) {
+                const cache: GameCache = { guesses, revealed, saved };
+                pushStateToServer(cache).then((ok) => {
+                    if (ok) lastSyncedGuessCount.current = guesses.length;
+                });
+            }
+        }, SYNC_INTERVAL_MS);
+    }, [article, guesses, revealed, saved]);
+
+    /** Stop periodic background sync. */
+    const stopPeriodicSync = useCallback(() => {
+        if (syncTimerRef.current) {
+            clearInterval(syncTimerRef.current);
+            syncTimerRef.current = null;
+        }
+    }, []);
+
+    // Cleanup interval on unmount
+    useEffect(() => {
+        return () => {
+            if (syncTimerRef.current) {
+                clearInterval(syncTimerRef.current);
+            }
+        };
     }, []);
 
     const submitGuess = useCallback(
@@ -191,6 +306,12 @@ export function useGameState() {
         [input, article, guessing, won, guesses, revealed],
     );
 
+    const markSaved = useCallback(() => {
+        if (!article) return;
+        setSaved(true);
+        saveCache(article.date, guesses, revealed, true);
+    }, [article, guesses, revealed]);
+
     return {
         article,
         guesses,
@@ -200,6 +321,7 @@ export function useGameState() {
         loading,
         guessing,
         won,
+        saved,
         error,
         lastGuessFound,
         lastGuessSimilarity,
@@ -208,5 +330,11 @@ export function useGameState() {
         inputRef,
         percentage,
         submitGuess,
+        markSaved,
+        syncWithDatabase,
+        syncToDatabase,
+        startPeriodicSync,
+        stopPeriodicSync,
+        synced,
     };
 }

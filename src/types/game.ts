@@ -52,4 +52,5 @@ export type RevealedMap = Record<string, string>;
 export interface GameCache {
     guesses: StoredGuess[];
     revealed: RevealedMap;
+    saved?: boolean;
 }
