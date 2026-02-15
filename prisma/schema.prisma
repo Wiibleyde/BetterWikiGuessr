@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model DailyWikiPage {
+  id          Int          @id @default(autoincrement())
+  title       String
+  sections    Json         // WikiSection[]
+  images      String[]     // URLs des images filtrées
+  date        DateTime     @unique @db.Date // Une seule page par jour
+  createdAt   DateTime     @default(now())
+  gameResults GameResult[]
+}
+
+model User {
+  id          Int          @id @default(autoincrement())
+  discordId   String       @unique
+  username    String
+  avatar      String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  gameResults GameResult[]
+}
+
+model GameResult {
+  id              Int           @id @default(autoincrement())
+  userId          Int
+  dailyWikiPageId Int
+  guessCount      Int
+  won             Boolean
+  createdAt       DateTime      @default(now())
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dailyWikiPage   DailyWikiPage @relation(fields: [dailyWikiPageId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dailyWikiPageId])
+}
