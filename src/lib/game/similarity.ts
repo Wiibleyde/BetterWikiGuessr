@@ -204,10 +204,10 @@ export function combinedSimilarity(a: string, b: string): number {
     const ngSim = ngramSimilarity(a, b, 2);
 
     // Weighted combination
-    // DL is good for typos and transpositions (40%)
-    // WL is good for phonetic errors (35%)
+    // DL is excellent for typos and transpositions (45%)
+    // WL is good for phonetic errors (30%)
     // N-gram is good for partial matches (25%)
-    return dlSim * 0.4 + wlSim * 0.35 + ngSim * 0.25;
+    return dlSim * 0.45 + wlSim * 0.3 + ngSim * 0.25;
 }
 
 /**
