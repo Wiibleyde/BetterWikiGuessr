@@ -1,6 +1,7 @@
 "use client";
 
 import type { FormEvent, RefObject } from "react";
+import YesterdayWord from "@/components/YesterdayWord";
 
 interface GameHeaderProps {
     date: string;
@@ -32,7 +33,7 @@ export default function GameHeader({
     return (
         <div className="bg-white border-b border-gray-200">
             <div className="max-w-5xl mx-auto px-4 py-3 space-y-2">
-                <div className="flex items-center gap-3 text-sm text-gray-500">
+                <div className="flex items-center gap-3 text-sm text-gray-500 flex-wrap">
                     <span>{date}</span>
                     <span>·</span>
                     <span>
@@ -40,6 +41,7 @@ export default function GameHeader({
                     </span>
                     <span>·</span>
                     <span>{percentage}% révélé</span>
+                    <YesterdayWord />
                 </div>
 
                 <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
