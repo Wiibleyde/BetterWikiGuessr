@@ -8,7 +8,7 @@ interface GuessListProps {
 
 export default function GuessList({ guesses }: GuessListProps) {
     return (
-        <aside className="lg:w-72 w-full shrink-0">
+        <aside className="w-full">
             <div className="sticky top-36 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="px-4 py-2.5 bg-gray-50 border-b border-gray-100 text-sm font-semibold text-gray-600">
                     Essais ({guesses.length})
