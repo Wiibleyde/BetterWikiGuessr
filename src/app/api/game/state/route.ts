@@ -39,6 +39,8 @@ export async function GET(): Promise<NextResponse> {
             guesses: gameState.guesses as unknown as StoredGuess[],
             revealed: gameState.revealed as unknown as RevealedMap,
             saved: gameState.won,
+            revealedImages:
+                (gameState.revealedImages as unknown as string[]) ?? [],
         };
 
         return NextResponse.json({ state: cache });
@@ -75,6 +77,9 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 
         const guessesJson = JSON.parse(JSON.stringify(body.guesses));
         const revealedJson = JSON.parse(JSON.stringify(body.revealed));
+        const revealedImagesJson = JSON.parse(
+            JSON.stringify(body.revealedImages ?? []),
+        );
 
         await prisma.gameState.upsert({
             where: {
@@ -87,6 +92,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
                 guesses: guessesJson,
                 revealed: revealedJson,
                 won: body.saved ?? false,
+                revealedImages: revealedImagesJson,
             },
             create: {
                 userId: user.id,
@@ -94,6 +100,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
                 guesses: guessesJson,
                 revealed: revealedJson,
                 won: body.saved ?? false,
+                revealedImages: revealedImagesJson,
             },
         });
 

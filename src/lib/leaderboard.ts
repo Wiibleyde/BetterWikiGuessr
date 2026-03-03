@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { HINT_PENALTY } from "@/types/game";
 import type {
     LeaderboardCategoryData,
     LeaderboardCategoryMeta,
@@ -25,9 +26,9 @@ const CATEGORIES: LeaderboardCategoryMeta[] = [
     {
         id: "best-guess",
         label: "Meilleure performance",
-        description: "Le moins d'essais pour trouver un article",
+        description: "Le meilleur score (essais + pénalités d'indices)",
         icon: "🎯",
-        valueLabel: "essais",
+        valueLabel: "score",
         sortOrder: "asc",
     },
     {
@@ -161,12 +162,13 @@ async function computeWinStreak(): Promise<LeaderboardEntry[]> {
 }
 
 async function computeBestGuess(): Promise<LeaderboardEntry[]> {
-    // Meilleure perf = le moins d'essais sur une partie gagnée
+    // Meilleure perf = le score le plus bas (guessCount + hintsUsed * HINT_PENALTY)
     const results = await prisma.gameResult.findMany({
         where: { won: true },
         select: {
             userId: true,
             guessCount: true,
+            hintsUsed: true,
             user: { select: { username: true, avatar: true, discordId: true } },
             dailyWikiPage: { select: { title: true, date: true } },
         },
@@ -177,21 +179,27 @@ async function computeBestGuess(): Promise<LeaderboardEntry[]> {
     const best = new Map<number, LeaderboardEntry & { rawValue: number }>();
 
     for (const r of results) {
-        if (!best.has(r.userId)) {
+        const score = r.guessCount + r.hintsUsed * HINT_PENALTY;
+        const existing = best.get(r.userId);
+        if (!existing || score < existing.rawValue) {
             const date = r.dailyWikiPage.date.toLocaleDateString("fr-FR", {
                 day: "2-digit",
                 month: "2-digit",
                 year: "numeric",
             });
+            const detail =
+                r.hintsUsed > 0
+                    ? `${r.dailyWikiPage.title} (${date}) — ${r.guessCount} essai${r.guessCount !== 1 ? "s" : ""} + ${r.hintsUsed} indice${r.hintsUsed !== 1 ? "s" : ""}`
+                    : `${r.dailyWikiPage.title} (${date})`;
             best.set(r.userId, {
                 rank: 0,
                 userId: r.userId,
                 username: r.user.username,
                 avatar: r.user.avatar,
                 discordId: r.user.discordId,
-                value: r.guessCount,
-                detail: `${r.dailyWikiPage.title} (${date})`,
-                rawValue: r.guessCount,
+                value: score,
+                detail,
+                rawValue: score,
             });
         }
     }

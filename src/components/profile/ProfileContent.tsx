@@ -71,7 +71,7 @@ export default function ProfileContent() {
             <main className="max-w-3xl mx-auto px-4 py-8 space-y-8">
                 {stats && (
                     <>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
                             <StatCard
                                 label="Parties"
                                 value={stats.totalGames}
@@ -87,6 +87,10 @@ export default function ProfileContent() {
                             <StatCard
                                 label="Moy. essais"
                                 value={stats.averageGuesses}
+                            />
+                            <StatCard
+                                label="Moy. indices"
+                                value={stats.averageHints}
                             />
                         </div>
 
@@ -126,6 +130,13 @@ export default function ProfileContent() {
                                                     {r.guessCount} essai
                                                     {r.guessCount !== 1 && "s"}
                                                 </span>
+                                                {r.hintsUsed > 0 && (
+                                                    <span className="text-xs text-amber-500">
+                                                        +{r.hintsUsed} indice
+                                                        {r.hintsUsed !== 1 &&
+                                                            "s"}
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                     ))}

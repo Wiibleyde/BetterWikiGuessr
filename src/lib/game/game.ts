@@ -231,6 +231,7 @@ interface ArticleCache {
     maskedArticle: MaskedArticle;
     wordGroups: Map<string, WordPosition[]>;
     titleWords: InternalWord[];
+    images: string[];
     date: string;
 }
 
@@ -270,6 +271,7 @@ function buildArticleCache(
         sections: maskedSections,
         totalWords,
         date,
+        imageCount: 0, // Will be set by caller
     };
 
     const wordGroups = new Map<string, WordPosition[]>();
@@ -314,7 +316,7 @@ function buildArticleCache(
         }
     }
 
-    return { maskedArticle, wordGroups, titleWords, date };
+    return { maskedArticle, wordGroups, titleWords, images: [], date };
 }
 
 async function getArticleCache(): Promise<ArticleCache> {
@@ -327,6 +329,8 @@ async function getArticleCache(): Promise<ArticleCache> {
 
     const sections = page.sections as unknown as WikiSection[];
     articleCache = buildArticleCache(page.title, sections, dateKey);
+    articleCache.images = page.images;
+    articleCache.maskedArticle.imageCount = page.images.length;
     return articleCache;
 }
 
@@ -410,6 +414,25 @@ export async function getAllWordPositions(): Promise<WordPosition[]> {
         }
     }
     return allPositions;
+}
+
+export async function getHintImage(hintIndex: number): Promise<{
+    imageUrl: string;
+    hintIndex: number;
+    totalImages: number;
+} | null> {
+    const cache = await getArticleCache();
+    if (hintIndex < 0 || hintIndex >= cache.images.length) return null;
+    return {
+        imageUrl: cache.images[hintIndex],
+        hintIndex,
+        totalImages: cache.images.length,
+    };
+}
+
+export async function getImageCount(): Promise<number> {
+    const cache = await getArticleCache();
+    return cache.images.length;
 }
 
 export async function verifyWin(guessedWords: string[]): Promise<boolean> {

@@ -8,6 +8,7 @@ export interface AuthUser {
 export interface GameResultData {
     id: number;
     guessCount: number;
+    hintsUsed: number;
     won: boolean;
     createdAt: string;
     date: string;
@@ -19,5 +20,6 @@ export interface ProfileStats {
     totalWins: number;
     winRate: number;
     averageGuesses: number;
+    averageHints: number;
     results: GameResultData[];
 }

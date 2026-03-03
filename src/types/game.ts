@@ -23,6 +23,7 @@ export interface MaskedArticle {
     sections: MaskedSection[];
     totalWords: number;
     date: string;
+    imageCount: number;
 }
 
 export interface WordPosition {
@@ -54,4 +55,7 @@ export interface GameCache {
     guesses: StoredGuess[];
     revealed: RevealedMap;
     saved?: boolean;
+    revealedImages?: string[];
 }
+
+export const HINT_PENALTY = 5;

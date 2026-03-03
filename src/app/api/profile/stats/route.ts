@@ -24,15 +24,21 @@ export async function GET(): Promise<NextResponse> {
         totalGames > 0
             ? results.reduce((sum, r) => sum + r.guessCount, 0) / totalGames
             : 0;
+    const averageHints =
+        totalGames > 0
+            ? results.reduce((sum, r) => sum + r.hintsUsed, 0) / totalGames
+            : 0;
 
     const stats: ProfileStats = {
         totalGames,
         totalWins,
         winRate: Math.round(winRate * 100),
         averageGuesses: Math.round(averageGuesses * 10) / 10,
+        averageHints: Math.round(averageHints * 10) / 10,
         results: results.map((r) => ({
             id: r.id,
             guessCount: r.guessCount,
+            hintsUsed: r.hintsUsed,
             won: r.won,
             createdAt: r.createdAt.toISOString(),
             date: r.dailyWikiPage.date.toISOString().split("T")[0],

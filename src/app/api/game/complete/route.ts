@@ -11,6 +11,7 @@ const MAX_GUESS_COUNT = 10_000;
 interface CompleteRequest {
     guessCount: number;
     guessedWords: string[];
+    hintsUsed: number;
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         }
 
         const body = (await request.json()) as CompleteRequest;
-        const { guessCount, guessedWords } = body;
+        const { guessCount, guessedWords, hintsUsed } = body;
 
         if (
             typeof guessCount !== "number" ||
@@ -43,6 +44,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 { status: 400 },
             );
         }
+
+        const safeHintsUsed =
+            typeof hintsUsed === "number" && hintsUsed >= 0
+                ? Math.floor(hintsUsed)
+                : 0;
 
         const won = await verifyWin(guessedWords);
         if (!won) {
@@ -68,6 +74,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 userId: user.id,
                 dailyWikiPageId: dailyPage.id,
                 guessCount,
+                hintsUsed: safeHintsUsed,
                 won: true,
             },
         });

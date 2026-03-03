@@ -12,6 +12,8 @@ interface GameHeaderProps {
     input: string;
     lastGuessFound: boolean | null;
     lastGuessSimilarity: number;
+    hintsUsed: number;
+    score: number;
     inputRef: RefObject<HTMLInputElement | null>;
     onInputChange: (value: string) => void;
     onSubmit: (e?: React.FormEvent) => void;
@@ -26,6 +28,8 @@ export default function GameHeader({
     input,
     lastGuessFound,
     lastGuessSimilarity,
+    hintsUsed,
+    score,
     inputRef,
     onInputChange,
     onSubmit,
@@ -38,6 +42,12 @@ export default function GameHeader({
                     <span className="hidden sm:inline">·</span>
                     <span>
                         {guessCount} essai{guessCount !== 1 && "s"}
+                        {hintsUsed > 0 && (
+                            <span className="text-amber-500">
+                                {" "}
+                                (+{hintsUsed} indice{hintsUsed !== 1 && "s"})
+                            </span>
+                        )}
                     </span>
                     <span className="hidden sm:inline">·</span>
                     <span>{percentage}% révélé</span>
@@ -59,8 +69,10 @@ export default function GameHeader({
                 {won ? (
                     <div className="bg-emerald-50 border border-emerald-300 rounded-lg p-3 text-center">
                         <p className="text-emerald-800 font-bold text-lg">
-                            Bravo ! Trouvé en {guessCount} essai
-                            {guessCount !== 1 && "s"} !
+                            Bravo !
+                            {hintsUsed > 0
+                                ? ` Score : ${score} (${guessCount} essai${guessCount !== 1 ? "s" : ""} + ${hintsUsed} indice${hintsUsed !== 1 ? "s" : ""})`
+                                : ` Trouvé en ${guessCount} essai${guessCount !== 1 ? "s" : ""} !`}
                         </p>
                     </div>
                 ) : (

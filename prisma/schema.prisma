@@ -40,6 +40,7 @@ model GameResult {
   userId          Int
   dailyWikiPageId Int
   guessCount      Int
+  hintsUsed       Int           @default(0)
   won             Boolean
   createdAt       DateTime      @default(now())
   user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -54,6 +55,7 @@ model GameState {
   dailyWikiPageId Int
   guesses         Json // StoredGuess[]
   revealed        Json // RevealedMap
+  revealedImages  Json          @default("[]") // string[] — URLs des images d'indices révélées
   won             Boolean       @default(false)
   updatedAt       DateTime      @updatedAt
   createdAt       DateTime      @default(now())
