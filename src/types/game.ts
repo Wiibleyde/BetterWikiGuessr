@@ -33,6 +33,18 @@ export interface WordPosition {
     display: string;
 }
 
+export type ProximityReasonType =
+    | "transposition"
+    | "insertion"
+    | "deletion"
+    | "substitution"
+    | "mixed";
+
+export interface ProximityReason {
+    type: ProximityReasonType;
+    description: string;
+}
+
 export interface GuessResult {
     found: boolean;
     word: string;
@@ -40,6 +52,7 @@ export interface GuessResult {
     occurrences: number;
     similarity: number;
     serverDate: string;
+    proximityReason?: ProximityReason;
 }
 
 export interface StoredGuess {
@@ -47,6 +60,7 @@ export interface StoredGuess {
     found: boolean;
     occurrences: number;
     similarity: number;
+    proximityReason?: ProximityReason;
 }
 
 export type RevealedMap = Record<string, string>;

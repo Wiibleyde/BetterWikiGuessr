@@ -1,6 +1,16 @@
 "use client";
 
-import type { StoredGuess } from "@/types/game";
+import type { ProximityReasonType, StoredGuess } from "@/types/game";
+
+const CLOSE_THRESHOLD = 0.65;
+
+const PROXIMITY_ICONS: Record<ProximityReasonType, string> = {
+    transposition: "🔄",
+    insertion: "➕",
+    deletion: "➖",
+    substitution: "🔤",
+    mixed: "✏️",
+};
 
 interface GuessListProps {
     guesses: StoredGuess[];
@@ -21,7 +31,8 @@ export default function GuessList({ guesses }: GuessListProps) {
                     ) : (
                         guesses.map((g, i) => {
                             const isClose =
-                                !g.found && (g.similarity ?? 0) >= 0.55;
+                                !g.found &&
+                                (g.similarity ?? 0) >= CLOSE_THRESHOLD;
                             return (
                                 <div
                                     key={`${g.word}-${i}`}
@@ -50,7 +61,24 @@ export default function GuessList({ guesses }: GuessListProps) {
                                             ×{g.occurrences}
                                         </span>
                                     )}
-                                    {isClose && (
+                                    {isClose && g.proximityReason && (
+                                        <span
+                                            className="text-amber-500 text-xs flex items-center gap-1"
+                                            title={`~${Math.round((g.similarity ?? 0) * 100)}%`}
+                                        >
+                                            <span>
+                                                {
+                                                    PROXIMITY_ICONS[
+                                                        g.proximityReason.type
+                                                    ]
+                                                }
+                                            </span>
+                                            <span>
+                                                {g.proximityReason.description}
+                                            </span>
+                                        </span>
+                                    )}
+                                    {isClose && !g.proximityReason && (
                                         <span className="text-amber-500 font-mono text-xs">
                                             ~
                                             {Math.round(

@@ -3,6 +3,7 @@ import type {
     GuessResult,
     MaskedArticle,
     MaskedSection,
+    ProximityReason,
     PunctuationToken,
     Token,
     WordPosition,
@@ -25,6 +26,7 @@ const TOKEN_REGEX = /([\p{L}0-9]+)|(\n)|(\s+)|([^\s\p{L}0-9]+)/gu;
 const REVEAL_THRESHOLD = 0.85;
 const MIN_FUZZY_LENGTH = 4;
 const MAX_LENGTH_RATIO = 1.5;
+const CLOSE_THRESHOLD = 0.65;
 
 // ---------------------------------------------------------------------------
 //  Metric 1 — Optimal String Alignment distance (restricted Damerau-Levenshtein)
@@ -176,6 +178,79 @@ function wordSimilarity(a: string, b: string): number {
     const dice = bigramDiceCoefficient(a, b);
 
     return Math.max(osa, jw, dice);
+}
+
+// ---------------------------------------------------------------------------
+//  Proximity diagnosis — explains WHY a guess is close to a target word.
+//  Returns a human-readable French description + a type tag for UI icons.
+// ---------------------------------------------------------------------------
+
+function diagnoseProximity(guess: string, target: string): ProximityReason {
+    const dist = osaDistance(guess, target);
+    const lenDiff = target.length - guess.length;
+
+    // Single-edit cases: provide precise feedback
+    if (dist === 1) {
+        if (lenDiff === 1) {
+            return { type: "deletion", description: "1 lettre manquante" };
+        }
+        if (lenDiff === -1) {
+            return { type: "insertion", description: "1 lettre en trop" };
+        }
+        // Same length → substitution or transposition
+        if (guess.length === target.length) {
+            // Check for adjacent transposition
+            for (let i = 0; i < guess.length - 1; i++) {
+                if (guess[i] === target[i + 1] && guess[i + 1] === target[i]) {
+                    // Verify the rest matches
+                    const before =
+                        guess.substring(0, i) === target.substring(0, i);
+                    const after =
+                        guess.substring(i + 2) === target.substring(i + 2);
+                    if (before && after) {
+                        return {
+                            type: "transposition",
+                            description: "Lettres inversées",
+                        };
+                    }
+                }
+            }
+            return { type: "substitution", description: "1 lettre différente" };
+        }
+    }
+
+    // Multi-edit cases
+    if (dist === 2) {
+        if (lenDiff === 0) {
+            return { type: "mixed", description: "2 lettres différentes" };
+        }
+        if (lenDiff > 0) {
+            return {
+                type: "deletion",
+                description: `${Math.abs(lenDiff)} lettre${Math.abs(lenDiff) > 1 ? "s" : ""} manquante${Math.abs(lenDiff) > 1 ? "s" : ""}`,
+            };
+        }
+        return {
+            type: "insertion",
+            description: `${Math.abs(lenDiff)} lettre${Math.abs(lenDiff) > 1 ? "s" : ""} en trop`,
+        };
+    }
+
+    // General case
+    if (Math.abs(lenDiff) >= dist) {
+        if (lenDiff > 0) {
+            return {
+                type: "deletion",
+                description: `${dist} lettre${dist > 1 ? "s" : ""} manquante${dist > 1 ? "s" : ""}`,
+            };
+        }
+        return {
+            type: "insertion",
+            description: `${dist} lettre${dist > 1 ? "s" : ""} en trop`,
+        };
+    }
+
+    return { type: "mixed", description: "Mot très proche" };
 }
 
 interface InternalWord {
@@ -375,9 +450,15 @@ export async function checkGuess(word: string): Promise<GuessResult> {
     }
 
     let bestSimilarity = 0;
+    let bestMatchWord = "";
+
+    // Phase 1 — Auto-reveal: if the guess is at OSA distance ≤ 1 from an
+    // article word, treat it as found (handles plurals, single-char typos, etc.)
+    let autoRevealPositions: WordPosition[] | null = null;
+    let autoRevealOccurrences = 0;
 
     if (normalizedGuess.length >= MIN_FUZZY_LENGTH) {
-        for (const [normalized] of wordGroups) {
+        for (const [normalized, positions] of wordGroups) {
             if (normalized.length < MIN_FUZZY_LENGTH) continue;
 
             // Proportional length filter — skip pairs with wildly different lengths
@@ -385,16 +466,43 @@ export async function checkGuess(word: string): Promise<GuessResult> {
             const shorter = Math.min(normalizedGuess.length, normalized.length);
             if (longer / shorter > MAX_LENGTH_RATIO) continue;
 
-            const sim = wordSimilarity(normalizedGuess, normalized);
+            const dist = osaDistance(normalizedGuess, normalized);
 
+            // Auto-reveal at distance 1
+            if (dist === 1 && positions.length > autoRevealOccurrences) {
+                autoRevealPositions = positions;
+                autoRevealOccurrences = positions.length;
+                bestMatchWord = normalized;
+            }
+
+            const sim = wordSimilarity(normalizedGuess, normalized);
             if (sim > bestSimilarity) {
                 bestSimilarity = sim;
+                if (dist !== 1) {
+                    bestMatchWord = normalized;
+                }
             }
         }
     }
 
-    // Fuzzy matches are never auto-revealed — only the similarity score is
-    // returned so the frontend can display a "close" hint (orange state).
+    // If we found a word at distance 1, auto-reveal it
+    if (autoRevealPositions) {
+        return {
+            found: true,
+            word: normalizedGuess,
+            positions: autoRevealPositions,
+            occurrences: autoRevealOccurrences,
+            similarity: 1,
+            serverDate: cache.date,
+        };
+    }
+
+    // Build proximity diagnosis for close matches
+    const proximityReason =
+        bestSimilarity >= CLOSE_THRESHOLD && bestMatchWord
+            ? diagnoseProximity(normalizedGuess, bestMatchWord)
+            : undefined;
+
     return {
         found: false,
         word: normalizedGuess,
@@ -402,6 +510,7 @@ export async function checkGuess(word: string): Promise<GuessResult> {
         occurrences: 0,
         similarity: bestSimilarity,
         serverDate: cache.date,
+        proximityReason,
     };
 }
 

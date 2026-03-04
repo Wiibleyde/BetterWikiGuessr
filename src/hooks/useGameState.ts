@@ -413,6 +413,7 @@ export function useGameState() {
                     found: result.found,
                     occurrences: result.occurrences,
                     similarity: result.similarity,
+                    proximityReason: result.proximityReason,
                 };
 
                 const newGuesses = [newGuess, ...guesses];

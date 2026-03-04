@@ -87,7 +87,7 @@ export default function GameHeader({
                                 "min-w-0 flex-1 px-3 sm:px-4 py-2 border rounded-lg text-sm transition-colors",
                                 "focus:outline-none focus:ring-2 focus:ring-blue-400",
                                 lastGuessFound === false &&
-                                lastGuessSimilarity >= 0.55
+                                lastGuessSimilarity >= 0.65
                                     ? "border-amber-400 bg-amber-50"
                                     : lastGuessFound === false
                                       ? "border-red-300 bg-red-50"
