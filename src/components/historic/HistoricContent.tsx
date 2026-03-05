@@ -1,9 +1,23 @@
-import React from 'react'
+"use client";
+
+import { useState } from "react";
+import useSWR from "swr";
+import { fetcher } from "@/lib/fetcher";
+import type { PageEntry } from "@/types/historic";
 
 const HistoricContent = () => {
-    return (
-        <div>HistoricContent</div>
-    )
-}
+    const [pages, setPages] = useState<PageEntry[]>([]);
 
-export default HistoricContent
+    const { data, error, isLoading } = useSWR<PageEntry[]>("/api/historic", fetcher, {
+        revalidateOnFocus: false,
+        onSuccess: (data) => {
+            setPages(data);
+        },
+    });
+
+    return <div>
+        {JSON.stringify(pages)}
+    </div>;
+};
+
+export default HistoricContent;
