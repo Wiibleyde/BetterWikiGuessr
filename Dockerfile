@@ -28,9 +28,19 @@ RUN bunx prisma generate
 RUN bun run build
 
 # ============================================
-# Stage 3: Run Next.js application
+# Stage 3: Minimal Prisma dependencies for migrations
 # ============================================
-FROM oven/bun:1 AS runner
+FROM oven/bun:1-slim AS prisma-deps
+
+WORKDIR /prisma-deps
+
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+    bun add prisma@7.4.0 dotenv@17.3.1 --no-save
+
+# ============================================
+# Stage 4: Run Next.js application
+# ============================================
+FROM oven/bun:1-slim AS runner
 
 WORKDIR /app
 
@@ -55,8 +65,8 @@ COPY --from=builder --chown=bun:bun /app/.next/static ./.next/static
 # Copy generated Prisma client (needed at runtime)
 COPY --from=builder --chown=bun:bun /app/generated ./generated
 
-# Copy node_modules needed for prisma migrate at runtime
-COPY --from=builder --chown=bun:bun /app/node_modules ./node_modules
+# Copy only minimal node_modules needed for prisma migrate
+COPY --from=prisma-deps --chown=bun:bun /prisma-deps/node_modules ./node_modules
 
 # Copy entrypoint script
 COPY --from=builder --chown=bun:bun /app/docker-entrypoint.sh ./docker-entrypoint.sh
