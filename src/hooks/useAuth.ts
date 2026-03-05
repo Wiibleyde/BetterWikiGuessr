@@ -1,24 +1,23 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
+import useSWR from "swr";
 import type { AuthUser } from "@/types/auth";
 
-export function useAuth() {
-    const [user, setUser] = useState<AuthUser | null>(null);
-    const [loading, setLoading] = useState(true);
+const authFetcher = (url: string) =>
+    fetch(url).then((res) => {
+        if (!res.ok) return { user: null };
+        return res.json();
+    });
 
-    useEffect(() => {
-        fetch("/api/auth/me")
-            .then((res) => {
-                if (!res.ok) return null;
-                return res.json();
-            })
-            .then((data) => {
-                if (data?.user) setUser(data.user as AuthUser);
-            })
-            .catch(() => {})
-            .finally(() => setLoading(false));
-    }, []);
+export function useAuth() {
+    const { data, isLoading, mutate } = useSWR<{ user: AuthUser | null }>(
+        "/api/auth/me",
+        authFetcher,
+        { revalidateOnFocus: false },
+    );
+
+    const user = data?.user ?? null;
 
     const login = useCallback(() => {
         window.location.href = "/api/auth/login";
@@ -26,8 +25,8 @@ export function useAuth() {
 
     const logout = useCallback(async () => {
         await fetch("/api/auth/logout", { method: "POST" });
-        setUser(null);
-    }, []);
+        mutate({ user: null }, { revalidate: false });
+    }, [mutate]);
 
-    return { user, loading, login, logout };
+    return { user, loading: isLoading, login, logout };
 }

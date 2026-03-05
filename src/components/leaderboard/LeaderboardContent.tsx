@@ -1,36 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
+import useSWR from "swr";
+import { fetcher } from "@/lib/fetcher";
 import type { LeaderboardCategoryData } from "@/types/leaderboard";
 import LeaderboardCategory from "./LeaderboardCategory";
 
 export default function LeaderboardContent() {
-    const [categories, setCategories] = useState<LeaderboardCategoryData[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const initializedRef = useRef(false);
     const [openCategories, setOpenCategories] = useState<Set<string>>(
         new Set(),
     );
 
-    useEffect(() => {
-        fetch("/api/leaderboard")
-            .then((res) => {
-                if (!res.ok) throw new Error("Erreur serveur");
-                return res.json();
-            })
-            .then((data: { categories: LeaderboardCategoryData[] }) => {
-                setCategories(data.categories);
-                // Ouvrir toutes les catégories par défaut
+    const { data, error, isLoading } = useSWR<{
+        categories: LeaderboardCategoryData[];
+    }>("/api/leaderboard", fetcher, {
+        revalidateOnFocus: false,
+        onSuccess: (data) => {
+            if (!initializedRef.current) {
                 setOpenCategories(
                     new Set(data.categories.map((c) => c.meta.id)),
                 );
-            })
-            .catch((err) => {
-                console.error("[leaderboard]", err);
-                setError("Impossible de charger le classement.");
-            })
-            .finally(() => setLoading(false));
-    }, []);
+                initializedRef.current = true;
+            }
+        },
+    });
+
+    const categories = data?.categories ?? [];
 
     function toggleCategory(id: string): void {
         setOpenCategories((prev) => {
@@ -44,7 +40,7 @@ export default function LeaderboardContent() {
         });
     }
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-stone-50">
                 <p className="text-gray-500 text-lg animate-pulse">
@@ -57,7 +53,9 @@ export default function LeaderboardContent() {
     if (error) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-stone-50">
-                <p className="text-red-500 text-lg">{error}</p>
+                <p className="text-red-500 text-lg">
+                    Impossible de charger le classement.
+                </p>
             </div>
         );
     }

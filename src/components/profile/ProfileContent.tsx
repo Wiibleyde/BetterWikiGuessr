@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import useSWR from "swr";
 import { useAuth } from "@/hooks/useAuth";
+import { fetcher } from "@/lib/fetcher";
 import type { ProfileStats } from "@/types/auth";
 
 interface StatCardProps {
@@ -20,27 +21,13 @@ function StatCard({ label, value }: StatCardProps) {
 
 export default function ProfileContent() {
     const { user, loading: authLoading } = useAuth();
-    const [stats, setStats] = useState<ProfileStats | null>(null);
-    const [loading, setLoading] = useState(true);
+    const { data: stats, isLoading: statsLoading } = useSWR<ProfileStats>(
+        user ? "/api/profile/stats" : null,
+        fetcher,
+        { revalidateOnFocus: false },
+    );
 
-    useEffect(() => {
-        if (authLoading) return;
-        if (!user) {
-            setLoading(false);
-            return;
-        }
-
-        fetch("/api/profile/stats")
-            .then((res) => {
-                if (!res.ok) throw new Error("Erreur");
-                return res.json();
-            })
-            .then((data: ProfileStats) => setStats(data))
-            .catch((err) => console.error("[profile/stats]", err))
-            .finally(() => setLoading(false));
-    }, [user, authLoading]);
-
-    if (authLoading || loading) {
+    if (authLoading || statsLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-stone-50">
                 <p className="text-gray-500 text-lg animate-pulse">
