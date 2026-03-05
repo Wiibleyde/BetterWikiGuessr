@@ -1,6 +1,5 @@
 "use client";
 
-import type { RefObject } from "react";
 import YesterdayWord from "@/components/YesterdayWord";
 
 interface GameHeaderProps {
@@ -14,7 +13,6 @@ interface GameHeaderProps {
     lastGuessSimilarity: number;
     hintsUsed: number;
     score: number;
-    inputRef: RefObject<HTMLInputElement | null>;
     onInputChange: (value: string) => void;
     onSubmit: (e?: React.FormEvent) => void;
 }
@@ -30,7 +28,6 @@ export default function GameHeader({
     lastGuessSimilarity,
     hintsUsed,
     score,
-    inputRef,
     onInputChange,
     onSubmit,
 }: GameHeaderProps) {
@@ -79,7 +76,6 @@ export default function GameHeader({
                 ) : (
                     <form onSubmit={onSubmit} className="flex gap-2">
                         <input
-                            ref={inputRef}
                             type="text"
                             value={input}
                             onChange={(e) => onInputChange(e.target.value)}

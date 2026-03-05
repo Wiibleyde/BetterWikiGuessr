@@ -28,7 +28,6 @@ export default function Game() {
         lastGuessSimilarity,
         lastRevealedWord,
         setLastGuessFound,
-        inputRef,
         percentage,
         submitGuess,
         markSaved,
@@ -116,7 +115,6 @@ export default function Game() {
                 lastGuessSimilarity={lastGuessSimilarity}
                 hintsUsed={hintsUsed}
                 score={score}
-                inputRef={inputRef}
                 onInputChange={(value) => {
                     setInput(value);
                     setLastGuessFound(null);

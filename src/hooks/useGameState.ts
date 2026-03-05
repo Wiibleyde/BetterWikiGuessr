@@ -121,7 +121,6 @@ export function useGameState() {
     const [revealedImages, setRevealedImages] = useState<string[]>([]);
     const [winImages, setWinImages] = useState<string[]>([]);
     const [revealingHint, setRevealingHint] = useState(false);
-    const inputRef = useRef<HTMLInputElement>(null);
     const dateCheckTimerRef = useRef<ReturnType<typeof setInterval> | null>(
         null,
     );
@@ -463,7 +462,6 @@ export function useGameState() {
             } finally {
                 setGuessing(false);
                 setInput("");
-                setTimeout(() => inputRef.current?.focus(), 0);
             }
         },
         [
@@ -529,7 +527,6 @@ export function useGameState() {
         lastGuessSimilarity,
         lastRevealedWord,
         setLastGuessFound,
-        inputRef,
         percentage,
         submitGuess,
         markSaved,
