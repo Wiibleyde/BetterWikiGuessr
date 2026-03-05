@@ -8,6 +8,19 @@ export const metadata: Metadata = {
     title: "Wiki Guessr",
     description:
         "Un jeu où vous devez deviner la page Wikipédia en donnant des mots !",
+    authors: [
+        { name: "Nathan Bonnell", url: "https://nathan.bonnell.fr" },
+        { name: "Mathéo Lang", url: "https://matheolang.fr" },
+    ],
+    keywords: [
+        "jeu",
+        "wikipedia",
+        "deviner",
+        "mots",
+        "indices",
+        "challenge",
+        "culture générale",
+    ],
 };
 
 export default function RootLayout({
