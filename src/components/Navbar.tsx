@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 const NAV_LINKS = [
     { href: "/", label: "Jouer" },
+    { href: "/historic", label: "Historique" },
     { href: "/leaderboard", label: "Classement" },
     { href: "/profile", label: "Profil" },
 ] as const;

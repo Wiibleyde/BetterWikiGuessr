@@ -19,6 +19,7 @@ model DailyWikiPage {
   sections    Json // WikiSection[]
   images      String[] // URLs des images filtrées
   date        DateTime     @unique @db.Date // Une seule page par jour
+  url         String @default("") // URL de la page, pour éviter de devoir la reconstruire à chaque fois
   createdAt   DateTime     @default(now())
   gameResults GameResult[]
   gameStates  GameState[]

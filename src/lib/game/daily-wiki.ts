@@ -55,6 +55,7 @@ export async function ensureDailyWikiPage(): Promise<DailyWikiPage> {
                 sections: JSON.parse(JSON.stringify(wikiPage.sections)),
                 images: wikiPage.images,
                 date: today,
+                url: wikiPage.url,
             },
         });
 

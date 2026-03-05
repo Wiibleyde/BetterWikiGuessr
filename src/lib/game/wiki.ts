@@ -5,6 +5,7 @@ export interface WikiSection {
 
 export interface WikiPage {
     title: string;
+    url: string;
     images: string[];
     sections: WikiSection[];
 }
@@ -25,12 +26,19 @@ interface ImagePage {
 
 interface PageData {
     extract?: string;
+    fullurl?: string;
     images?: { title: string }[];
 }
 
-interface WikiApiResponse {
+interface ArticleApiResponse {
     query?: {
-        pages: Record<string, PageData | ImagePage>;
+        pages: Record<string, PageData>;
+    };
+}
+
+interface ImageApiResponse {
+    query?: {
+        pages: Record<string, ImagePage>;
     };
 }
 
@@ -214,14 +222,14 @@ export async function fetchRandomWikiPage(
             const pageTitle = randomData.query?.random?.[0]?.title;
             if (!pageTitle) continue;
 
-            const pageData = await fetchJson<WikiApiResponse>(
-                `${WIKI_API}?action=query&format=json&titles=${encodeURIComponent(pageTitle)}&prop=extracts|images&explaintext=true&imlimit=500`,
+            const pageData = await fetchJson<ArticleApiResponse>(
+                `${WIKI_API}?action=query&format=json&titles=${encodeURIComponent(pageTitle)}&prop=extracts|images|info&inprop=url&explaintext=true&imlimit=500`,
             );
 
             const pages = pageData.query?.pages;
             if (!pages) continue;
 
-            const page = Object.values(pages)[0] as PageData;
+            const page = Object.values(pages)[0];
             const content = page.extract ?? "";
 
             if (content.length < minContentLength) continue;
@@ -231,20 +239,23 @@ export async function fetchRandomWikiPage(
                 const imageTitles = page.images
                     .map((img) => img.title)
                     .join("|");
-                const imgData = await fetchJson<WikiApiResponse>(
+                const imgData = await fetchJson<ImageApiResponse>(
                     `${WIKI_API}?action=query&format=json&titles=${encodeURIComponent(imageTitles)}&prop=imageinfo&iiprop=url`,
                 );
 
                 for (const imgPage of Object.values(
                     imgData.query?.pages ?? {},
                 )) {
-                    const info = (imgPage as ImagePage).imageinfo?.[0];
+                    const info = imgPage.imageinfo?.[0];
                     if (info?.url) imageUrls.push(info.url);
                 }
             }
 
             return {
                 title: pageTitle,
+                url:
+                    page.fullurl ??
+                    `https://fr.wikipedia.org/wiki/${encodeURIComponent(pageTitle)}`,
                 images: filterGenericImages(imageUrls),
                 sections: parseWikiSections(content),
             };
