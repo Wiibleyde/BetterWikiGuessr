@@ -48,8 +48,6 @@ export async function ensureDailyWikiPage(): Promise<DailyWikiPage> {
 
     const wikiPage = await fetchRandomWikiPage(1500);
 
-    console.log("[daily-wiki] Page du jour :", JSON.stringify(wikiPage));
-
     try {
         const created = await prisma.dailyWikiPage.create({
             data: {
