@@ -119,6 +119,7 @@ export function useGameState() {
     );
     const [synced, setSynced] = useState(false);
     const [revealedImages, setRevealedImages] = useState<string[]>([]);
+    const [winImages, setWinImages] = useState<string[]>([]);
     const [revealingHint, setRevealingHint] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const dateCheckTimerRef = useRef<ReturnType<typeof setInterval> | null>(
@@ -132,6 +133,8 @@ export function useGameState() {
     const hintsUsed = revealedImages.length;
     const imageCount = article?.imageCount ?? 0;
     const score = guesses.length + hintsUsed * HINT_PENALTY;
+    const displayImages =
+        won && winImages.length > 0 ? winImages : revealedImages;
 
     /** Fetch all images for the article (used after winning). */
     const revealAllImages = useCallback(async (art: MaskedArticle) => {
@@ -154,7 +157,7 @@ export function useGameState() {
                 // skip failed image
             }
         }
-        setRevealedImages(allImages);
+        setWinImages(allImages);
     }, []);
 
     /** Fetch all word positions from the server and reveal every word. */
@@ -200,6 +203,7 @@ export function useGameState() {
         setError(null);
         setInput("");
         setRevealedImages([]);
+        setWinImages([]);
 
         fetch("/api/game")
             .then((res) => {
@@ -525,7 +529,7 @@ export function useGameState() {
         syncWithDatabase,
         syncToDatabase,
         synced,
-        revealedImages,
+        revealedImages: displayImages,
         revealingHint,
         revealHint,
         hintsUsed,
