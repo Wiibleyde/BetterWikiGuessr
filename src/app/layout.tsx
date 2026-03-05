@@ -3,7 +3,7 @@ import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import Providers from "@/components/providers";
+import Providers from "@/providers";
 
 export const metadata: Metadata = {
     title: "Wiki Guessr",
