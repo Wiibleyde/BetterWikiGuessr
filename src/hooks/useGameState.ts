@@ -396,10 +396,17 @@ export function useGameState() {
             setLastRevealedWord(null);
 
             try {
+                const foundWords = guesses
+                    .filter((g) => g.found)
+                    .map((g) => g.word);
+
                 const res = await fetch("/api/game/guess", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ word: raw }),
+                    body: JSON.stringify({
+                        word: raw,
+                        revealedWords: foundWords,
+                    }),
                 });
 
                 if (!res.ok) throw new Error("Erreur serveur");

@@ -420,7 +420,10 @@ export async function getCurrentServerDate(): Promise<string> {
     return cache.date;
 }
 
-export async function checkGuess(word: string): Promise<GuessResult> {
+export async function checkGuess(
+    word: string,
+    revealedWords?: string[],
+): Promise<GuessResult> {
     const normalizedGuess = normalizeWord(word.trim());
     if (!normalizedGuess) {
         const cache = await getArticleCache();
@@ -436,6 +439,7 @@ export async function checkGuess(word: string): Promise<GuessResult> {
 
     const cache = await getArticleCache();
     const { wordGroups } = cache;
+    const revealedSet = revealedWords ? new Set(revealedWords) : null;
 
     const exactPositions = wordGroups.get(normalizedGuess);
     if (exactPositions && exactPositions.length > 0) {
@@ -460,6 +464,9 @@ export async function checkGuess(word: string): Promise<GuessResult> {
     if (normalizedGuess.length >= MIN_FUZZY_LENGTH) {
         for (const [normalized, positions] of wordGroups) {
             if (normalized.length < MIN_FUZZY_LENGTH) continue;
+
+            // Skip words already discovered by the player
+            if (revealedSet?.has(normalized)) continue;
 
             // Proportional length filter — skip pairs with wildly different lengths
             const longer = Math.max(normalizedGuess.length, normalized.length);
@@ -489,7 +496,7 @@ export async function checkGuess(word: string): Promise<GuessResult> {
     if (autoRevealPositions) {
         return {
             found: true,
-            word: normalizedGuess,
+            word: bestMatchWord,
             positions: autoRevealPositions,
             occurrences: autoRevealOccurrences,
             similarity: 1,

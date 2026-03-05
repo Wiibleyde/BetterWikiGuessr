@@ -6,6 +6,7 @@ export const dynamic = "force-dynamic";
 
 interface GuessRequest {
     word: string;
+    revealedWords?: string[];
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -46,7 +47,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             );
         }
 
-        const result = await checkGuess(trimmed);
+        const revealedWords = Array.isArray(body.revealedWords)
+            ? body.revealedWords.filter(
+                  (w): w is string => typeof w === "string",
+              )
+            : undefined;
+
+        const result = await checkGuess(trimmed, revealedWords);
         return NextResponse.json(result);
     } catch (error) {
         const message =
