@@ -6,7 +6,7 @@ export async function computeHistoricPages(): Promise<PageEntry[]> {
 
     const results = await prisma.dailyWikiPage.findMany({
         where: { date: { lt: today } },
-        orderBy: { date: "asc" },
+        orderBy: { date: "desc" },
         select: {
             id: true,
             date: true,
