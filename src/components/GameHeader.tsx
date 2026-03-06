@@ -1,6 +1,7 @@
 "use client";
 
 import YesterdayWord from "@/components/YesterdayWord";
+import { plural } from "@/utils/plural";
 
 interface GameHeaderProps {
     date: string;
@@ -38,11 +39,11 @@ export default function GameHeader({
                     <span>{date}</span>
                     <span className="hidden sm:inline">·</span>
                     <span>
-                        {guessCount} essai{guessCount !== 1 && "s"}
+                        {plural(guessCount, "essai", "essais")}
                         {hintsUsed > 0 && (
                             <span className="text-amber-500">
                                 {" "}
-                                (+{hintsUsed} indice{hintsUsed !== 1 && "s"})
+                                {plural(hintsUsed, "indice", "indices")}
                             </span>
                         )}
                     </span>
@@ -69,8 +70,8 @@ export default function GameHeader({
                         <p className="text-emerald-800 font-bold text-lg">
                             Bravo !
                             {hintsUsed > 0
-                                ? ` Score : ${score} (${guessCount} essai${guessCount !== 1 ? "s" : ""} + ${hintsUsed} indice${hintsUsed !== 1 ? "s" : ""})`
-                                : ` Trouvé en ${guessCount} essai${guessCount !== 1 ? "s" : ""} !`}
+                                ? ` Score : ${score} (${plural(guessCount, "essai", "essais")} + ${plural(hintsUsed, "indice", "indices")})`
+                                : ` Trouvé en ${plural(guessCount, "essai", "essais")} !`}
                         </p>
                     </div>
                 ) : (
