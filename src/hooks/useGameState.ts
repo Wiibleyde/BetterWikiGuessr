@@ -4,37 +4,21 @@ import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { normalizeWord } from "@/lib/game/normalize";
 import type {
+    DateResponse,
     GameCache,
     GuessResult,
+    HintResponse,
     MaskedArticle,
     RevealedMap,
-    StoredGuess,
-    WordPosition,
-    WordToken,
+    RevealResponse,
+    StoredGuess, WordToken
 } from "@/types/game";
 import { HINT_PENALTY } from "@/types/game";
 import { clearOldCaches, loadCache, saveCache } from "@/utils/cache";
 import { posKey } from "@/utils/helper";
+import { fetchStateFromServer, pushStateToServer } from "@/utils/server";
 
 const DATE_CHECK_INTERVAL_MS = 60_000;
-
-interface GameStateResponse {
-    state: GameCache | null;
-}
-
-interface RevealResponse {
-    positions: WordPosition[];
-}
-
-interface HintResponse {
-    imageUrl: string;
-    hintIndex: number;
-    totalImages: number;
-}
-
-interface DateResponse {
-    date: string;
-}
 
 function checkWinCondition(
     article: MaskedArticle,
@@ -49,33 +33,6 @@ function checkWinCondition(
             (t) => revealed[posKey(-1, "title", t.index)] !== undefined,
         )
     );
-}
-
-/** Push current game state to the server (fire-and-forget). */
-async function pushStateToServer(cache: GameCache): Promise<boolean> {
-    try {
-        const response = await axios.put("/api/game/state", cache, {
-            validateStatus: () => true,
-        });
-        return response.status >= 200 && response.status < 300;
-    } catch {
-        console.error("[sync] failed to push state to server");
-        return false;
-    }
-}
-
-/** Fetch the saved game state from the server. */
-async function fetchStateFromServer(): Promise<GameCache | null> {
-    try {
-        const response = await axios.get<GameStateResponse>("/api/game/state", {
-            validateStatus: () => true,
-        });
-        if (response.status < 200 || response.status >= 300) return null;
-        return response.data.state;
-    } catch {
-        console.error("[sync] failed to fetch state from server");
-        return null;
-    }
 }
 
 export function useGameState() {

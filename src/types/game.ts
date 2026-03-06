@@ -92,3 +92,21 @@ export interface ArticleCache {
     images: string[];
     date: string;
 }
+
+export interface GameStateResponse {
+    state: GameCache | null;
+}
+
+export interface RevealResponse {
+    positions: WordPosition[];
+}
+
+export interface HintResponse {
+    imageUrl: string;
+    hintIndex: number;
+    totalImages: number;
+}
+
+export interface DateResponse {
+    date: string;
+}
