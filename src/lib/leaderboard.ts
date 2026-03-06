@@ -1,10 +1,10 @@
 import { prisma } from "@/lib/prisma";
-import { HINT_PENALTY } from "@/types/game";
 import type {
     LeaderboardCategoryData,
     LeaderboardCategoryMeta,
     LeaderboardEntry,
 } from "@/types/leaderboard";
+import { HINT_PENALTY } from "./constants/game";
 
 const LEADERBOARD_LIMIT = 20;
 

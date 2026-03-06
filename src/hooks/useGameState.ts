@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
+import { HINT_PENALTY } from "@/lib/constants/game";
 import { normalizeWord } from "@/lib/game/normalize";
 import type {
     DateResponse,
@@ -13,7 +14,6 @@ import type {
     RevealResponse,
     StoredGuess,
 } from "@/types/game";
-import { HINT_PENALTY } from "@/types/game";
 import { clearOldCaches, loadCache, saveCache } from "@/utils/cache";
 import { checkWinCondition } from "@/utils/game";
 import { posKey } from "@/utils/helper";

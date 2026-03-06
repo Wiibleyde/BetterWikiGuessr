@@ -1,8 +1,8 @@
 "use client";
 
+import { HINT_PENALTY } from "@/lib/constants/game";
 import Image from "next/image";
 import { useState } from "react";
-import { HINT_PENALTY } from "@/types/game";
 
 interface ImageHintProps {
     imageCount: number;
