@@ -11,29 +11,15 @@ import type {
     MaskedArticle,
     RevealedMap,
     RevealResponse,
-    StoredGuess, WordToken
+    StoredGuess,
 } from "@/types/game";
 import { HINT_PENALTY } from "@/types/game";
 import { clearOldCaches, loadCache, saveCache } from "@/utils/cache";
+import { checkWinCondition } from "@/utils/game";
 import { posKey } from "@/utils/helper";
 import { fetchStateFromServer, pushStateToServer } from "@/utils/server";
 
 const DATE_CHECK_INTERVAL_MS = 60_000;
-
-function checkWinCondition(
-    article: MaskedArticle,
-    revealed: RevealedMap,
-): boolean {
-    const titleWords = article.articleTitleTokens.filter(
-        (t): t is WordToken => t.type === "word",
-    );
-    return (
-        titleWords.length > 0 &&
-        titleWords.every(
-            (t) => revealed[posKey(-1, "title", t.index)] !== undefined,
-        )
-    );
-}
 
 export function useGameState() {
     const [article, setArticle] = useState<MaskedArticle | null>(null);
