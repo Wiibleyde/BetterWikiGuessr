@@ -1,12 +1,13 @@
 "use client";
 
 import { useAtom, useAtomValue } from "jotai";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import * as atomGame from "@/atom/game";
 import { HINT_PENALTY } from "@/lib/constants/game";
 import { fetchGame } from "@/lib/queries";
-import { clearOldCaches, loadCache, saveCache } from "@/utils/cache";
+import { clearOldCaches, loadCache } from "@/utils/cache";
 import { checkWinCondition } from "@/utils/game";
+import useCache from "./useCache";
 import useDb from "./useDb";
 import useGame from "./useGame";
 import useGuess from "./useGuess";
@@ -46,6 +47,7 @@ export function useGameState() {
     const { revealAllWords, revealAllImages, revealHint } = useGame();
     const { submitGuess } = useGuess();
     const { syncToDatabase } = useDb();
+    const { markSaved } = useCache();
 
     useEffect(() => {
         const gameData = fetchGame();
@@ -98,14 +100,6 @@ export function useGameState() {
         setRevealedImages,
         setLoading,
     ]);
-
-    
-
-    const markSaved = useCallback(() => {
-        if (!article) return;
-        setSaved(true);
-        saveCache(article.date, guesses, revealed, true, revealedImages);
-    }, [article, guesses, revealed, revealedImages, setSaved]);
 
     return {
         article,
