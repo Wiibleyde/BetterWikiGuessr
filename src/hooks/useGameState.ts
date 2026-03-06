@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { HINT_PENALTY } from "@/lib/constants/game";
+import { HINT_PENALTY, MIN_GUESSES_FOR_HINT } from "@/lib/constants/game";
 import { normalizeWord } from "@/lib/game/normalize";
 import {
     checkGameGuess,
@@ -51,16 +51,20 @@ export function useGameState() {
         won && winImages.length > 0 ? winImages : revealedImages;
 
     /** Fetch all images for the article (used after winning). */
-    const revealAllImages = useCallback(async (art: MaskedArticle) => {
-        const total = art.imageCount ?? 0;
-        if (total === 0) return;
-        const allImages: string[] = [];
-        for (let i = 0; i < total; i++) {
-            const hint = await fetchImageHint(i);
-            if (hint) allImages.push(hint.imageUrl);
-        }
-        setWinImages(allImages);
-    }, []);
+    const revealAllImages = useCallback(
+        async (art: MaskedArticle, currentGuesses: StoredGuess[]) => {
+            const total = art.imageCount ?? 0;
+            if (total === 0) return;
+            const allImages: string[] = [];
+            const words = currentGuesses.map((g) => g.word);
+            for (let i = 0; i < total; i++) {
+                const hint = await fetchImageHint(i, words, true);
+                if (hint) allImages.push(hint.imageUrl);
+            }
+            setWinImages(allImages);
+        },
+        [],
+    );
 
     /** Fetch all word positions from the server and reveal every word. */
     const revealAllWords = useCallback(
@@ -119,14 +123,15 @@ export function useGameState() {
                     }
                     if (checkWinCondition(data, cache.revealed ?? {})) {
                         setWon(true);
-                        const words = (cache.guesses ?? []).map((g) => g.word);
+                        const cachedGuesses = cache.guesses ?? [];
+                        const words = cachedGuesses.map((g) => g.word);
                         revealAllWords(
                             data,
                             words,
-                            cache.guesses ?? [],
+                            cachedGuesses,
                             cache.revealed ?? {},
                         );
-                        revealAllImages(data);
+                        revealAllImages(data, cachedGuesses);
                     }
                 }
                 setLoading(false);
@@ -159,14 +164,15 @@ export function useGameState() {
                     }
                     if (checkWinCondition(data, cache.revealed ?? {})) {
                         setWon(true);
-                        const words = (cache.guesses ?? []).map((g) => g.word);
+                        const cachedGuesses = cache.guesses ?? [];
+                        const words = cachedGuesses.map((g) => g.word);
                         revealAllWords(
                             data,
                             words,
-                            cache.guesses ?? [],
+                            cachedGuesses,
                             cache.revealed ?? {},
                         );
-                        revealAllImages(data);
+                        revealAllImages(data, cachedGuesses);
                     }
                 }
                 setLoading(false);
@@ -210,7 +216,7 @@ export function useGameState() {
                     dbState.guesses,
                     dbState.revealed,
                 );
-                revealAllImages(article);
+                revealAllImages(article, dbState.guesses);
             }
             saveCache(
                 article.date,
@@ -306,7 +312,7 @@ export function useGameState() {
                     setWon(true);
                     const allWords = newGuesses.map((g) => g.word);
                     revealAllWords(article, allWords, newGuesses, newRevealed);
-                    revealAllImages(article);
+                    revealAllImages(article, newGuesses);
                 }
             } catch {
                 setError("Erreur lors de la soumission");
@@ -337,11 +343,15 @@ export function useGameState() {
 
     const revealHint = useCallback(async () => {
         if (!article || won || revealingHint) return;
+        if (guesses.length < MIN_GUESSES_FOR_HINT) return;
         const nextIndex = revealedImages.length;
         if (nextIndex >= (article.imageCount ?? 0)) return;
 
         setRevealingHint(true);
-        const hint = await fetchImageHint(nextIndex);
+        const hint = await fetchImageHint(
+            nextIndex,
+            guesses.map((g) => g.word),
+        );
         if (hint) {
             const newImages = [...revealedImages, hint.imageUrl];
             setRevealedImages(newImages);

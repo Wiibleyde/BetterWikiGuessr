@@ -2,13 +2,14 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { HINT_PENALTY } from "@/lib/constants/game";
+import { HINT_PENALTY, MIN_GUESSES_FOR_HINT } from "@/lib/constants/game";
 
 interface ImageHintProps {
     imageCount: number;
     revealedImages: string[];
     revealingHint: boolean;
     won: boolean;
+    guessCount: number;
     onRevealHint: () => void;
 }
 
@@ -17,6 +18,7 @@ export default function ImageHint({
     revealedImages,
     revealingHint,
     won,
+    guessCount,
     onRevealHint,
 }: ImageHintProps) {
     const [expanded, setExpanded] = useState(true);
@@ -25,7 +27,8 @@ export default function ImageHint({
 
     const hintsUsed = revealedImages.length;
     const allRevealed = hintsUsed >= imageCount;
-    const canReveal = !allRevealed && !won && !revealingHint;
+    const hintUnlocked = guessCount >= MIN_GUESSES_FOR_HINT;
+    const canReveal = !allRevealed && !won && !revealingHint && hintUnlocked;
 
     return (
         <div className="max-w-5xl mx-auto px-4 pt-4">
@@ -41,6 +44,12 @@ export default function ImageHint({
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
+                        {!hintUnlocked && !won && (
+                            <span className="text-xs text-gray-400">
+                                Disponible après {MIN_GUESSES_FOR_HINT} essais (
+                                {guessCount}/{MIN_GUESSES_FOR_HINT})
+                            </span>
+                        )}
                         {canReveal && (
                             <button
                                 type="button"
@@ -88,9 +97,20 @@ export default function ImageHint({
                 {hintsUsed === 0 && (
                     <div className="px-4 py-3 text-center">
                         <p className="text-xs text-gray-400">
-                            Révélez des images de l&apos;article pour vous
-                            aider. Chaque image ajoute {HINT_PENALTY} essais à
-                            votre score.
+                            {hintUnlocked ? (
+                                <>
+                                    Révélez des images de l&apos;article pour
+                                    vous aider. Chaque image ajoute{" "}
+                                    {HINT_PENALTY} essais à votre score.
+                                </>
+                            ) : (
+                                <>
+                                    Les indices images se débloquent après{" "}
+                                    {MIN_GUESSES_FOR_HINT} essais. Chaque image
+                                    ajoutera {HINT_PENALTY} essais à votre
+                                    score.
+                                </>
+                            )}
                         </p>
                     </div>
                 )}

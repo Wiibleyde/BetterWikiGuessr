@@ -126,6 +126,7 @@ export default function Game() {
                 revealedImages={revealedImages}
                 revealingHint={revealingHint}
                 won={won}
+                guessCount={guesses.length}
                 onRevealHint={revealHint}
             />
 

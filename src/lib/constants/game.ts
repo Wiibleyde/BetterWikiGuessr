@@ -7,3 +7,4 @@ export const MAX_LENGTH_RATIO = 1.5;
 export const CLOSE_THRESHOLD = 0.65;
 
 export const HINT_PENALTY = 20;
+export const MIN_GUESSES_FOR_HINT = 20;

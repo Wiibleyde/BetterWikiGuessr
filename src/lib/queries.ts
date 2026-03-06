@@ -8,11 +8,13 @@ import type {
 
 export const fetchImageHint = async (
     hintIndex: number,
+    guesses?: string[],
+    won?: boolean,
 ): Promise<HintResponse | undefined> => {
     try {
         const response = await axios.post<HintResponse>(
             "/api/game/hint",
-            { hintIndex },
+            { hintIndex, guesses, won },
             { validateStatus: () => true },
         );
         if (response.status < 200 || response.status >= 300) return undefined;
