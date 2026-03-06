@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { normalizeWord } from "@/lib/game/normalize";
 import type {
     GameCache,
@@ -121,9 +121,6 @@ export function useGameState() {
     const [revealedImages, setRevealedImages] = useState<string[]>([]);
     const [winImages, setWinImages] = useState<string[]>([]);
     const [revealingHint, setRevealingHint] = useState(false);
-    const dateCheckTimerRef = useRef<ReturnType<typeof setInterval> | null>(
-        null,
-    );
 
     const revealedCount = Object.keys(revealed).length;
     const totalWords = article?.totalWords ?? 0;
@@ -241,36 +238,25 @@ export function useGameState() {
             });
     }, [revealAllWords, revealAllImages]);
 
-    /** Check the server date and reload if the day has changed. */
-    const checkServerDate = useCallback(async () => {
-        if (!article) return;
-        try {
-            const res = await fetch("/api/game/date");
-            if (!res.ok) return;
-            const data = (await res.json()) as { date: string };
-            if (data.date !== article.date) {
-                reloadArticle();
-            }
-        } catch {
-            // Silently ignore — will retry on next interval
-        }
-    }, [article, reloadArticle]);
-
     // Periodically check if the server day has changed
     useEffect(() => {
         if (!article) return;
 
-        dateCheckTimerRef.current = setInterval(() => {
-            checkServerDate();
+        const timer = setInterval(async () => {
+            try {
+                const res = await fetch("/api/game/date");
+                if (!res.ok) return;
+                const data = (await res.json()) as { date: string };
+                if (data.date !== article.date) {
+                    reloadArticle();
+                }
+            } catch {
+                // Silently ignore — will retry on next interval
+            }
         }, DATE_CHECK_INTERVAL_MS);
 
-        return () => {
-            if (dateCheckTimerRef.current) {
-                clearInterval(dateCheckTimerRef.current);
-                dateCheckTimerRef.current = null;
-            }
-        };
-    }, [article, checkServerDate]);
+        return () => clearInterval(timer);
+    }, [article, reloadArticle]);
 
     useEffect(() => {
         fetch("/api/game")
@@ -366,15 +352,6 @@ export function useGameState() {
         const cache: GameCache = { guesses, revealed, saved, revealedImages };
         await pushStateToServer(cache);
     }, [article, guesses, revealed, saved, revealedImages]);
-
-    // Cleanup date-check interval on unmount
-    useEffect(() => {
-        return () => {
-            if (dateCheckTimerRef.current) {
-                clearInterval(dateCheckTimerRef.current);
-            }
-        };
-    }, []);
 
     const submitGuess = useCallback(
         async (e?: React.FormEvent) => {
