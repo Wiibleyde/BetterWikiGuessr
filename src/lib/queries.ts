@@ -58,7 +58,6 @@ export const checkGameGuess = async (word: string, revealedWords: string[]): Pro
 
 export const fetchGame = async (): Promise<MaskedArticle | null> => {
     try {
-        console.log("Fetching game...");
         const response = await axios.get<MaskedArticle>("/api/game");
         if (response.status < 200 || response.status >= 300) {
             throw new Error("Erreur serveur");

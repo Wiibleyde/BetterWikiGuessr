@@ -7,8 +7,7 @@ import { normalizeWord } from "@/lib/game/normalize";
 import { checkGameGuess, fetchGame, fetchGameReveal, fetchImageHint } from "@/lib/queries";
 import type {
     DateResponse,
-    GameCache, HintResponse,
-    MaskedArticle,
+    GameCache, MaskedArticle,
     RevealedMap, StoredGuess
 } from "@/types/game";
 import { clearOldCaches, loadCache, saveCache } from "@/utils/cache";
@@ -361,22 +360,15 @@ export function useGameState() {
         if (nextIndex >= (article.imageCount ?? 0)) return;
 
         setRevealingHint(true);
-        try {
-            const response = await axios.post(
-                "/api/game/hint",
-                { hintIndex: nextIndex },
-                { validateStatus: () => true },
-            );
-            if (response.status < 200 || response.status >= 300) return;
-            const data = response.data as HintResponse;
-            const newImages = [...revealedImages, data.imageUrl];
+        const hint = await fetchImageHint(nextIndex);
+        if (hint) {
+            const newImages = [...revealedImages, hint.imageUrl];
             setRevealedImages(newImages);
             saveCache(article.date, guesses, revealed, saved, newImages);
-        } catch {
+        } else {
             console.error("[hint] failed to reveal hint");
-        } finally {
-            setRevealingHint(false);
         }
+        setRevealingHint(false);
     }, [article, won, revealingHint, revealedImages, guesses, revealed, saved]);
 
     return {
