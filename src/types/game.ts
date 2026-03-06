@@ -104,7 +104,3 @@ export interface HintResponse {
     hintIndex: number;
     totalImages: number;
 }
-
-export interface DateResponse {
-    date: string;
-}

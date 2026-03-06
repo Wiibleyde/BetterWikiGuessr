@@ -1,18 +1,12 @@
 import { NextResponse } from "next/server";
+import { yesterdayInGameTZ } from "@/lib/game/date";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-function yesterdayUTC(): Date {
-    const now = new Date();
-    return new Date(
-        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1),
-    );
-}
-
 export async function GET(): Promise<NextResponse> {
     try {
-        const yesterday = yesterdayUTC();
+        const yesterday = yesterdayInGameTZ();
 
         const page = await prisma.dailyWikiPage.findUnique({
             where: { date: yesterday },

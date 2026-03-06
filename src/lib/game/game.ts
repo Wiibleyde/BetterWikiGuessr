@@ -161,12 +161,6 @@ export async function getMaskedArticle(): Promise<MaskedArticle> {
     return cache.maskedArticle;
 }
 
-/** Return the current server-side UTC date key (e.g. "2026-03-03"). */
-export async function getCurrentServerDate(): Promise<string> {
-    const cache = await getArticleCache();
-    return cache.date;
-}
-
 export async function checkGuess(
     word: string,
     revealedWords?: string[],

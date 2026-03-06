@@ -1,6 +1,5 @@
 "use client";
 
-import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { HINT_PENALTY } from "@/lib/constants/game";
 import { normalizeWord } from "@/lib/game/normalize";
@@ -11,7 +10,6 @@ import {
     fetchImageHint,
 } from "@/lib/queries";
 import type {
-    DateResponse,
     GameCache,
     MaskedArticle,
     RevealedMap,
@@ -21,8 +19,6 @@ import { clearOldCaches, loadCache, saveCache } from "@/utils/cache";
 import { checkWinCondition } from "@/utils/game";
 import { posKey } from "@/utils/helper";
 import { fetchStateFromServer, pushStateToServer } from "@/utils/server";
-
-const DATE_CHECK_INTERVAL_MS = 60_000;
 
 export function useGameState() {
     const [article, setArticle] = useState<MaskedArticle | null>(null);
@@ -140,28 +136,6 @@ export function useGameState() {
                 setLoading(false);
             });
     }, [revealAllWords, revealAllImages]);
-
-    // Periodically check if the server day has changed
-    useEffect(() => {
-        if (!article) return;
-
-        const timer = setInterval(async () => {
-            try {
-                const response = await axios.get<DateResponse>(
-                    "/api/game/date",
-                    { validateStatus: () => true },
-                );
-                if (response.status < 200 || response.status >= 300) return;
-                if (response.data.date !== article.date) {
-                    reloadArticle();
-                }
-            } catch {
-                // Silently ignore — will retry on next interval
-            }
-        }, DATE_CHECK_INTERVAL_MS);
-
-        return () => clearInterval(timer);
-    }, [article, reloadArticle]);
 
     useEffect(() => {
         const gameData = fetchGame();

@@ -1,3 +1,4 @@
+import { todayInGameTZ, todayKeyInGameTZ } from "@/lib/game/date";
 import { fetchRandomWikiPage } from "@/lib/game/wiki";
 import { prisma } from "@/lib/prisma";
 
@@ -8,19 +9,8 @@ type DailyWikiPage = Awaited<
 let cachedPage: DailyWikiPage | null = null;
 let cachedDate: string | null = null;
 
-function todayUTC(): Date {
-    const now = new Date();
-    return new Date(
-        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
-    );
-}
-
-function todayKey(): string {
-    return todayUTC().toISOString();
-}
-
 function getCached(): DailyWikiPage | null {
-    if (cachedPage && cachedDate === todayKey()) return cachedPage;
+    if (cachedPage && cachedDate === todayKeyInGameTZ()) return cachedPage;
     cachedPage = null;
     cachedDate = null;
     return null;
@@ -28,14 +18,14 @@ function getCached(): DailyWikiPage | null {
 
 function setCache(page: DailyWikiPage) {
     cachedPage = page;
-    cachedDate = todayKey();
+    cachedDate = todayKeyInGameTZ();
 }
 
 export async function ensureDailyWikiPage(): Promise<DailyWikiPage> {
     const cached = getCached();
     if (cached) return cached;
 
-    const today = todayUTC();
+    const today = todayInGameTZ();
 
     const existing = await prisma.dailyWikiPage.findUnique({
         where: { date: today },
@@ -82,10 +72,10 @@ export async function ensureDailyWikiPage(): Promise<DailyWikiPage> {
 }
 
 export function startDailyCron(): () => void {
-    let lastCheckedDay = todayKey();
+    let lastCheckedDay = todayKeyInGameTZ();
 
     const interval = setInterval(async () => {
-        const currentDay = todayKey();
+        const currentDay = todayKeyInGameTZ();
         if (currentDay !== lastCheckedDay) {
             lastCheckedDay = currentDay;
             try {
