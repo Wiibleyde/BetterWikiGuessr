@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { normalizeWord } from "./normalize";
+import { normalizeWord } from "@/lib/game/normalize";
 
 describe("normalizeWord", () => {
     it("normalise la casse, les ligatures et les accents", () => {

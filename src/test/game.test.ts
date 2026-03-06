@@ -2,11 +2,11 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 
 const ensureDailyWikiPageMock = mock();
 
-mock.module("./daily-wiki", () => ({
+mock.module("@/lib/game/daily-wiki", () => ({
     ensureDailyWikiPage: ensureDailyWikiPageMock,
 }));
 
-const { checkGuess, verifyWin } = await import("./game");
+const { checkGuess, verifyWin } = await import("@/lib/game/game");
 
 interface MockPage {
     id: string;
