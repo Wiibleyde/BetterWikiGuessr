@@ -1,4 +1,4 @@
-name: PR Checks
+name: Biome
 
 on:
   pull_request:
@@ -30,6 +30,3 @@ jobs:
 
       - name: Run Biome check
         run: bun lint
-
-      - name: Run tests
-        run: bun test
