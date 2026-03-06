@@ -1,6 +1,6 @@
-import { posKey } from "@/hooks/useGameState";
 import { normalizeWord } from "@/lib/game/normalize";
 import type { RevealedMap, Token } from "@/types/game";
+import { posKey } from "@/utils/helper";
 
 interface TokenListProps {
     tokens: Token[];

@@ -12,17 +12,10 @@ import type {
     WordToken,
 } from "@/types/game";
 import { HINT_PENALTY } from "@/types/game";
+import { clearOldCaches, loadCache, saveCache } from "@/utils/cache";
+import { posKey } from "@/utils/helper";
 
-const STORAGE_KEY_PREFIX = "wikiguessr-";
 const DATE_CHECK_INTERVAL_MS = 60_000;
-
-export function posKey(
-    section: number,
-    part: string,
-    wordIndex: number,
-): string {
-    return `${section}:${part}:${wordIndex}`;
-}
 
 function checkWinCondition(
     article: MaskedArticle,
@@ -37,41 +30,6 @@ function checkWinCondition(
             (t) => revealed[posKey(-1, "title", t.index)] !== undefined,
         )
     );
-}
-
-function loadCache(date: string): GameCache | null {
-    const raw = localStorage.getItem(`${STORAGE_KEY_PREFIX}${date}`);
-    if (!raw) return null;
-    try {
-        return JSON.parse(raw) as GameCache;
-    } catch {
-        return null;
-    }
-}
-
-function saveCache(
-    date: string,
-    guesses: StoredGuess[],
-    revealed: RevealedMap,
-    saved?: boolean,
-    revealedImages?: string[],
-) {
-    localStorage.setItem(
-        `${STORAGE_KEY_PREFIX}${date}`,
-        JSON.stringify({ guesses, revealed, saved, revealedImages }),
-    );
-}
-
-function clearOldCaches(currentDate: string) {
-    for (let i = localStorage.length - 1; i >= 0; i--) {
-        const key = localStorage.key(i);
-        if (
-            key?.startsWith(STORAGE_KEY_PREFIX) &&
-            key !== `${STORAGE_KEY_PREFIX}${currentDate}`
-        ) {
-            localStorage.removeItem(key);
-        }
-    }
 }
 
 /** Push current game state to the server (fire-and-forget). */

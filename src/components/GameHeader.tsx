@@ -1,7 +1,7 @@
 "use client";
 
 import YesterdayWord from "@/components/YesterdayWord";
-import { plural } from "@/utils/plural";
+import { plural } from "@/utils/helper";
 
 interface GameHeaderProps {
     date: string;
