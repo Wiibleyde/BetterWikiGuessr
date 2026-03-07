@@ -1,6 +1,6 @@
 "use client";
 
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { guessesAtom, inputAtom, lastGuessFoundAtom } from "@/atom/game";
 import YesterdayWord from "@/components/YesterdayWord";
 import { plural } from "@/utils/helper";
@@ -10,7 +10,6 @@ interface GameHeaderProps {
     percentage: number;
     won: boolean;
     guessing: boolean;
-    lastGuessSimilarity: number;
     hintsUsed: number;
     score: number;
     onSubmit: (e?: React.FormEvent) => void;
@@ -21,14 +20,13 @@ export default function GameHeader({
     percentage,
     won,
     guessing,
-    lastGuessSimilarity,
     hintsUsed,
     score,
     onSubmit,
 }: GameHeaderProps) {
 
     const [input, setInput] = useAtom(inputAtom);
-    const [lastGuessFound, setLastGuessFound] = useAtom(lastGuessFoundAtom);
+    const setLastGuessFound = useSetAtom(lastGuessFoundAtom);
     const guesses = useAtomValue(guessesAtom);
 
     const onInputChange = (value: string) => {
@@ -70,7 +68,7 @@ export default function GameHeader({
                 </div>
 
                 {won ? (
-                    <div className="bg-emerald-50 border border-emerald-300 rounded-lg p-3 text-center">
+                    <div className="bg-emerald-50 border  border-emerald-300 rounded-lg p-3 text-center">
                         <p className="text-emerald-800 font-bold text-lg">
                             Bravo !
                             {hintsUsed > 0
@@ -85,18 +83,7 @@ export default function GameHeader({
                             value={input}
                             onChange={(e) => onInputChange(e.target.value)}
                             placeholder="Devinez un mot…"
-                            className={[
-                                "min-w-0 flex-1 px-3 sm:px-4 py-2 border rounded-lg text-sm transition-colors",
-                                "focus:outline-none focus:ring-2 focus:ring-blue-400",
-                                lastGuessFound === false &&
-                                lastGuessSimilarity >= 0.65
-                                    ? "border-amber-400 bg-amber-50"
-                                    : lastGuessFound === false
-                                      ? "border-red-300 bg-red-50"
-                                      : lastGuessFound === true
-                                        ? "border-emerald-300 bg-emerald-50"
-                                        : "border-gray-300",
-                            ].join(" ")}
+                            className={"min-w-0 flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"}
                             readOnly={guessing}
                         />
                         <button

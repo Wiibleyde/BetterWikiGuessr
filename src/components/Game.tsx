@@ -18,7 +18,6 @@ export default function Game() {
         guessing,
         won,
         error,
-        lastGuessSimilarity,
         percentage,
         submitGuess,
         revealedImages,
@@ -45,7 +44,6 @@ export default function Game() {
                 percentage={percentage}
                 won={won}
                 guessing={guessing}
-                lastGuessSimilarity={lastGuessSimilarity}
                 hintsUsed={hintsUsed}
                 score={score}
                 onSubmit={submitGuess}
