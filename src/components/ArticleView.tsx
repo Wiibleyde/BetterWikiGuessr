@@ -6,13 +6,11 @@ import TokenList from "./TokenList";
 interface ArticleViewProps {
     article: MaskedArticle;
     revealed: RevealedMap;
-    lastRevealedWord: string | null;
 }
 
 export default function ArticleView({
     article,
     revealed,
-    lastRevealedWord,
 }: ArticleViewProps) {
     return (
         <main className="flex-1 min-w-0 space-y-4">
@@ -23,7 +21,6 @@ export default function ArticleView({
                         section={-1}
                         part="title"
                         revealed={revealed}
-                        lastRevealedWord={lastRevealedWord}
                     />
                 </h2>
             </div>
@@ -44,7 +41,6 @@ export default function ArticleView({
                                 section={index}
                                 part="title"
                                 revealed={revealed}
-                                lastRevealedWord={lastRevealedWord}
                             />
                         </h3>
                         <div className="text-sm leading-[2.2]">
@@ -53,7 +49,6 @@ export default function ArticleView({
                                 section={index}
                                 part="content"
                                 revealed={revealed}
-                                lastRevealedWord={lastRevealedWord}
                             />
                         </div>
                     </section>

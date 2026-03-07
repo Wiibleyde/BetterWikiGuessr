@@ -8,10 +8,9 @@ import {
     inputAtom,
     lastGuessFoundAtom,
     lastGuessSimilarityAtom,
-    lastRevealedWordAtom,
     revealedAtom,
     revealedImagesAtom,
-    wonAtom,
+    wonAtom
 } from "@/atom/game";
 import { normalizeWord } from "@/lib/game/normalize";
 import { checkGameGuess } from "@/lib/queries";
@@ -27,7 +26,6 @@ const useGuess = () => {
     const [input, setInput] = useAtom(inputAtom);
     const article = useAtomValue(articleAtom);
     const [guessing, setGuessing] = useAtom(guessingAtom);
-    const setLastRevealedWord = useSetAtom(lastRevealedWordAtom);
     const setLastGuessFound = useSetAtom(lastGuessFoundAtom);
     const setLastGuessSimilarity = useSetAtom(lastGuessSimilarityAtom);
     const [revealed, setRevealed] = useAtom(revealedAtom);
@@ -53,7 +51,6 @@ const useGuess = () => {
             setGuessing(true);
             setLastGuessFound(null);
             setLastGuessSimilarity(0);
-            setLastRevealedWord(null);
 
             try {
                 const foundWords = guesses
@@ -92,11 +89,6 @@ const useGuess = () => {
                 setLastGuessFound(guessResult.found);
                 setLastGuessSimilarity(guessResult.similarity);
 
-                if (guessResult.found && guessResult.similarity === 1) {
-                    setLastRevealedWord(guessResult.word);
-                    setTimeout(() => setLastRevealedWord(null), 1500);
-                }
-
                 saveCache(
                     article.date,
                     newGuesses,
@@ -133,7 +125,6 @@ const useGuess = () => {
             setRevealed,
             setLastGuessFound,
             setLastGuessSimilarity,
-            setLastRevealedWord,
             setError,
             setInput,
             setWon,

@@ -19,7 +19,6 @@ export default function Game() {
         won,
         error,
         lastGuessSimilarity,
-        lastRevealedWord,
         percentage,
         submitGuess,
         revealedImages,
@@ -64,7 +63,6 @@ export default function Game() {
                 <ArticleView
                     article={article}
                     revealed={revealed}
-                    lastRevealedWord={lastRevealedWord}
                 />
                 <GuessList guesses={guesses} />
             </div>

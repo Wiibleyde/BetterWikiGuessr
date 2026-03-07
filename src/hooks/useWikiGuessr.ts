@@ -21,7 +21,6 @@ export function useWikiGuessr() {
     const [saved, setSaved] = useAtom(atomGame.savedAtom);
     const [error, setError] = useAtom(atomGame.errorAtom);
     const lastGuessSimilarity = useAtomValue(atomGame.lastGuessSimilarityAtom);
-    const lastRevealedWord = useAtomValue(atomGame.lastRevealedWordAtom);
 
     const [revealedImages, setRevealedImages] = useAtom(
         atomGame.revealedImagesAtom,
@@ -105,7 +104,6 @@ export function useWikiGuessr() {
         saved,
         error,
         lastGuessSimilarity,
-        lastRevealedWord,
         percentage,
         submitGuess,
         revealedImages: displayImages,

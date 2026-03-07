@@ -1,13 +1,13 @@
-import { normalizeWord } from "@/lib/game/normalize";
 import type { RevealedMap, Token } from "@/types/game";
 import { posKey } from "@/utils/helper";
+import HiddenWord from "./ui/HiddenWord";
+import RevealedWord from "./ui/RevealedWord";
 
 interface TokenListProps {
     tokens: Token[];
     section: number;
     part: "title" | "content";
     revealed: RevealedMap;
-    lastRevealedWord: string | null;
 }
 
 export default function TokenList({
@@ -15,7 +15,6 @@ export default function TokenList({
     section,
     part,
     revealed,
-    lastRevealedWord,
 }: TokenListProps) {
     return (
         <>
@@ -34,35 +33,20 @@ export default function TokenList({
 
                 if (displayText) {
                     const isArticleTitle = section === -1;
-                    const normalized = normalizeWord(displayText);
-                    const isJustRevealed =
-                        lastRevealedWord !== null &&
-                        normalized === lastRevealedWord;
 
                     return (
-                        <span
+                        <RevealedWord
                             key={token.id}
-                            className={[
-                                "inline-block px-0.5 rounded transition-all duration-300",
-                                isArticleTitle
-                                    ? "bg-amber-200 text-amber-900 font-bold"
-                                    : "bg-emerald-100 text-emerald-900",
-                                isJustRevealed
-                                    ? "ring-2 ring-blue-400 scale-105"
-                                    : "",
-                            ].join(" ")}
-                        >
-                            {displayText}
-                        </span>
+                            text={displayText}
+                            variant={isArticleTitle ? "articleTitle" : "default"}
+                        />
                     );
                 }
 
                 return (
-                    <span
+                    <HiddenWord
                         key={token.id}
-                        className="inline-block bg-gray-300 rounded-sm mx-px align-middle cursor-default"
-                        style={{ width: `${token.length}ch`, height: "1.15em" }}
-                        title={`${token.length} lettre${token.length > 1 ? "s" : ""}`}
+                        length={token.length}
                     />
                 );
             })}
