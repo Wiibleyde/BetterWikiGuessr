@@ -23,17 +23,15 @@ export default function ArticleView({ article, revealed }: ArticleViewProps) {
                 </h2>
             </div>
 
-            {article.sections.map((sec, index) => {
-                return (
-                    <Section
-                        key={sec.contentTokens[0].id}
-                        sectionIndex={index}
-                        titleTokens={sec.titleTokens}
-                        contentTokens={sec.contentTokens}
-                        revealed={revealed}
-                    />
-                );
-            })}
+            {article.sections.map((sec, index) => (
+                <Section
+                    key={sec.contentTokens[0].id}
+                    sectionIndex={index}
+                    titleTokens={sec.titleTokens}
+                    contentTokens={sec.contentTokens}
+                    revealed={revealed}
+                />
+            ))}
         </main>
     );
 }

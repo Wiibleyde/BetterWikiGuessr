@@ -1,7 +1,6 @@
 import type { RevealedMap, Token } from "@/types/game";
 import { posKey } from "@/utils/helper";
-import HiddenWord from "./ui/HiddenWord";
-import RevealedWord from "./ui/RevealedWord";
+import Word from "./ui/Word";
 
 interface TokenListProps {
     tokens: Token[];
@@ -30,23 +29,14 @@ export default function TokenList({
 
                 const key = posKey(section, part, token.index);
                 const displayText = revealed[key];
-
-                if (displayText) {
-                    const isArticleTitle = section === -1;
-
-                    return (
-                        <RevealedWord
-                            key={token.id}
-                            text={displayText}
-                            variant={isArticleTitle ? "articleTitle" : "default"}
-                        />
-                    );
-                }
+                const isArticleTitle = section === -1;
 
                 return (
-                    <HiddenWord
+                    <Word
                         key={token.id}
                         length={token.length}
+                        text={displayText}
+                        variant={isArticleTitle ? "articleTitle" : "default"}
                     />
                 );
             })}
