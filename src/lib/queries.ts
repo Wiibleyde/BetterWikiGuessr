@@ -5,6 +5,7 @@ import type {
     MaskedArticle,
     RevealResponse,
 } from "@/types/game";
+import { fetcher } from "@/utils/fetcher";
 
 export const fetchImageHint = async (
     hintIndex: number,
@@ -79,3 +80,13 @@ export const fetchGame = async (): Promise<MaskedArticle | null> => {
         return null;
     }
 };
+
+export const fetchYesterdayWord = async (): Promise<string | null> => {
+    try {
+        const data = await fetcher<{ title: string | null }>("/api/game/yesterday");
+        return data.title;
+    } catch (err) {
+        console.error("[fetchYesterdayWord]", err);
+        return null;
+    }
+}

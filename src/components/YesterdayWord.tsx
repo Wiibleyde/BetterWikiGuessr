@@ -1,21 +1,19 @@
 "use client";
 
 import useSWR from "swr";
-import { fetcher } from "@/utils/fetcher";
+import { fetchYesterdayWord } from "@/lib/queries";
 
 export default function YesterdayWord() {
-    const { data } = useSWR<{ title: string | null }>(
-        "/api/game/yesterday",
-        fetcher,
-        { revalidateOnFocus: false },
-    );
+    const { data: title } = useSWR<string | null>("yesterday-word", fetchYesterdayWord, {
+        revalidateOnFocus: false,
+    });
 
-    if (!data?.title) return null;
+    if (!title) return null;
 
     return (
         <span className="text-sm text-gray-500">
             Hier :{" "}
-            <span className="font-medium text-gray-700">{data.title}</span>
+            <span className="font-medium text-gray-700">{title}</span>
         </span>
     );
 }
