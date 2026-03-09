@@ -54,7 +54,7 @@ describe("game core", () => {
             createMockPage("2026-03-07T00:00:00.000Z"),
         );
 
-        const result = await checkGuess("eiffle");
+        const result = await checkGuess("eifel"); // 1 'f' manquant → distance 1
 
         expect(result.found).toBe(true);
         expect(result.word).toBe("eiffel");
