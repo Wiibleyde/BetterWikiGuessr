@@ -29,14 +29,13 @@ export default function TokenList({
 
                 const key = posKey(section, part, token.index);
                 const displayText = revealed[key];
-                const isArticleTitle = section === -1;
 
                 return (
                     <Word
                         key={token.id}
                         length={token.length}
                         text={displayText}
-                        variant={isArticleTitle ? "articleTitle" : "default"}
+                        variant="default"
                     />
                 );
             })}

@@ -38,7 +38,7 @@ function limitTo2Paragraphs(
     return result.join("\n\n");
 }
 
-function parseWikiSections(content: string): WikiSection[] {
+function parseWikiSections(content: string, title: string): WikiSection[] {
     // split avec groupe capturant → [intro, titre1, corps1, titre2, corps2, ...]
     const parts = content.split(/^==\s*([^=]+?)\s*==\s*$/gm);
     const sections: WikiSection[] = [];
@@ -46,7 +46,7 @@ function parseWikiSections(content: string): WikiSection[] {
     const intro = parts[0].trim();
     if (intro) {
         sections.push({
-            title: "Introduction",
+            title: title,
             content: limitTo2Paragraphs(intro),
         });
     }
@@ -64,7 +64,7 @@ function parseWikiSections(content: string): WikiSection[] {
 
     return sections.length > 0
         ? sections
-        : [{ title: "Introduction", content: content.trim() }];
+        : [{ title: title, content: content.trim() }];
 }
 
 /**
@@ -128,7 +128,7 @@ export async function fetchRandomWikiPage(
                     page.fullurl ??
                     `https://fr.wikipedia.org/wiki/${encodeURIComponent(title)}`,
                 images: filterGenericImages(imageUrls),
-                sections: parseWikiSections(content),
+                sections: parseWikiSections(content, title),
             };
         } catch (error) {
             console.error(`[wiki] Tentative ${attempt}/${maxAttempts}:`, error);

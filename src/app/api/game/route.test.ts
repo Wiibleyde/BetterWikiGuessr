@@ -21,7 +21,6 @@ describe("GET /api/game", () => {
 
     it("retourne l'article masqué avec headers no-cache", async () => {
         getMaskedArticleMock.mockResolvedValue({
-            articleTitleTokens: [],
             sections: [],
             totalWords: 0,
             date: "2026-03-06",

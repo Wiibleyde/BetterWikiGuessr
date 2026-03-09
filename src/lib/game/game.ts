@@ -102,15 +102,15 @@ function buildArticleCache(
 ): ArticleCache {
     const { tokens: articleTitleTokens, words: titleWords } = tokenize(
         title,
-        "at-",
+        "s0t-",
     );
-    let totalWords = titleWords.length;
+    let totalWords = 0;
 
     const maskedSections: MaskedSection[] = sections.map((section, i) => {
-        const { tokens: titleTokens, words: stw } = tokenize(
-            section.title,
-            `s${i}t-`,
-        );
+        const { tokens: titleTokens, words: stw } =
+            i === 0
+                ? { tokens: articleTitleTokens, words: titleWords }
+                : tokenize(section.title, `s${i}t-`);
         const { tokens: contentTokens, words: scw } = tokenize(
             section.content,
             `s${i}c-`,
@@ -120,7 +120,6 @@ function buildArticleCache(
     });
 
     const maskedArticle: MaskedArticle = {
-        articleTitleTokens,
         sections: maskedSections,
         totalWords,
         date,
@@ -129,11 +128,14 @@ function buildArticleCache(
 
     const wordGroups = new Map<string, WordPosition[]>();
 
-    indexWords(wordGroups, titleWords, -1, "title");
+    // Article title words are now section 0's title
+    indexWords(wordGroups, titleWords, 0, "title");
 
     for (let i = 0; i < sections.length; i++) {
-        const { words: stw } = tokenize(sections[i].title, `s${i}t-`);
-        indexWords(wordGroups, stw, i, "title");
+        if (i > 0) {
+            const { words: stw } = tokenize(sections[i].title, `s${i}t-`);
+            indexWords(wordGroups, stw, i, "title");
+        }
         const { words: scw } = tokenize(sections[i].content, `s${i}c-`);
         indexWords(wordGroups, scw, i, "content");
     }

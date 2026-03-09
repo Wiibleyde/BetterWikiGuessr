@@ -5,13 +5,14 @@ export function checkWinCondition(
     article: MaskedArticle,
     revealed: RevealedMap,
 ): boolean {
-    const titleWords = article.articleTitleTokens.filter(
+    const titleWords = article.sections[0]?.titleTokens.filter(
         (t): t is WordToken => t.type === "word",
     );
     return (
+        titleWords !== undefined &&
         titleWords.length > 0 &&
         titleWords.every(
-            (t) => revealed[posKey(-1, "title", t.index)] !== undefined,
+            (t) => revealed[posKey(0, "title", t.index)] !== undefined,
         )
     );
 }

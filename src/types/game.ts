@@ -19,7 +19,6 @@ export interface MaskedSection {
 }
 
 export interface MaskedArticle {
-    articleTitleTokens: Token[];
     sections: MaskedSection[];
     totalWords: number;
     date: string;

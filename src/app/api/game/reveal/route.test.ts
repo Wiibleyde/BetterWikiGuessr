@@ -40,7 +40,7 @@ describe("POST /api/game/reveal", () => {
     it("retourne les positions quand la victoire est validée", async () => {
         verifyWinMock.mockResolvedValue(true);
         getAllWordPositionsMock.mockResolvedValue([
-            { section: -1, part: "title", wordIndex: 0, display: "Tour" },
+            { section: 0, part: "title", wordIndex: 0, display: "Tour" },
         ]);
 
         const response = await POST(
