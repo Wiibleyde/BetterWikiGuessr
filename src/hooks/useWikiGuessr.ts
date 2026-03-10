@@ -104,6 +104,6 @@ export function useWikiGuessr() {
         revealingHint,
         revealHint,
         hintsUsed,
-        imageCount
+        imageCount,
     };
 }
