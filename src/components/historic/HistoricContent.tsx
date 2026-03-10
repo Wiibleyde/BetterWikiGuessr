@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import useSWR from "swr";
 import ErrorMessage from "@/components/ui/Error";
 import Loader from "@/components/ui/Loader";
@@ -10,13 +9,12 @@ import type { PageEntry } from "@/types/historic";
 import { fetcher } from "@/utils/fetcher";
 
 export default function HistoricContent() {
-    const [pages, setPages] = useState<PageEntry[]>([]);
-
-    const { error, isLoading } = useSWR<PageEntry[]>("/api/historic", fetcher, {
+    const {
+        data: pages,
+        error,
+        isLoading,
+    } = useSWR<PageEntry[]>("/api/historic", fetcher, {
         revalidateOnFocus: false,
-        onSuccess: (data) => {
-            setPages(data);
-        },
     });
 
     if (isLoading) return <Loader message="Chargement du classement…" />;
@@ -24,7 +22,7 @@ export default function HistoricContent() {
     if (error)
         return <ErrorMessage message="Impossible de charger le classement." />;
 
-    if (pages.length === 0 && !isLoading)
+    if (pages && pages.length === 0 && !isLoading)
         return <NoDataMessage message="Aucune page disponible." />;
 
     return (
@@ -39,7 +37,7 @@ export default function HistoricContent() {
                         devinées dans WikiGuessr.
                     </p>
                 </div>
-                {pages.map((page) => (
+                {pages?.map((page) => (
                     <div
                         key={page.id}
                         className="flex items-center justify-between bg-white rounded-xl border border-gray-200 px-4 py-3 gap-4"

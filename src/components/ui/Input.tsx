@@ -13,7 +13,7 @@ interface InputProps {
     onSubmit: (e?: React.FormEvent) => void;
 }
 
-const Input = ({ input, onInputChange, onSubmit }: InputProps) => {
+export default function Input({ input, onInputChange, onSubmit }: InputProps) {
     const lastGuessFound = useAtomValue(lastGuessFoundAtom);
     const lastGuessSimilarity = useAtomValue(lastGuessSimilarityAtom);
     const guessing = useAtomValue(guessingAtom);
@@ -49,6 +49,4 @@ const Input = ({ input, onInputChange, onSubmit }: InputProps) => {
             </button>
         </form>
     );
-};
-
-export default Input;
+}

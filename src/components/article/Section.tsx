@@ -1,5 +1,5 @@
+import TokenList from "@/components/TokenList";
 import type { RevealedMap, Token } from "@/types/game";
-import TokenList from "../TokenList";
 
 interface SectionProps {
     sectionIndex: number;
@@ -8,12 +8,12 @@ interface SectionProps {
     revealed: RevealedMap;
 }
 
-const Section = ({
+export function Section({
     sectionIndex,
     titleTokens,
     contentTokens,
     revealed,
-}: SectionProps) => {
+}: SectionProps) {
     return (
         <section className="p-5 bg-white rounded-xl shadow-sm border border-gray-100">
             {titleTokens.length > 0 && (
@@ -36,6 +36,6 @@ const Section = ({
             </div>
         </section>
     );
-};
+}
 
 export default Section;

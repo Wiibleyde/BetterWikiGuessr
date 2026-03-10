@@ -17,7 +17,7 @@ interface WordProps {
     variant?: WordVariant;
 }
 
-const Word = ({ length, text, variant = "default" }: WordProps) => {
+export default function Word({ length, text, variant = "default" }: WordProps) {
     const [animate, setAnimate] = useState(false);
 
     useEffect(() => {
@@ -49,6 +49,4 @@ const Word = ({ length, text, variant = "default" }: WordProps) => {
             title={plural(length, "caractère", "caractères")}
         />
     );
-};
-
-export default Word;
+}
