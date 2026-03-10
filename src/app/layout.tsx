@@ -32,16 +32,14 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="fr">
-            <SpeedInsights />
-            <Providers>
-                <body
-                    className={`antialiased m-0 p-0 min-h-screen flex flex-col`}
-                >
+            <body className="antialiased m-0 p-0 min-h-screen flex flex-col">
+                <Providers>
                     <Navbar />
                     <main className="flex-1">{children}</main>
                     <Footer />
-                </body>
-            </Providers>
+                </Providers>
+                <SpeedInsights />
+            </body>
         </html>
     );
 }
