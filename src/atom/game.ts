@@ -10,6 +10,8 @@ export const wonAtom = atom<boolean>(false);
 export const savedAtom = atom<boolean>(false);
 export const errorAtom = atom<string | null>(null);
 export const lastGuessFoundAtom = atom<boolean | null>(null);
+export const lastGuessSimilarityAtom = atom<number>(0);
+export const guessingAtom = atom<boolean>(false);
 
 export const syncedAtom = atom<boolean>(false);
 export const revealedImagesAtom = atom<string[]>([]);
