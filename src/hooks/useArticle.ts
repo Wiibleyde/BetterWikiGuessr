@@ -46,12 +46,10 @@ const useArticle = () => {
         setRevealedImages([]);
         setWinImages([]);
 
-        const gameData = fetchGame();
-        gameData
+        fetchGame()
             .then((data) => {
                 if (!data) {
                     setError("Impossible de charger l'article du jour");
-                    setLoading(false);
                     return;
                 }
                 setArticle(data);
@@ -59,31 +57,26 @@ const useArticle = () => {
 
                 const cache = loadCache(data.date);
                 if (cache) {
-                    setGuesses(cache.guesses ?? []);
-                    setRevealed(cache.revealed ?? {});
+                    const cachedGuesses = cache.guesses ?? [];
+                    const cachedRevealed = cache.revealed ?? {};
+                    setGuesses(cachedGuesses);
+                    setRevealed(cachedRevealed);
                     setRevealedImages(cache.revealedImages ?? []);
-                    if (cache.saved) {
-                        setSaved(true);
-                    }
-                    if (checkWinCondition(data, cache.revealed ?? {})) {
+                    if (cache.saved) setSaved(true);
+                    if (checkWinCondition(data, cachedRevealed)) {
                         setWon(true);
-                        const cachedGuesses = cache.guesses ?? [];
-                        const words = cachedGuesses.map((g) => g.word);
                         revealAllWords(
                             data,
-                            words,
+                            cachedGuesses.map((g) => g.word),
                             cachedGuesses,
-                            cache.revealed ?? {},
+                            cachedRevealed,
                         );
                         revealAllImages(data, cachedGuesses);
                     }
                 }
-                setLoading(false);
             })
-            .catch(() => {
-                setError("Impossible de charger l'article du jour");
-                setLoading(false);
-            });
+            .catch(() => setError("Impossible de charger l'article du jour"))
+            .finally(() => setLoading(false));
     }, [
         revealAllWords,
         revealAllImages,
