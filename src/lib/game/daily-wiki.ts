@@ -1,6 +1,10 @@
-import { todayInGameTZ, todayKeyInGameTZ } from "@/lib/game/date";
+import { todayKeyInGameTZ } from "@/lib/game/date";
 import { fetchRandomWikiPage } from "@/lib/game/wiki";
-import { prisma } from "@/lib/prisma";
+import type { prisma } from "@/lib/prisma";
+import {
+    createArticle,
+    getTodaysArticle,
+} from "../repositories/articleRepository";
 
 type DailyWikiPage = Awaited<
     ReturnType<typeof prisma.dailyWikiPage.findUnique>
@@ -25,11 +29,7 @@ export async function ensureDailyWikiPage(): Promise<DailyWikiPage> {
     const cached = getCached();
     if (cached) return cached;
 
-    const today = todayInGameTZ();
-
-    const existing = await prisma.dailyWikiPage.findUnique({
-        where: { date: today },
-    });
+    const existing = await getTodaysArticle();
 
     if (existing) {
         setCache(existing);
@@ -39,15 +39,7 @@ export async function ensureDailyWikiPage(): Promise<DailyWikiPage> {
     const wikiPage = await fetchRandomWikiPage(1500);
 
     try {
-        const created = await prisma.dailyWikiPage.create({
-            data: {
-                title: wikiPage.title,
-                sections: JSON.parse(JSON.stringify(wikiPage.sections)),
-                images: wikiPage.images,
-                date: today,
-                url: wikiPage.url,
-            },
-        });
+        const created = await createArticle(wikiPage);
 
         setCache(created);
         return created;
@@ -58,9 +50,7 @@ export async function ensureDailyWikiPage(): Promise<DailyWikiPage> {
             error.message.includes("Unique constraint");
 
         if (isUniqueViolation) {
-            const fallback = await prisma.dailyWikiPage.findUnique({
-                where: { date: today },
-            });
+            const fallback = await getTodaysArticle();
             if (fallback) {
                 setCache(fallback);
                 return fallback;

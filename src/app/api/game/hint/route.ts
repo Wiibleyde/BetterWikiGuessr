@@ -3,7 +3,7 @@ import { MIN_GUESSES_FOR_HINT } from "@/constants/game";
 import { getSessionUser } from "@/lib/auth/auth";
 import { ensureDailyWikiPage } from "@/lib/game/daily-wiki";
 import { getHintImage } from "@/lib/game/game";
-import { prisma } from "@/lib/prisma";
+import { getGameStateByUserAndDailyPage } from "@/lib/repositories/gameStateRepository";
 
 export const dynamic = "force-dynamic";
 
@@ -32,14 +32,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         if (user) {
             // Authenticated: verify against DB state (cannot be spoofed)
             const dailyPage = await ensureDailyWikiPage();
-            const gameState = await prisma.gameState.findUnique({
-                where: {
-                    userId_dailyWikiPageId: {
-                        userId: user.id,
-                        dailyWikiPageId: dailyPage.id,
-                    },
-                },
-            });
+            const gameState = await getGameStateByUserAndDailyPage(user, dailyPage);
             const dbGuessCount = Array.isArray(gameState?.guesses)
                 ? (gameState.guesses as unknown[]).length
                 : 0;

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth/auth";
-import { prisma } from "@/lib/prisma";
+import { getGameResultsByUserId } from "@/lib/repositories/gameResultRepository";
 import type { ProfileStats } from "@/types/auth";
 
 export const dynamic = "force-dynamic";
@@ -11,11 +11,7 @@ export async function GET(): Promise<NextResponse> {
         return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    const results = await prisma.gameResult.findMany({
-        where: { userId: user.id },
-        include: { dailyWikiPage: { select: { date: true, title: true } } },
-        orderBy: { createdAt: "desc" },
-    });
+    const results = await getGameResultsByUserId(user.id);
 
     const totalGames = results.length;
     const totalWins = results.filter((r) => r.won).length;

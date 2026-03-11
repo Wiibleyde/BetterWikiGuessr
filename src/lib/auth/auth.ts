@@ -1,12 +1,8 @@
 import { cookies } from "next/headers";
 import type { NextResponse } from "next/server";
-import {
-    AUTH_COOKIE,
-    COOKIE_MAX_AGE,
-    STATE_COOKIE,
-} from "@/constants/auth";
-import { prisma } from "@/lib/prisma";
+import { AUTH_COOKIE, COOKIE_MAX_AGE, STATE_COOKIE } from "@/constants/auth";
 import type { AuthUser } from "@/types/auth";
+import { getUserById } from "../repositories/userRepository";
 import { verifyJWT } from "./jwt";
 
 export async function getSessionUser(): Promise<AuthUser | null> {
@@ -17,10 +13,7 @@ export async function getSessionUser(): Promise<AuthUser | null> {
     const payload = verifyJWT(token);
     if (!payload) return null;
 
-    const user = await prisma.user.findUnique({
-        where: { id: payload.userId },
-        select: { id: true, discordId: true, username: true, avatar: true },
-    });
+    const user = await getUserById(payload.userId);
 
     return user;
 }
