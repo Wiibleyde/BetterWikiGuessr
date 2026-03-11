@@ -1,4 +1,4 @@
-import { STORAGE_KEY_PREFIX } from "@/lib/constants/game";
+import { STORAGE_KEY_PREFIX } from "@/constants/game";
 import type { GameCache, RevealedMap, StoredGuess } from "@/types/game";
 
 export function loadCache(date: string): GameCache | null {

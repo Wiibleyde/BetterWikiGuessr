@@ -4,7 +4,22 @@
 // ---------------------------------------------------------------------------
 
 import type { ProximityReason } from "@/types/game";
-import { levenshteinDistance } from "./index";
+import { plural } from "../helper";
+import { levenshteinDistance } from "./levenstein";
+
+function isAdjacentTransposition(guess: string, target: string): boolean {
+    for (let i = 0; i < guess.length - 1; i++) {
+        if (
+            guess[i] === target[i + 1] &&
+            guess[i + 1] === target[i] &&
+            guess.substring(0, i) === target.substring(0, i) &&
+            guess.substring(i + 2) === target.substring(i + 2)
+        ) {
+            return true;
+        }
+    }
+    return false;
+}
 
 export function diagnoseProximity(
     guess: string,
@@ -12,65 +27,33 @@ export function diagnoseProximity(
 ): ProximityReason {
     const dist = levenshteinDistance(guess, target);
     const lenDiff = target.length - guess.length;
+    const absDiff = Math.abs(lenDiff);
 
-    // Single-edit cases: provide precise feedback
-    if (dist === 1) {
-        if (lenDiff === 1) {
-            return { type: "deletion", description: "1 lettre manquante" };
+    // Same-length words: substitution, transposition, or mixed
+    if (lenDiff === 0) {
+        if (dist === 1) {
+            return isAdjacentTransposition(guess, target)
+                ? { type: "transposition", description: "Lettres inversées" }
+                : { type: "substitution", description: "1 lettre différente" };
         }
-        if (lenDiff === -1) {
-            return { type: "insertion", description: "1 lettre en trop" };
-        }
-        // Same length → substitution or transposition
-        if (guess.length === target.length) {
-            // Check for adjacent transposition
-            for (let i = 0; i < guess.length - 1; i++) {
-                if (guess[i] === target[i + 1] && guess[i + 1] === target[i]) {
-                    // Verify the rest matches
-                    const before =
-                        guess.substring(0, i) === target.substring(0, i);
-                    const after =
-                        guess.substring(i + 2) === target.substring(i + 2);
-                    if (before && after) {
-                        return {
-                            type: "transposition",
-                            description: "Lettres inversées",
-                        };
-                    }
-                }
-            }
-            return { type: "substitution", description: "1 lettre différente" };
-        }
-    }
-
-    // Multi-edit cases
-    if (dist === 2) {
-        if (lenDiff === 0) {
+        if (dist === 2) {
             return { type: "mixed", description: "2 lettres différentes" };
         }
-        if (lenDiff > 0) {
-            return {
-                type: "deletion",
-                description: `${Math.abs(lenDiff)} lettre${Math.abs(lenDiff) > 1 ? "s" : ""} manquante${Math.abs(lenDiff) > 1 ? "s" : ""}`,
-            };
-        }
-        return {
-            type: "insertion",
-            description: `${Math.abs(lenDiff)} lettre${Math.abs(lenDiff) > 1 ? "s" : ""} en trop`,
-        };
+        return { type: "mixed", description: "Mot très proche" };
     }
 
-    // General case
-    if (Math.abs(lenDiff) >= dist) {
+    // Different-length words: deletion or insertion
+    if (dist <= 2 || absDiff >= dist) {
+        const count = dist <= 2 ? absDiff : dist;
         if (lenDiff > 0) {
             return {
                 type: "deletion",
-                description: `${dist} lettre${dist > 1 ? "s" : ""} manquante${dist > 1 ? "s" : ""}`,
+                description: `${plural(count, "lettre manquante", "lettres manquantes")} }`,
             };
         }
         return {
             type: "insertion",
-            description: `${dist} lettre${dist > 1 ? "s" : ""} en trop`,
+            description: `${plural(count, "lettre en trop", "lettres en trop")}`,
         };
     }
 

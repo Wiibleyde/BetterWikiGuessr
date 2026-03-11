@@ -4,7 +4,7 @@ import {
     AUTH_COOKIE,
     COOKIE_MAX_AGE,
     STATE_COOKIE,
-} from "@/lib/constants/auth";
+} from "@/constants/auth";
 import { prisma } from "@/lib/prisma";
 import type { AuthUser } from "@/types/auth";
 import { verifyJWT } from "./jwt";

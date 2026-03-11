@@ -4,7 +4,7 @@ import type {
     LeaderboardCategoryMeta,
     LeaderboardEntry,
 } from "@/types/leaderboard";
-import { HINT_PENALTY } from "./constants/game";
+import { HINT_PENALTY } from "../constants/game";
 
 const LEADERBOARD_LIMIT = 20;
 

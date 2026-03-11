@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { MIN_GUESSES_FOR_HINT } from "@/constants/game";
 import { getSessionUser } from "@/lib/auth/auth";
-import { MIN_GUESSES_FOR_HINT } from "@/lib/constants/game";
 import { ensureDailyWikiPage } from "@/lib/game/daily-wiki";
 import { getHintImage } from "@/lib/game/game";
 import { prisma } from "@/lib/prisma";
