@@ -1,94 +1,10 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth/auth";
-import { ensureDailyWikiPage } from "@/lib/game/daily-wiki";
 import {
-    createOrUpdateGameState,
-    getGameStateByUserAndDailyPage,
-} from "@/lib/repositories/gameStateRepository";
-import type { GameCache, RevealedMap, StoredGuess } from "@/types/game";
+    getStateHandler,
+    saveStateHandler,
+} from "@/controllers/gameController";
+import { withAuth, withErrorHandler } from "@/utils/handler";
 
 export const dynamic = "force-dynamic";
 
-/**
- * GET /api/game/state — fetch the authenticated user's saved game state for today.
- * Returns { state: GameCache | null }.
- */
-export async function GET(): Promise<NextResponse> {
-    try {
-        const user = await getSessionUser();
-        if (!user) {
-            return NextResponse.json(
-                { error: "Non authentifié" },
-                { status: 401 },
-            );
-        }
-
-        const dailyPage = await ensureDailyWikiPage();
-
-        const gameState = await getGameStateByUserAndDailyPage(user, dailyPage);
-
-        if (!gameState) {
-            return NextResponse.json({ state: null });
-        }
-
-        const cache: GameCache = {
-            guesses: gameState.guesses as unknown as StoredGuess[],
-            revealed: gameState.revealed as unknown as RevealedMap,
-            saved: gameState.won,
-            revealedImages:
-                (gameState.revealedImages as unknown as string[]) ?? [],
-        };
-
-        return NextResponse.json({ state: cache });
-    } catch (error) {
-        console.error("[api/game/state] GET", error);
-        return NextResponse.json({ error: "Erreur interne" }, { status: 500 });
-    }
-}
-
-/**
- * PUT /api/game/state — save the authenticated user's current game state for today.
- * Body: { guesses: StoredGuess[], revealed: RevealedMap, saved?: boolean }
- */
-export async function PUT(request: NextRequest): Promise<NextResponse> {
-    try {
-        const user = await getSessionUser();
-        if (!user) {
-            return NextResponse.json(
-                { error: "Non authentifié" },
-                { status: 401 },
-            );
-        }
-
-        const body = (await request.json()) as GameCache;
-
-        if (!Array.isArray(body.guesses) || typeof body.revealed !== "object") {
-            return NextResponse.json(
-                { error: "Données invalides" },
-                { status: 400 },
-            );
-        }
-
-        const dailyPage = await ensureDailyWikiPage();
-
-        const guessesJson = JSON.parse(JSON.stringify(body.guesses));
-        const revealedJson = JSON.parse(JSON.stringify(body.revealed));
-        const revealedImagesJson = JSON.parse(
-            JSON.stringify(body.revealedImages ?? []),
-        );
-
-        await createOrUpdateGameState(
-            user,
-            dailyPage,
-            guessesJson,
-            revealedJson,
-            revealedImagesJson,
-            body.saved ?? false,
-        );
-
-        return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error("[api/game/state] PUT", error);
-        return NextResponse.json({ error: "Erreur interne" }, { status: 500 });
-    }
-}
+export const GET = withErrorHandler(withAuth(getStateHandler));
+export const PUT = withErrorHandler(withAuth(saveStateHandler));

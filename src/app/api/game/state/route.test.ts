@@ -1,13 +1,17 @@
 import { describe, expect, it, mock } from "bun:test";
 import { NextRequest } from "next/server";
 
-const getSessionUserMock = mock();
+const getSessionMock = mock();
 const ensureDailyWikiPageMock = mock();
 const findUniqueMock = mock();
 const upsertMock = mock();
 
 mock.module("@/lib/auth/auth", () => ({
-    getSessionUser: getSessionUserMock,
+    auth: {
+        api: {
+            getSession: getSessionMock,
+        },
+    },
 }));
 
 mock.module("@/lib/game/daily-wiki", () => ({
@@ -25,20 +29,28 @@ mock.module("@/lib/prisma", () => ({
 
 const { GET, PUT } = await import("./route");
 
+function makeRequest(method = "GET", body?: unknown): NextRequest {
+    return new NextRequest("http://localhost/api/game/state", {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+}
+
 describe("GET /api/game/state", () => {
     it("retourne 401 si non authentifié", async () => {
-        getSessionUserMock.mockResolvedValue(null);
+        getSessionMock.mockResolvedValue(null);
 
-        const response = await GET();
+        const response = await GET(makeRequest());
         expect(response.status).toBe(401);
     });
 
     it("retourne state null si aucun état n'existe", async () => {
-        getSessionUserMock.mockResolvedValue({ id: "user-1" });
+        getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
         ensureDailyWikiPageMock.mockResolvedValue({ id: "page-1" });
         findUniqueMock.mockResolvedValue(null);
 
-        const response = await GET();
+        const response = await GET(makeRequest());
         const body = (await response.json()) as { state: null };
 
         expect(response.status).toBe(200);
@@ -47,28 +59,20 @@ describe("GET /api/game/state", () => {
 });
 
 describe("PUT /api/game/state", () => {
-    function createRequest(body: unknown): NextRequest {
-        return new NextRequest("http://localhost/api/game/state", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body),
-        });
-    }
-
     it("retourne 401 si non authentifié", async () => {
-        getSessionUserMock.mockResolvedValue(null);
+        getSessionMock.mockResolvedValue(null);
 
         const response = await PUT(
-            createRequest({ guesses: [], revealed: {} }),
+            makeRequest("PUT", { guesses: [], revealed: {} }),
         );
         expect(response.status).toBe(401);
     });
 
     it("retourne 400 si payload invalide", async () => {
-        getSessionUserMock.mockResolvedValue({ id: "user-1" });
+        getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
 
         const response = await PUT(
-            createRequest({ guesses: "bad", revealed: {} }),
+            makeRequest("PUT", { guesses: "bad", revealed: {} }),
         );
         const body = (await response.json()) as { error: string };
 
@@ -77,12 +81,12 @@ describe("PUT /api/game/state", () => {
     });
 
     it("upsert l'état courant quand payload valide", async () => {
-        getSessionUserMock.mockResolvedValue({ id: "user-1" });
+        getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
         ensureDailyWikiPageMock.mockResolvedValue({ id: "page-1" });
         upsertMock.mockResolvedValue({});
 
         const response = await PUT(
-            createRequest({
+            makeRequest("PUT", {
                 guesses: [
                     {
                         word: "tour",

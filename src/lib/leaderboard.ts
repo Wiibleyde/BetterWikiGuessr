@@ -59,11 +59,10 @@ async function computeWinStreak(): Promise<LeaderboardEntry[]> {
 
     // Grouper par userId
     const byUser = new Map<
-        number,
+        string,
         {
-            username: string;
-            avatar: string | null;
-            discordId: string;
+            name: string;
+            image: string | null;
             dates: Date[];
         }
     >();
@@ -72,9 +71,8 @@ async function computeWinStreak(): Promise<LeaderboardEntry[]> {
         let entry = byUser.get(r.userId);
         if (!entry) {
             entry = {
-                username: r.user.username,
-                avatar: r.user.avatar,
-                discordId: r.user.discordId,
+                name: r.user.name,
+                image: r.user.image,
                 dates: [],
             };
             byUser.set(r.userId, entry);
@@ -84,10 +82,9 @@ async function computeWinStreak(): Promise<LeaderboardEntry[]> {
 
     // Calculer la plus longue série consécutive pour chaque user
     const streaks: {
-        userId: number;
-        username: string;
-        avatar: string | null;
-        discordId: string;
+        userId: string;
+        name: string;
+        image: string | null;
         streak: number;
         from: string;
         to: string;
@@ -131,9 +128,8 @@ async function computeWinStreak(): Promise<LeaderboardEntry[]> {
 
         streaks.push({
             userId,
-            username: data.username,
-            avatar: data.avatar,
-            discordId: data.discordId,
+            name: data.name,
+            image: data.image,
             streak: maxStreak,
             from: fromDate.toLocaleDateString("fr-FR", {
                 day: "2-digit",
@@ -151,9 +147,8 @@ async function computeWinStreak(): Promise<LeaderboardEntry[]> {
     return streaks.slice(0, LEADERBOARD_LIMIT).map((s, i) => ({
         rank: i + 1,
         userId: s.userId,
-        username: s.username,
-        avatar: s.avatar,
-        discordId: s.discordId,
+        name: s.name,
+        image: s.image,
         value: s.streak,
         detail: s.streak > 1 ? `du ${s.from} au ${s.to}` : undefined,
     }));
@@ -164,7 +159,7 @@ async function computeBestGuess(): Promise<LeaderboardEntry[]> {
     const results = await getBestScoreByUser();
 
     // Garder la meilleure perf par user
-    const best = new Map<number, LeaderboardEntry & { rawValue: number }>();
+    const best = new Map<string, LeaderboardEntry & { rawValue: number }>();
 
     for (const r of results) {
         const score = r.guessCount + r.hintsUsed * HINT_PENALTY;
@@ -182,9 +177,8 @@ async function computeBestGuess(): Promise<LeaderboardEntry[]> {
             best.set(r.userId, {
                 rank: 0,
                 userId: r.userId,
-                username: r.user.username,
-                avatar: r.user.avatar,
-                discordId: r.user.discordId,
+                name: r.user.name,
+                image: r.user.image,
                 value: score,
                 detail,
                 rawValue: score,
@@ -197,9 +191,8 @@ async function computeBestGuess(): Promise<LeaderboardEntry[]> {
     return sorted.slice(0, LEADERBOARD_LIMIT).map((e, i) => ({
         rank: i + 1,
         userId: e.userId,
-        username: e.username,
-        avatar: e.avatar,
-        discordId: e.discordId,
+        name: e.name,
+        image: e.image,
         value: e.value,
         detail: e.detail,
     }));
@@ -218,9 +211,8 @@ async function computeMostWins(): Promise<LeaderboardEntry[]> {
         return {
             rank: i + 1,
             userId: r.userId,
-            username: user?.username ?? "Inconnu",
-            avatar: user?.avatar ?? null,
-            discordId: user?.discordId ?? "",
+            name: user?.name ?? "Inconnu",
+            image: user?.image ?? null,
             value: r._count.id,
         };
     });

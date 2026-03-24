@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -13,32 +10,81 @@ datasource db {
   provider = "postgresql"
 }
 
+// ─── BetterAuth core models ───────────────────────────────────────────────────
+
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+  sessions      Session[]
+  accounts      Account[]
+  gameResults   GameResult[]
+  gameStates    GameState[]
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@unique([providerId, accountId])
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@unique([identifier, value])
+}
+
+// ─── Application models ────────────────────────────────────────────────────────
+
 model DailyWikiPage {
   id          Int          @id @default(autoincrement())
   title       String
   sections    Json // WikiSection[]
   images      String[] // URLs des images filtrées
   date        DateTime     @unique @db.Date // Une seule page par jour
-  url         String @default("") // URL de la page, pour éviter de devoir la reconstruire à chaque fois
+  url         String       @default("") // URL de la page, pour éviter de devoir la reconstruire
   createdAt   DateTime     @default(now())
-  gameResults GameResult[]
-  gameStates  GameState[]
-}
-
-model User {
-  id          Int          @id @default(autoincrement())
-  discordId   String       @unique
-  username    String
-  avatar      String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
   gameResults GameResult[]
   gameStates  GameState[]
 }
 
 model GameResult {
   id              Int           @id @default(autoincrement())
-  userId          Int
+  userId          String
   dailyWikiPageId Int
   guessCount      Int
   hintsUsed       Int           @default(0)
@@ -52,7 +98,7 @@ model GameResult {
 
 model GameState {
   id              Int           @id @default(autoincrement())
-  userId          Int
+  userId          String
   dailyWikiPageId Int
   guesses         Json // StoredGuess[]
   revealed        Json // RevealedMap

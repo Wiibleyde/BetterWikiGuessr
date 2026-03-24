@@ -1,36 +1,26 @@
 "use client";
 
-import axios from "axios";
 import { useCallback } from "react";
-import useSWR from "swr";
+import { authClient } from "@/lib/auth/client";
 import type { AuthUser } from "@/types/auth";
 
-const authFetcher = async (url: string): Promise<{ user: AuthUser | null }> => {
-    try {
-        const response = await axios.get<{ user: AuthUser | null }>(url);
-        return response.data;
-    } catch {
-        return { user: null };
-    }
-};
+export function useAuth(): {
+    user: AuthUser | null;
+    loading: boolean;
+    login: () => void;
+    logout: () => Promise<void>;
+} {
+    const { data: session, isPending } = authClient.useSession();
 
-export function useAuth() {
-    const { data, isLoading, mutate } = useSWR<{ user: AuthUser | null }>(
-        "/api/auth/me",
-        authFetcher,
-        { revalidateOnFocus: false },
-    );
-
-    const user = data?.user ?? null;
+    const user = (session?.user as AuthUser | undefined) ?? null;
 
     const login = useCallback(() => {
-        window.location.href = "/api/auth/login";
+        authClient.signIn.social({ provider: "discord" });
     }, []);
 
     const logout = useCallback(async () => {
-        await axios.post("/api/auth/logout");
-        mutate({ user: null }, { revalidate: false });
-    }, [mutate]);
+        await authClient.signOut();
+    }, []);
 
-    return { user, loading: isLoading, login, logout };
+    return { user, loading: isPending, login, logout };
 }
