@@ -4,7 +4,7 @@ import { useAtomValue } from "jotai";
 import Image from "next/image";
 import { useState } from "react";
 import { guessesAtom } from "@/atom/game";
-import { HINT_PENALTY, MIN_GUESSES_FOR_HINT } from "@/lib/constants/game";
+import { HINT_PENALTY, MIN_GUESSES_FOR_HINT } from "@/constants/game";
 
 interface ImageHintProps {
     imageCount: number;

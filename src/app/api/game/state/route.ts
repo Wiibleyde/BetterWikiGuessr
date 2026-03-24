@@ -1,7 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth/auth";
 import { ensureDailyWikiPage } from "@/lib/game/daily-wiki";
-import { prisma } from "@/lib/prisma";
+import {
+    createOrUpdateGameState,
+    getGameStateByUserAndDailyPage,
+} from "@/lib/repositories/gameStateRepository";
 import type { GameCache, RevealedMap, StoredGuess } from "@/types/game";
 
 export const dynamic = "force-dynamic";
@@ -22,14 +25,7 @@ export async function GET(): Promise<NextResponse> {
 
         const dailyPage = await ensureDailyWikiPage();
 
-        const gameState = await prisma.gameState.findUnique({
-            where: {
-                userId_dailyWikiPageId: {
-                    userId: user.id,
-                    dailyWikiPageId: dailyPage.id,
-                },
-            },
-        });
+        const gameState = await getGameStateByUserAndDailyPage(user, dailyPage);
 
         if (!gameState) {
             return NextResponse.json({ state: null });
@@ -81,28 +77,14 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
             JSON.stringify(body.revealedImages ?? []),
         );
 
-        await prisma.gameState.upsert({
-            where: {
-                userId_dailyWikiPageId: {
-                    userId: user.id,
-                    dailyWikiPageId: dailyPage.id,
-                },
-            },
-            update: {
-                guesses: guessesJson,
-                revealed: revealedJson,
-                won: body.saved ?? false,
-                revealedImages: revealedImagesJson,
-            },
-            create: {
-                userId: user.id,
-                dailyWikiPageId: dailyPage.id,
-                guesses: guessesJson,
-                revealed: revealedJson,
-                won: body.saved ?? false,
-                revealedImages: revealedImagesJson,
-            },
-        });
+        await createOrUpdateGameState(
+            user,
+            dailyPage,
+            guessesJson,
+            revealedJson,
+            revealedImagesJson,
+            body.saved ?? false,
+        );
 
         return NextResponse.json({ success: true });
     } catch (error) {

@@ -1,6 +1,6 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { JWT_EXPIRATION_DAYS } from "@/constants/auth";
 import env from "@/env";
-import { JWT_EXPIRATION_DAYS } from "@/lib/constants/auth";
 import type { JWTPayload } from "@/types/auth";
 
 function assertSecretConfigured(): void {

@@ -5,7 +5,7 @@ import {
     lastGuessFoundAtom,
     lastGuessSimilarityAtom,
 } from "@/atom/game";
-import { CLOSE_THRESHOLD } from "@/lib/constants/game";
+import { CLOSE_THRESHOLD } from "@/constants/game";
 
 interface InputProps {
     input: string;

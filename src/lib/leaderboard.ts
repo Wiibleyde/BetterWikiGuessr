@@ -1,10 +1,15 @@
-import { prisma } from "@/lib/prisma";
 import type {
     LeaderboardCategoryData,
     LeaderboardCategoryMeta,
     LeaderboardEntry,
 } from "@/types/leaderboard";
-import { HINT_PENALTY } from "./constants/game";
+import { HINT_PENALTY } from "../constants/game";
+import {
+    getBestScoreByUser,
+    getMostWins,
+    getVictoriesGroupedByUser,
+} from "./repositories/gameResultRepository";
+import { getUserWhereIdIn } from "./repositories/userRepository";
 
 const LEADERBOARD_LIMIT = 20;
 
@@ -49,15 +54,8 @@ type CategoryComputer = () => Promise<LeaderboardEntry[]>;
 
 async function computeWinStreak(): Promise<LeaderboardEntry[]> {
     // Récupérer toutes les victoires avec la date de la page, groupées par user
-    const results = await prisma.gameResult.findMany({
-        where: { won: true },
-        select: {
-            userId: true,
-            user: { select: { username: true, avatar: true, discordId: true } },
-            dailyWikiPage: { select: { date: true } },
-        },
-        orderBy: { dailyWikiPage: { date: "asc" } },
-    });
+
+    const results = await getVictoriesGroupedByUser();
 
     // Grouper par userId
     const byUser = new Map<
@@ -163,17 +161,7 @@ async function computeWinStreak(): Promise<LeaderboardEntry[]> {
 
 async function computeBestGuess(): Promise<LeaderboardEntry[]> {
     // Meilleure perf = le score le plus bas (guessCount + hintsUsed * HINT_PENALTY)
-    const results = await prisma.gameResult.findMany({
-        where: { won: true },
-        select: {
-            userId: true,
-            guessCount: true,
-            hintsUsed: true,
-            user: { select: { username: true, avatar: true, discordId: true } },
-            dailyWikiPage: { select: { title: true, date: true } },
-        },
-        orderBy: { guessCount: "asc" },
-    });
+    const results = await getBestScoreByUser();
 
     // Garder la meilleure perf par user
     const best = new Map<number, LeaderboardEntry & { rawValue: number }>();
@@ -218,20 +206,11 @@ async function computeBestGuess(): Promise<LeaderboardEntry[]> {
 }
 
 async function computeMostWins(): Promise<LeaderboardEntry[]> {
-    const results = await prisma.gameResult.groupBy({
-        by: ["userId"],
-        where: { won: true },
-        _count: { id: true },
-        orderBy: { _count: { id: "desc" } },
-        take: LEADERBOARD_LIMIT,
-    });
+    const results = await getMostWins();
 
     // Récupérer les infos users en une seule requête
     const userIds = results.map((r) => r.userId);
-    const users = await prisma.user.findMany({
-        where: { id: { in: userIds } },
-        select: { id: true, username: true, avatar: true, discordId: true },
-    });
+    const users = await getUserWhereIdIn(userIds);
     const userMap = new Map(users.map((u) => [u.id, u]));
 
     return results.map((r, i) => {

@@ -10,7 +10,7 @@ import {
     winImagesAtom,
     wonAtom,
 } from "@/atom/game";
-import { MIN_GUESSES_FOR_HINT } from "@/lib/constants/game";
+import { MIN_GUESSES_FOR_HINT } from "@/constants/game";
 import { fetchGameReveal, fetchImageHint } from "@/lib/queries";
 import type { MaskedArticle, RevealedMap, StoredGuess } from "@/types/game";
 import { saveCache } from "@/utils/cache";

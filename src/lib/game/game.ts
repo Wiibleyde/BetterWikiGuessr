@@ -11,9 +11,9 @@ import type {
 } from "@/types/game";
 import type { WikiSection } from "@/types/wiki";
 import {
+    combinedSimilarity,
     diagnoseProximity,
     levenshteinDistance,
-    levenshteinSimilarity,
 } from "@/utils/similarity";
 import {
     CLOSE_THRESHOLD,
@@ -21,13 +21,8 @@ import {
     MIN_FUZZY_LENGTH,
     REVEAL_THRESHOLD,
     TOKEN_REGEX,
-} from "../constants/game";
+} from "../../constants/game";
 import { ensureDailyWikiPage } from "./daily-wiki";
-
-// ---------------------------------------------------------------------------
-//  Combined similarity — takes the best score across all three metrics so
-//  that different kinds of proximity (typo, prefix, structural) are caught.
-// ---------------------------------------------------------------------------
 
 function tokenize(text: string, prefix = ""): TokenizeResult {
     const tokens: Token[] = [];
@@ -225,7 +220,7 @@ export async function checkGuess(
                 bestMatchWord = normalized;
             }
 
-            const sim = levenshteinSimilarity(normalizedGuess, normalized);
+            const sim = combinedSimilarity(normalizedGuess, normalized);
             if (sim > bestSimilarity) {
                 bestSimilarity = sim;
                 if (dist !== 1) {
@@ -316,7 +311,7 @@ export async function verifyWin(guessedWords: string[]): Promise<boolean> {
                 );
                 if (
                     longer / shorter <= MAX_LENGTH_RATIO &&
-                    levenshteinSimilarity(guess, titleWord.normalized) >=
+                    combinedSimilarity(guess, titleWord.normalized) >=
                         REVEAL_THRESHOLD
                 ) {
                     return true;

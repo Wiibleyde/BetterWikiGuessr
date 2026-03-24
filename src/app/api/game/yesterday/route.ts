@@ -1,17 +1,11 @@
 import { NextResponse } from "next/server";
-import { yesterdayInGameTZ } from "@/lib/game/date";
-import { prisma } from "@/lib/prisma";
+import { getYesterdaysArticle } from "@/lib/repositories/articleRepository";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(): Promise<NextResponse> {
     try {
-        const yesterday = yesterdayInGameTZ();
-
-        const page = await prisma.dailyWikiPage.findUnique({
-            where: { date: yesterday },
-            select: { title: true },
-        });
+        const page = await getYesterdaysArticle();
 
         if (!page) {
             return NextResponse.json({ title: null });

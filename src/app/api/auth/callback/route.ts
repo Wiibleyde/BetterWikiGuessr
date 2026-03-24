@@ -7,7 +7,7 @@ import {
     setAuthCookie,
 } from "@/lib/auth/auth";
 import { signJWT } from "@/lib/auth/jwt";
-import { prisma } from "@/lib/prisma";
+import { createUser } from "@/lib/repositories/userRepository";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +19,7 @@ interface DiscordTokenResponse {
     token_type: string;
 }
 
-interface DiscordUser {
+export interface DiscordUser {
     id: string;
     username: string;
     avatar: string | null;
@@ -94,18 +94,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         }
         const discordUser = userResponse.data;
 
-        const user = await prisma.user.upsert({
-            where: { discordId: discordUser.id },
-            update: {
-                username: discordUser.username,
-                avatar: discordUser.avatar,
-            },
-            create: {
-                discordId: discordUser.id,
-                username: discordUser.username,
-                avatar: discordUser.avatar,
-            },
-        });
+        const user = await createUser(discordUser);
 
         const token = signJWT({ userId: user.id, discordId: user.discordId });
         const response = NextResponse.redirect(new URL("/", request.url));

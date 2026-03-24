@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth/auth";
 import { ensureDailyWikiPage } from "@/lib/game/daily-wiki";
 import { verifyWin } from "@/lib/game/game";
-import { prisma } from "@/lib/prisma";
+import { createOrUpdateGameResult } from "@/lib/repositories/gameResultRepository";
 
 export const dynamic = "force-dynamic";
 
@@ -62,22 +62,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         const dailyPage = await ensureDailyWikiPage();
 
-        const result = await prisma.gameResult.upsert({
-            where: {
-                userId_dailyWikiPageId: {
-                    userId: user.id,
-                    dailyWikiPageId: dailyPage.id,
-                },
-            },
-            update: {},
-            create: {
-                userId: user.id,
-                dailyWikiPageId: dailyPage.id,
-                guessCount,
-                hintsUsed: safeHintsUsed,
-                won: true,
-            },
-        });
+        const result = await createOrUpdateGameResult(
+            dailyPage,
+            user,
+            guessCount,
+            safeHintsUsed,
+        );
 
         return NextResponse.json({ success: true, resultId: result.id });
     } catch (error) {

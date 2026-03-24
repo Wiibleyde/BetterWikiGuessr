@@ -2,7 +2,7 @@ import {
     GENERIC_IMAGE_PATTERNS,
     IGNORED_SECTIONS,
     WIKI_API,
-} from "@/lib/constants/wiki";
+} from "@/constants/wiki";
 import type {
     ArticleApiResponse,
     ImageApiResponse,
