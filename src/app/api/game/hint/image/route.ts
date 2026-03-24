@@ -154,16 +154,6 @@ async function fetchAndProcess(imageUrl: string): Promise<Uint8Array | null> {
 
         const imageBuffer = Buffer.from(await response.arrayBuffer());
 
-        // If hard obfuscation add a simple noise overlay to make the hint less obvious while still recognizable, otherwise just convert to webp and resize if needed
-        if (!HARD_OBFUSCATION) {
-            return new Uint8Array(
-                await sharp(imageBuffer)
-                    .resize({ width: MAX_WIDTH, withoutEnlargement: true })
-                    .webp({ quality: WEBP_QUALITY })
-                    .toBuffer(),
-            );
-        }
-
         const resizedBuffer = await sharp(imageBuffer)
             .resize({ width: MAX_WIDTH, withoutEnlargement: true })
             .toBuffer();
@@ -202,12 +192,7 @@ async function fetchAndProcess(imageUrl: string): Promise<Uint8Array | null> {
 
         const noise = Buffer.alloc(width * height * 4);
         for (let i = 0; i < noise.length; i++) {
-            if ((i + 1) % 4 === 0) {
-                noise[i] = 120;
-                continue;
-            }
-
-            noise[i] = Math.floor(Math.random() * 256);
+            noise[i] = i % 4 === 3 ? 120 : Math.floor(Math.random() * 256);
         }
 
         const obfuscated = await sharp(pixelatedBuffer)

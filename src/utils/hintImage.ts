@@ -5,9 +5,7 @@ export function buildHintImageUrl(hintIndex: number): string {
 }
 
 export function normalizeHintImageUrls(urls: string[] | undefined): string[] {
-    if (!urls || urls.length === 0) {
-        return [];
-    }
-
-    return urls.map((_, index) => buildHintImageUrl(index));
+    return Array.from({ length: urls?.length ?? 0 }, (_, index) =>
+        buildHintImageUrl(index),
+    );
 }
