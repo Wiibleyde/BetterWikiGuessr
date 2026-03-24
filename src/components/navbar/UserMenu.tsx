@@ -17,9 +17,9 @@ export default function UserMenu({
 }: UserMenuProps) {
     return (
         <div className="flex items-center gap-3">
-            {user.avatar && (
+            {user.image && (
                 <Image
-                    src={`https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png?size=32`}
+                    src={user.image}
                     alt=""
                     width={28}
                     height={28}
@@ -31,7 +31,7 @@ export default function UserMenu({
                 onClick={onNavigate}
                 className="text-sm text-gray-700 hover:text-gray-900 transition-colors"
             >
-                {user.username}
+                {user.name}
             </Link>
             <button
                 type="button"

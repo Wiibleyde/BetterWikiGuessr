@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { guessesAtom } from "@/atom/game";
 import { HINT_PENALTY, MIN_GUESSES_FOR_HINT } from "@/constants/game";
+import { normalizeHintImageUrls } from "@/utils/hintImage";
 
 interface ImageHintProps {
     imageCount: number;
@@ -26,6 +27,7 @@ export default function ImageHint({
 
     if (imageCount === 0) return null;
 
+    const displayUrls = normalizeHintImageUrls(revealedImages);
     const hintsUsed = revealedImages.length;
     const allRevealed = hintsUsed >= imageCount;
     const hintUnlocked = guesses.length >= MIN_GUESSES_FOR_HINT;
@@ -77,7 +79,7 @@ export default function ImageHint({
 
                 {hintsUsed > 0 && expanded && (
                     <div className="p-4 flex flex-wrap gap-4">
-                        {revealedImages.map((url, i) => (
+                        {displayUrls.map((url, i) => (
                             <div
                                 key={url}
                                 className="relative rounded-lg overflow-hidden shadow-sm border border-gray-100 max-h-48"
@@ -87,7 +89,8 @@ export default function ImageHint({
                                     alt={`Indice ${i + 1}`}
                                     width={300}
                                     height={192}
-                                    className="max-h-48 w-auto rounded-lg object-contain"
+                                    className="max-h-48 w-auto rounded-lg object-contain pointer-events-none select-none"
+                                    draggable={false}
                                     unoptimized
                                 />
                             </div>

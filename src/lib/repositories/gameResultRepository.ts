@@ -7,7 +7,7 @@ export const getVictoriesGroupedByUser = async () => {
         where: { won: true },
         select: {
             userId: true,
-            user: { select: { username: true, avatar: true, discordId: true } },
+            user: { select: { name: true, image: true } },
             dailyWikiPage: { select: { date: true } },
         },
         orderBy: { dailyWikiPage: { date: "asc" } },
@@ -22,7 +22,7 @@ export const getBestScoreByUser = async () => {
             userId: true,
             guessCount: true,
             hintsUsed: true,
-            user: { select: { username: true, avatar: true, discordId: true } },
+            user: { select: { name: true, image: true } },
             dailyWikiPage: { select: { title: true, date: true } },
         },
         orderBy: { guessCount: "asc" },
@@ -66,7 +66,7 @@ export const createOrUpdateGameResult = async (
     return result;
 };
 
-export const getGameResultsByUserId = async (userId: number) => {
+export const getGameResultsByUserId = async (userId: string) => {
     const results = await prisma.gameResult.findMany({
         where: { userId },
         include: { dailyWikiPage: { select: { date: true, title: true } } },

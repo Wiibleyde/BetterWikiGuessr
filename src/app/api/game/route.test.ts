@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
+import { NextRequest } from "next/server";
 
 const getMaskedArticleMock = mock();
 
@@ -7,6 +8,10 @@ mock.module("@/lib/game/game", () => ({
 }));
 
 const { GET } = await import("./route");
+
+function makeRequest(): NextRequest {
+    return new NextRequest("http://localhost/api/game");
+}
 
 describe("GET /api/game", () => {
     const originalConsoleError = console.error;
@@ -27,7 +32,7 @@ describe("GET /api/game", () => {
             imageCount: 0,
         });
 
-        const response = await GET();
+        const response = await GET(makeRequest());
         const body = (await response.json()) as { date: string };
 
         expect(response.status).toBe(200);
@@ -38,10 +43,10 @@ describe("GET /api/game", () => {
     it("retourne 500 avec le message d'erreur", async () => {
         getMaskedArticleMock.mockRejectedValue(new Error("boom"));
 
-        const response = await GET();
+        const response = await GET(makeRequest());
         const body = (await response.json()) as { error: string };
 
         expect(response.status).toBe(500);
-        expect(body.error).toBe("boom");
+        expect(body.error).toBe("Erreur interne");
     });
 });

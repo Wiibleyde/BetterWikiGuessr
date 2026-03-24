@@ -14,10 +14,9 @@ export interface LeaderboardCategoryMeta {
 /** Une entrée dans un classement */
 export interface LeaderboardEntry {
     rank: number;
-    userId: number;
-    username: string;
-    avatar: string | null;
-    discordId: string;
+    userId: string;
+    name: string;
+    image: string | null;
     value: number;
     detail?: string; // texte complémentaire (ex: "du 01/02 au 08/02")
 }

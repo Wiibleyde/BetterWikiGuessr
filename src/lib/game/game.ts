@@ -274,6 +274,7 @@ export async function getHintImage(hintIndex: number): Promise<{
     imageUrl: string;
     hintIndex: number;
     totalImages: number;
+    date: string;
 } | null> {
     const cache = await getArticleCache();
     if (hintIndex < 0 || hintIndex >= cache.images.length) return null;
@@ -281,6 +282,7 @@ export async function getHintImage(hintIndex: number): Promise<{
         imageUrl: cache.images[hintIndex],
         hintIndex,
         totalImages: cache.images.length,
+        date: cache.date,
     };
 }
 

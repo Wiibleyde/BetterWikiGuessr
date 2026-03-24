@@ -50,9 +50,9 @@ export default function LeaderboardTable({
 
                     {/* Avatar + nom */}
                     <div className="flex items-center gap-2 min-w-0 flex-1">
-                        {entry.avatar ? (
+                        {entry.image ? (
                             <Image
-                                src={`https://cdn.discordapp.com/avatars/${entry.discordId}/${entry.avatar}.png?size=32`}
+                                src={entry.image}
                                 alt=""
                                 width={28}
                                 height={28}
@@ -62,7 +62,7 @@ export default function LeaderboardTable({
                             <div className="w-7 h-7 rounded-full bg-gray-200 shrink-0" />
                         )}
                         <span className="text-sm font-medium text-gray-800 truncate">
-                            {entry.username}
+                            {entry.name}
                         </span>
                     </div>
 

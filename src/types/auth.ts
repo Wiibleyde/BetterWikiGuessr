@@ -1,9 +1,6 @@
-export interface AuthUser {
-    id: number;
-    discordId: string;
-    username: string;
-    avatar: string | null;
-}
+import type { User } from "../../generated/prisma/client";
+
+export type AuthUser = User;
 
 export interface GameResultData {
     id: number;
@@ -22,10 +19,4 @@ export interface ProfileStats {
     averageGuesses: number;
     averageHints: number;
     results: GameResultData[];
-}
-
-export interface JWTPayload {
-    userId: number;
-    discordId: string;
-    exp: number;
 }
