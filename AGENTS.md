@@ -2,259 +2,240 @@
 
 ## Project Overview
 
-WikiGuessr is a daily word-guessing game built with **Next.js 16** (App Router), **React 19**, **TypeScript 5**, **Tailwind CSS 4**, and **Prisma 7** (PostgreSQL). Players guess words to progressively reveal a masked Wikipedia article. A new article is selected each day.
+WikiGuessr is a daily word-guessing game built with Next.js 16 App Router, React 19, TypeScript 5, Tailwind CSS 4, Prisma 7, Better Auth, and Bun. Players reveal a masked Wikipedia article by guessing words. The application also supports image hints, authenticated progress persistence, leaderboards, profile stats, and article history.
 
 ## Tech Stack
 
-| Layer        | Technology                          |
-| ------------ | ----------------------------------- |
-| Framework    | Next.js 16 (App Router)             |
-| UI           | React 19 with React Compiler        |
-| Language     | TypeScript 5 (strict mode)          |
-| Styling      | Tailwind CSS 4                      |
-| Database     | PostgreSQL via Prisma 7 (`@prisma/adapter-pg`) |
-| Data Fetching| SWR                                 |
-| Linter       | Biome 2.2                           |
-| Package Mgr  | Bun                                 |
+| Layer | Technology |
+| --- | --- |
+| Framework | Next.js 16 (App Router) |
+| UI | React 19 |
+| Language | TypeScript 5 (strict mode) |
+| Styling | Tailwind CSS 4 |
+| Client state | Jotai |
+| Authentication | Better Auth with Discord OAuth |
+| Database | PostgreSQL via Prisma 7 and `@prisma/adapter-pg` |
+| Data fetching | SWR |
+| Linter / Formatter | Biome 2.2 |
+| Testing | Bun test |
+| Package manager | Bun |
 
 ## Repository Structure
 
-```
+```text
 src/
-├── app/                    # Next.js App Router pages & API routes
-│   ├── layout.tsx          # Root layout (lang="fr")
-│   ├── page.tsx            # Home page — renders <Game />
-│   ├── globals.css         # Global styles (Tailwind)
-│   ├── leaderboard/
-│   │   └── page.tsx        # Leaderboard page
-│   ├── profile/
-│   │   └── page.tsx        # User profile page
-│   └── api/
-│       ├── game/
-│       │   ├── route.ts    # GET  → returns masked article
-│       │   ├── guess/
-│       │   │   └── route.ts # POST → checks a word guess
-│       │   ├── complete/
-│       │   │   └── route.ts # POST → saves game result (auth required)
-│       │   ├── reveal/
-│       │   │   └── route.ts # POST → bulk-reveal a list of words
-│       │   ├── state/
-│       │   │   └── route.ts # GET/POST → persist/restore auth user game state
-│       │   └── yesterday/
-│       │       └── route.ts # GET  → returns yesterday's article title
-│       ├── auth/
-│       │   ├── login/
-│       │   │   └── route.ts # GET  → redirects to Discord OAuth2
-│       │   ├── callback/
-│       │   │   └── route.ts # GET  → handles OAuth2 callback
-│       │   ├── me/
-│       │   │   └── route.ts # GET  → returns current user
-│       │   └── logout/
-│       │       └── route.ts # POST → clears auth cookie
-│       ├── leaderboard/
-│       │   └── route.ts    # GET  → returns leaderboard categories & rankings
-│       └── profile/
-│           └── stats/
-│               └── route.ts # GET  → returns user game stats
-├── components/             # React client components
-│   ├── Game.tsx            # Main game orchestrator
-│   ├── GameHeader.tsx      # Header with input, progress bar, stats
-│   ├── ArticleView.tsx     # Renders masked/revealed article sections
-│   ├── TokenList.tsx       # Renders token sequences (words & punctuation)
-│   ├── GuessList.tsx       # Sidebar list of past guesses
-│   ├── Navbar.tsx          # Top navigation bar (auth, links)
-│   ├── YesterdayWord.tsx   # Displays yesterday's article title
-│   ├── leaderboard/
-│   │   ├── LeaderboardCategory.tsx
-│   │   ├── LeaderboardContent.tsx
-│   │   └── LeaderboardTable.tsx
-│   └── profile/
-│       └── ProfileContent.tsx
-├── hooks/
-│   ├── useGameState.ts     # Core game state hook (guesses, reveals, cache)
-│   └── useAuth.ts          # Authentication state hook (Discord OAuth2)
+├── app/                          # App Router pages, metadata files, API routes
+│   ├── layout.tsx                # Root layout (Navbar, Footer, Providers)
+│   ├── page.tsx                  # Home page
+│   ├── error.tsx                 # Global app error UI
+│   ├── loading.tsx               # Global loading UI
+│   ├── not-found.tsx             # 404 page
+│   ├── robots.ts                 # robots.txt generation
+│   ├── sitemap.ts                # sitemap generation
+│   ├── api/
+│   │   ├── auth/
+│   │   │   └── [...betterauth]/route.ts   # Better Auth Next.js handler
+│   │   ├── game/
+│   │   │   ├── route.ts                    # GET masked article
+│   │   │   ├── guess/route.ts              # POST guess validation
+│   │   │   ├── complete/route.ts           # POST save result
+│   │   │   ├── state/route.ts              # GET/PUT authenticated game state
+│   │   │   ├── reveal/route.ts             # POST reveal all after verified win
+│   │   │   ├── yesterday/route.ts          # GET yesterday title
+│   │   │   ├── hint/route.ts               # POST unlock image hint
+│   │   │   └── hint/image/route.ts         # GET obfuscated hint image
+│   │   ├── historic/route.ts               # GET historic articles
+│   │   ├── leaderboard/route.ts            # GET leaderboard data
+│   │   └── profile/stats/route.ts          # GET authenticated profile stats
+│   ├── historic/page.tsx          # Historic page
+│   ├── leaderboard/page.tsx       # Leaderboard page
+│   └── profile/page.tsx           # Profile page
+├── atom/
+│   └── game.ts                    # Jotai atoms for client game state
+├── components/
+│   ├── Game.tsx                   # Main game composition
+│   ├── GameHeader.tsx             # Guess form and progress UI
+│   ├── ArticleView.tsx            # Render masked article sections
+│   ├── GuessList.tsx              # Guess history panel
+│   ├── ImageHint.tsx              # Image hint UI
+│   ├── Navbar.tsx                 # Top-level navigation
+│   ├── Footer.tsx                 # App footer
+│   ├── YesterdayWord.tsx          # Yesterday title card
+│   ├── article/                   # Article-specific presentation
+│   ├── historic/                  # Historic page components
+│   ├── leaderboard/               # Leaderboard page components
+│   ├── navbar/                    # Desktop/mobile/auth navbar pieces
+│   ├── profile/                   # Profile page components
+│   └── ui/                        # Shared UI primitives and messages
+├── constants/                     # Game and rate-limit constants
+├── contexts/                      # React contexts
+├── controllers/                   # HTTP request validation and response shaping
+├── hooks/                         # Client hooks for article, guesses, auth, db sync
 ├── lib/
-│   ├── fetcher.ts          # Generic SWR/fetch helper
-│   ├── leaderboard.ts      # Leaderboard computation (win-streak, best-guess, most-wins)
-│   ├── prisma.ts           # Prisma client singleton
-│   ├── auth/
-│   │   ├── auth.ts         # Auth helpers (session, cookies)
-│   │   ├── jwt.ts          # JWT sign/verify (HMAC-SHA256 via node:crypto)
-│   │   └── rate-limit.ts   # In-memory IP rate limiter
-│   └── game/
-│       ├── game.ts         # Server-side game logic (tokenization, guess checking)
-│       ├── daily-wiki.ts   # Daily page selection & caching (DB + in-memory)
-│       ├── normalize.ts    # Word normalization (NFD, diacritics, ligatures)
-│       └── wiki.ts         # Wikipedia API integration
-├── types/
-│   ├── game.ts             # Shared game type definitions
-│   ├── auth.ts             # Auth & profile type definitions
-│   └── leaderboard.ts      # Leaderboard type definitions
-└── instrumentation.ts      # Next.js instrumentation (daily cron bootstrap)
+│   ├── auth/                      # Better Auth server/client and rate limiting
+│   ├── game/                      # Core game logic, normalization, daily wiki, wiki fetch
+│   ├── repositories/              # Prisma-backed repositories
+│   ├── prisma.ts                  # Prisma singleton
+│   ├── db-check.ts                # Startup DB connectivity check
+│   ├── leaderboard.ts             # Leaderboard computation
+│   ├── historic.ts                # Historic article helpers
+│   └── queries.ts                 # Shared query helpers
+├── providers/                     # Global providers
+├── services/                      # Domain-level application services
+├── test/                          # Bun test suites
+├── types/                         # Shared domain types
+├── utils/                         # Response helpers, handlers, styling, image processing
+├── env.ts                         # Runtime env validation with Zod
+├── instrumentation.ts             # Startup DB check and daily article bootstrap
+└── proxy.ts                       # Request ID header injection
 prisma/
-├── schema.prisma           # Database schema
-└── migrations/             # Prisma migration files
-prisma.config.ts            # Prisma config (datasource URL, migration path)
-generated/prisma/           # Generated Prisma client (do not edit)
+├── schema.prisma                  # Prisma schema
+└── migrations/                    # Migration history
+generated/prisma/                  # Generated Prisma client (do not edit)
 ```
 
 ## Coding Conventions
 
 ### General
 
-- **Language**: TypeScript with `strict: true`. Never use `any` — prefer `unknown` and narrow with type guards.
-- **Indent**: 4 spaces (configured in Biome).
-- **Imports**: Use the `@/*` path alias for all imports from `src/`. Biome auto-organizes imports — do not manually reorder.
-- **Naming**:
-  - Files: `PascalCase` for React components (`GameHeader.tsx`), `camelCase` for everything else (`game.ts`, `useGameState.ts`).
-  - Functions/variables: `camelCase`.
-  - Types/interfaces: `PascalCase`.
-  - Constants: `UPPER_SNAKE_CASE` for true constants (regex patterns, threshold values, etc.).
-- **Exports**: Prefer `export default` for React components. Use named exports for utility functions, types, and hooks.
-- **No default exports** for non-component modules (libs, types, hooks return objects).
+- Language: TypeScript with `strict` mode.
+- Indent: 4 spaces.
+- Imports: use the `@/*` alias for imports from `src/`.
+- Naming:
+  - Components: `PascalCase`
+  - Hooks, utilities, services, controllers: `camelCase`
+  - Types and interfaces: `PascalCase`
+  - Constants: `UPPER_SNAKE_CASE` for true constants
+- Exports:
+  - Prefer default exports for React components
+  - Prefer named exports for hooks, services, utilities, and types
 
 ### TypeScript
 
-- Always type function parameters and return types explicitly for exported functions.
-- Use `interface` for object shapes; use `type` for unions, intersections, and aliases.
-- Prefer `type` imports (`import type { ... }`) when importing only types.
-- Avoid enums — use string literal union types or `as const` objects instead.
+- Do not use `any`.
+- Type exported function parameters and return values explicitly.
+- Use `type` imports where appropriate.
+- Use `interface` for object shapes and `type` for unions or aliases.
+- Never edit files in `generated/`, but importing generated Prisma types for type-only usage is acceptable when the codebase already does so.
 
-### React & Next.js
+### React and Next.js
 
-- All components in `src/components/` are **client components** (`"use client"` directive).
-- Pages and layouts are **server components** by default — keep them thin (no business logic).
-- API routes use the Next.js App Router convention (`route.ts` with exported `GET`/`POST` functions).
-- Mark API routes with `export const dynamic = "force-dynamic"` when they must not be cached.
-- Props interfaces are defined in the same file as the component, named `<ComponentName>Props`.
-- Use `RefObject` from React for ref typing — never use `React.MutableRefObject`.
-- Avoid `useEffect` for derived state — leverage React Compiler and let values compute inline.
+- App Router pages and layouts stay thin and server-first unless a page genuinely needs client behavior.
+- Keep business logic in hooks, services, and `lib/` modules, not inside pages.
+- Route handlers are thin wrappers over controllers and usually compose `withErrorHandler`, `withAuth`, or `withRateLimit`.
+- Global shell concerns live in `src/app/layout.tsx`, `src/providers/`, and `src/components/Navbar.tsx`.
+- Client game state is centralized in `src/atom/game.ts` and orchestrated by `useWikiGuessr`, `useArticle`, `useGame`, `useGuess`, and `useDb`.
 
 ### Styling
 
-- **Tailwind CSS only** — no CSS modules, no inline `style` objects (except for dynamic values like `width`).
-- Use conditional class joining with array `.join(" ")` pattern (no `clsx`/`classnames` library).
-- Follow the existing color palette: `stone-50` (backgrounds), `gray-*` (text), `emerald-*` (success/found), `red-*` (error), `amber-*` (close match), `blue-*` (primary actions).
+- Tailwind CSS only.
+- Prefer the shared `cn()` helper from `src/utils/cn.ts` for conditional classes.
+- Stay within the established palette built around `stone`, `gray`, `emerald`, `amber`, `red`, and `blue` tokens unless the task clearly requires expanding it.
 
-### State Management
+### Architecture Boundaries
 
-- Game state lives in `useGameState` hook — no global state library.
-- Client-side persistence uses `localStorage` with the `wikiguessr-` key prefix.
-- Old caches are automatically cleaned when a new day starts.
+- `controllers/`: validate request payloads and translate service results into HTTP responses.
+- `services/`: domain use cases and orchestration.
+- `lib/repositories/`: database access.
+- `lib/game/`: pure game logic, wiki fetching, daily article rotation.
+- `utils/handler.ts`: shared wrappers for auth, error handling, and rate limiting.
 
-### API Design
+## Authentication
 
-- API routes return `NextResponse.json(...)`.
-- Errors follow the pattern: `{ error: string }` with appropriate HTTP status codes.
-- Input validation happens at the API route level before calling into `lib/` functions.
-- All errors are caught and logged to console with a `[context]` prefix (e.g., `[api/game]`).
+- Authentication is handled through Better Auth.
+- The server auth configuration lives in `src/lib/auth/auth.ts`.
+- The React client lives in `src/lib/auth/client.ts`.
+- Discord is the configured social provider.
+- Authenticated endpoints currently include:
+  - `GET /api/game/state`
+  - `PUT /api/game/state`
+  - `POST /api/game/complete`
+  - `GET /api/profile/stats`
 
-## Database & Prisma
+## Database and Prisma
 
-- Schema lives in `prisma/schema.prisma`. Generated client outputs to `generated/prisma/`.
-- Prisma configuration is in `prisma.config.ts` (datasource URL, migration path).
-- **Never edit files in `generated/`** — they are auto-generated.
-- The Prisma client singleton is in `src/lib/prisma.ts` — always import from there, never instantiate directly.
-- In development, the client is cached on `globalThis` to survive HMR.
-- Use the PostgreSQL adapter (`@prisma/adapter-pg`) — the connection string comes from `DATABASE_URL` env var.
-- After schema changes:
-  1. Create a migration: `bunx prisma migrate dev --name <description>`
-  2. Regenerate the client: `bunx prisma generate`
+- Prisma schema is in `prisma/schema.prisma`.
+- The generated client output is `generated/prisma/`.
+- Always use the Prisma singleton from `src/lib/prisma.ts` for database access.
+- Current schema includes Better Auth core models:
+  - `User`
+  - `Session`
+  - `Account`
+  - `Verification`
+- Current application models include:
+  - `DailyWikiPage`
+  - `GameResult`
+  - `GameState`
 
-## Linting & Formatting
+## Testing and Quality
 
-- **Biome** is the single tool for both linting and formatting.
-- Run `bun run lint` to check for issues.
-- Run `bun run format` to auto-format all files.
-- Biome rules: recommended rules enabled, plus `next` and `react` domains.
-- `noUnknownAtRules` is disabled (for Tailwind `@apply`, `@theme`, etc.).
-- Always run lint before committing.
+- Use Biome for linting and formatting.
+- Use Bun for unit tests.
+- Existing tests live in `src/test/`, currently including game and normalization coverage.
+- Recommended verification after non-trivial changes:
+  1. `bun run lint`
+  2. `bun run test`
+  3. `bun run build` for changes affecting routing, env handling, or production bundling
 
-## Branching & Workflow
+## Application Flow
 
-- Default branch: `main`.
-- Development branch: `develop`.
-- Work on feature branches off `develop`, merge back via pull request.
+### Daily Article Lifecycle
 
-## Application Architecture
-
-### Daily Page Lifecycle
-
-1. On server startup (`instrumentation.ts`), `ensureDailyWikiPage()` fetches and stores today's Wikipedia article if not already in the database.
-2. A cron interval (`startDailyCron`) checks every 60 seconds for day rollover.
-3. The article is cached in-memory (server-side) and in PostgreSQL for persistence.
+1. `src/instrumentation.ts` verifies the database connection on server startup.
+2. The same bootstrap ensures today’s wiki page exists.
+3. `startDailyCron()` keeps the daily article fresh after rollover.
 
 ### Game Flow
 
-1. Client calls `GET /api/game` → receives a `MaskedArticle` (tokenized, no revealed words).
-2. Player submits a word → `POST /api/game/guess` with `{ word: string }`.
-3. Server normalizes the word (lowercase, NFD decomposition, diacritics stripped) and checks against article tokens.
-4. Fuzzy matching (Levenshtein distance) is used for near-matches when word length ≥ 4.
-5. Response includes `found`, `positions`, `occurrences`, and `similarity` score.
-6. Client updates `RevealedMap` and stores progress in `localStorage`.
-7. Win condition: all words in the article title are revealed.
-8. If the user is authenticated, the win is automatically saved to the database via `POST /api/game/complete`.
-
-### Authentication (Optional)
-
-1. User clicks "Connexion Discord" → `GET /api/auth/login` redirects to Discord OAuth2 with CSRF state cookie.
-2. Discord redirects back to `/api/auth/callback` with an authorization code.
-3. Server exchanges code for access token, fetches Discord user info, upserts `User` in DB.
-4. Server signs a JWT (HMAC-SHA256 via `node:crypto`) and sets it as an `httpOnly` cookie (30 days).
-5. Client calls `GET /api/auth/me` on mount to check auth state.
-6. Authentication is optional — the game is fully playable without a Discord account.
-7. Authenticated users get their game results saved in `GameResult` table and can view stats at `/profile`.
-
-### Key Concepts
-
-- **Token**: Either a `WordToken` (guessable) or `PunctuationToken` (always visible).
-- **RevealedMap**: `Record<string, string>` mapping position keys (`section:part:wordIndex`) to display text.
-- **Normalization**: All comparisons use NFD-normalized, lowercased, diacritics-stripped strings.
-- **Similarity threshold**: Words with similarity ≥ 0.8 are auto-revealed; ≥ 0.55 shown as "close".
+1. The client loads the current article through `GET /api/game`.
+2. Client hooks populate Jotai atoms for article, guesses, revealed words, hint state, and win state.
+3. Word guesses are sent to `POST /api/game/guess`.
+4. Server logic normalizes input and evaluates exact or fuzzy matches.
+5. Image hints are unlocked through `POST /api/game/hint` and delivered through `GET /api/game/hint/image`.
+6. Authenticated players can sync state with `GET/PUT /api/game/state`.
+7. Verified wins are persisted through `POST /api/game/complete`.
 
 ## Environment Variables
 
-| Variable               | Required | Description                                                    |
-| ---------------------- | -------- | -------------------------------------------------------------- |
-| `DATABASE_URL`         | Yes      | PostgreSQL connection string                                   |
-| `DISCORD_CLIENT_ID`    | No       | Discord OAuth2 application client ID                           |
-| `DISCORD_CLIENT_SECRET`| No       | Discord OAuth2 application client secret                       |
-| `DISCORD_REDIRECT_URI` | No       | Discord OAuth2 callback URL (e.g. `http://localhost:3000/api/auth/callback`) |
-| `JWT_SECRET`           | No       | Secret key for signing JWT tokens (required if auth is used)   |
+| Variable | Required | Description |
+| --- | --- | --- |
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `BETTER_AUTH_SECRET` | Yes | Better Auth secret, minimum 32 characters |
+| `BETTER_AUTH_URL` | Yes | Public base URL for Better Auth |
+| `DISCORD_CLIENT_ID` | Yes for Discord auth | Discord OAuth client ID |
+| `DISCORD_CLIENT_SECRET` | Yes for Discord auth | Discord OAuth client secret |
+| `GAME_TIMEZONE` | No | Daily game timezone, defaults to `Europe/Paris` |
 
 ## Common Commands
 
 ```bash
-bun run dev        # Start development server
-bun run build      # Production build
-bun run start      # Start production server
-bun run lint       # Check linting & formatting (Biome)
-bun run format     # Auto-format (Biome)
-bunx prisma migrate dev    # Run migrations
-bunx prisma generate       # Regenerate Prisma client
-bunx prisma studio         # Open Prisma Studio (DB GUI)
+bun run dev
+bun run build
+bun run start
+bun run lint
+bun run format
+bun run test
+bun run test:watch
+bun run test:coverage
+bun run test:e2e
+bun run db:generate
+bun run db:migrate
 ```
 
-## Do's and Don'ts
+## Do and Don't
 
 ### Do
 
-- Keep components small and focused — extract into new components when exceeding ~100 lines.
-- Type all function parameters and return values for exported functions.
-- Use `type` imports for type-only imports.
-- Validate API inputs at the route handler level.
-- Log errors with contextual prefixes (`[module-name]`).
-- Use the `@/*` alias for imports.
-- Keep server logic in `lib/`, UI logic in `components/` and `hooks/`.
-- Run `bun run lint` and `bun run format` before committing.
+- Keep API routes thin and push logic into controllers and services.
+- Preserve the current layering between controllers, services, repositories, and pure game logic.
+- Reuse `withErrorHandler`, `withAuth`, `withRateLimit`, `ok`, and `err` helpers instead of open-coding route boilerplate.
+- Keep edits focused and consistent with the existing TypeScript and Tailwind style.
+- Update tests or docs when behavior changes.
 
 ### Don't
 
-- Don't add `"use client"` to pages or layouts unless absolutely necessary.
-- Don't import from `generated/prisma/` directly — use `@/lib/prisma`.
-- Don't use `any` — use `unknown` and type-narrow.
-- Don't install additional CSS libraries (stick to Tailwind).
-- Don't use `React.FC` — use plain function declarations with typed props.
-- Don't mutate state directly — always use setter functions.
-- Don't store secrets or API keys in code — use environment variables.
-- Don't commit `generated/` changes manually — they are auto-generated.
+- Do not edit `generated/prisma/`.
+- Do not instantiate Prisma clients ad hoc.
+- Do not bypass service and repository layers for new server-side features unless there is a clear reason.
+- Do not document the old JWT cookie auth flow; the project now uses Better Auth.
+- Do not describe `POST /api/game/state` or legacy Discord callback routes; they are no longer the current API surface.

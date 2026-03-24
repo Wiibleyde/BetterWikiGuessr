@@ -1,119 +1,196 @@
 # WikiGuessr
 
-Un jeu de devinettes quotidien basé sur Wikipédia. Chaque jour, un article Wikipédia est sélectionné et ses mots sont masqués. Le but est de retrouver les mots de l'article en les devinant un à un, jusqu'à révéler le titre de l'article.
+Un jeu de devinettes quotidien basé sur Wikipédia. Chaque jour, une page Wikipédia est sélectionnée, son contenu est découpé en tokens, puis ses mots sont masqués. Le but est de retrouver progressivement l'article jusqu'à révéler le titre.
 
 ## Fonctionnalités
 
-- **Jeu quotidien** : un nouvel article Wikipédia chaque jour
-- **Masquage des mots** : tous les mots de l'article sont masqués, la ponctuation reste visible
-- **Correspondance floue** : les mots proches (distance de Levenshtein) sont acceptés et auto-révélés
-- **Indices** : possibilité d'utiliser des indices image pour aider
-- **Authentification Discord** : connexion optionnelle via OAuth2 pour sauvegarder ses résultats
-- **Classement** : leaderboard avec plusieurs catégories (meilleure série, meilleur score, etc.)
-- **Profil** : historique des parties et statistiques personnelles
-- **Historique** : accès aux articles des jours précédents
+- Jeu quotidien avec un nouvel article chaque jour
+- Masquage des mots avec ponctuation toujours visible
+- Correspondance floue pour accepter les mots proches
+- Indices image progressifs après plusieurs essais
+- Authentification Discord via Better Auth pour sauvegarder la progression
+- Sauvegarde de l'état de partie pour les utilisateurs connectés
+- Classements et statistiques de profil
+- Historique des articles précédents
 
 ## Stack technique
 
-| Couche       | Technologie                              |
-|--------------|------------------------------------------|
-| Framework    | Next.js 16 (App Router)                  |
-| UI           | React 19 avec React Compiler             |
-| Langage      | TypeScript 5 (strict mode)               |
-| Style        | Tailwind CSS 4                           |
-| Base de données | PostgreSQL via Prisma 7               |
-| Data Fetching | SWR                                     |
-| Linter       | Biome 2.2                                |
-| Package Mgr  | Bun                                      |
+| Couche | Technologie |
+| --- | --- |
+| Framework | Next.js 16 (App Router) |
+| UI | React 19 |
+| Langage | TypeScript 5 |
+| Style | Tailwind CSS 4 |
+| Etat client | Jotai + hooks React |
+| Authentification | Better Auth + Discord OAuth |
+| Base de données | PostgreSQL via Prisma 7 |
+| Data Fetching | SWR |
+| Linter / Formatter | Biome 2.2 |
+| Tests | Bun test |
+| Package manager | Bun |
 
 ## Prérequis
 
-- [Bun](https://bun.sh/) >= 1.0
-- [Docker](https://www.docker.com/) (pour la base de données)
-- Une application Discord (optionnel, pour l'authentification)
+- Bun >= 1.0
+- Docker et Docker Compose pour PostgreSQL local
+- Une application Discord si vous activez l'authentification
 
 ## Installation
 
 ```bash
-# Cloner le dépôt
 git clone https://github.com/Wiibleyde/BetterWikiGuessr.git
 cd BetterWikiGuessr
-
-# Installer les dépendances
 bun install
 ```
+
+Le script post-install génère automatiquement le client Prisma.
 
 ## Configuration
 
 Créer un fichier `.env` à la racine du projet :
 
 ```env
-DATABASE_URL=postgresql://user:password@localhost:5432/wikiguessr
+DATABASE_URL=postgresql://wikiguessr:wikiguessr@localhost:5432/wikiguessr
 
-# Optionnel — authentification Discord
-DISCORD_CLIENT_ID=your_client_id
-DISCORD_CLIENT_SECRET=your_client_secret
-DISCORD_REDIRECT_URI=http://localhost:3000/api/auth/callback
-JWT_SECRET=your_jwt_secret
+# Better Auth
+BETTER_AUTH_SECRET=replace-with-a-secret-of-at-least-32-characters
+BETTER_AUTH_URL=http://localhost:3000
+
+# Discord OAuth
+DISCORD_CLIENT_ID=your_discord_client_id
+DISCORD_CLIENT_SECRET=your_discord_client_secret
+
+# Optionnel
+GAME_TIMEZONE=Europe/Paris
 ```
 
-## Lancer le projet
+## Lancer le projet en local
 
 ```bash
-# Démarrer la base de données (Docker)
-docker compose up -d
+# Démarrer PostgreSQL
+docker compose up -d postgres
 
-# Appliquer les migrations Prisma
-bunx prisma migrate dev
+# Appliquer les migrations
+bun run db:migrate
 
-# Démarrer le serveur de développement
+# Lancer le serveur Next.js
 bun run dev
 ```
 
-L'application est accessible sur [http://localhost:3000](http://localhost:3000).
+L'application est disponible sur http://localhost:3000.
+
+## Développement avec Docker
+
+Le dépôt contient un `docker-compose.yml` qui démarre PostgreSQL et l'application Next.js.
+
+```bash
+docker compose up --build
+```
+
+L'image applicative exécute la génération Prisma, le build Next.js standalone, puis démarre l'application via `docker-entrypoint.sh`.
 
 ## Commandes disponibles
 
 ```bash
-bun run dev        # Serveur de développement
-bun run build      # Build de production
-bun run start      # Serveur de production
-bun run lint       # Vérification du code (Biome)
-bun run format     # Formatage automatique (Biome)
+bun run dev            # Serveur de développement
+bun run build          # Build de production
+bun run start          # Serveur de production
+bun run lint           # Vérification Biome
+bun run format         # Formatage Biome
 
-bunx prisma migrate dev    # Appliquer les migrations
-bunx prisma generate       # Régénérer le client Prisma
-bunx prisma studio         # Interface graphique de la BDD
+bun run test           # Tests unitaires Bun
+bun run test:watch     # Tests en mode watch
+bun run test:coverage  # Couverture de tests
+bun run test:e2e       # Tests Playwright
+
+bun run db:generate    # Générer le client Prisma
+bun run db:migrate     # Créer/appliquer une migration Prisma
 ```
 
-## Déploiement (Docker)
+## Architecture
 
-```bash
-docker compose up -d
-```
+### Interface
 
-Le `docker-compose.yml` inclut la base de données PostgreSQL et l'application Next.js.
+- `src/app/` contient les pages App Router, les routes API, `layout.tsx`, `robots.ts` et `sitemap.ts`
+- `src/components/` contient les composants UI, avec des sous-dossiers pour l'article, l'historique, la navbar, le leaderboard, le profil et les composants génériques
+- `src/providers/` et `src/contexts/` gèrent les providers React globaux
+
+### Etat client
+
+- `src/atom/game.ts` centralise l'état principal du jeu avec Jotai
+- `src/hooks/useArticle.ts`, `useGame.ts`, `useGuess.ts`, `useDb.ts` et `useWikiGuessr.ts` orchestrent le chargement d'article, les soumissions, les indices et la synchronisation serveur
+
+### Backend
+
+- `src/controllers/` valide les requêtes HTTP et formate les réponses
+- `src/services/` contient la logique applicative par domaine
+- `src/lib/game/` contient la logique métier du jeu, la récupération Wikipédia et la rotation quotidienne
+- `src/lib/repositories/` encapsule les accès Prisma
+- `src/utils/handler.ts` fournit les wrappers d'erreur, d'authentification et de rate limit
+
+## API principale
+
+| Méthode | Route | Description |
+| --- | --- | --- |
+| GET | `/api/game` | Retourne l'article masqué du jour |
+| POST | `/api/game/guess` | Vérifie un mot proposé |
+| POST | `/api/game/complete` | Enregistre une victoire |
+| PUT | `/api/game/state` | Sauvegarde l'état d'une partie connectée |
+| GET | `/api/game/state` | Restaure l'état d'une partie connectée |
+| POST | `/api/game/reveal` | Révèle tous les mots après vérification de victoire |
+| GET | `/api/game/yesterday` | Retourne le titre de la veille |
+| POST | `/api/game/hint` | Débloque un indice image |
+| GET | `/api/game/hint/image` | Sert une image d'indice obfusquée |
+| GET | `/api/historic` | Retourne l'historique des articles |
+| GET | `/api/leaderboard` | Retourne les classements |
+| GET | `/api/profile/stats` | Retourne les statistiques du profil |
+| GET / POST | `/api/auth/[...betterauth]` | Endpoints Better Auth |
+
+## Base de données
+
+Le schéma Prisma couvre :
+
+- les modèles Better Auth (`User`, `Session`, `Account`, `Verification`)
+- les modèles applicatifs (`DailyWikiPage`, `GameResult`, `GameState`)
+
+Le client Prisma généré est placé dans `generated/prisma/` et ne doit pas être modifié manuellement.
+
+## Tests
+
+Les tests actuels vivent dans `src/test/`.
+
+- `src/test/normalize.test.ts`
+- `src/test/game.test.ts`
 
 ## Structure du projet
 
-```
+```text
 src/
-├── app/                  # Pages & routes API (Next.js App Router)
-├── components/           # Composants React client
-├── hooks/                # Hooks React (état du jeu, authentification)
-├── lib/                  # Logique serveur (jeu, auth, Prisma, Wikipedia)
-└── types/                # Définitions TypeScript partagées
+├── app/                  # Pages, layouts, métadonnées et routes API
+├── atom/                 # Atomes Jotai du jeu
+├── components/           # Composants UI et sous-modules d'interface
+├── constants/            # Constantes métier
+├── contexts/             # Contextes React
+├── controllers/          # Entrées HTTP
+├── hooks/                # Hooks client
+├── lib/                  # Logique métier, auth, Prisma, repositories
+├── providers/            # Providers globaux
+├── services/             # Cas d'usage applicatifs
+├── test/                 # Tests Bun
+├── types/                # Types partagés
+└── utils/                # Utilitaires transverses
 prisma/
-├── schema.prisma         # Schéma de la base de données
-└── migrations/           # Migrations Prisma
+├── schema.prisma         # Schéma Prisma
+└── migrations/           # Migrations SQL
+generated/
+└── prisma/               # Client Prisma généré
 ```
 
-## Contribuer
+## Contribution
 
-Les contributions sont les bienvenues. Merci de travailler sur des branches de feature issues de `develop` et de soumettre une pull request vers `develop`.
+Les contributions se font depuis des branches de feature vers `develop`.
 
-1. Forker le dépôt
-2. Créer une branche : `git checkout -b feature/ma-feature develop`
-3. Commiter les changements : `git commit -m "feat: ma feature"`
-4. Pousser : `git push origin feature/ma-feature`
-5. Ouvrir une Pull Request vers `develop`
+1. Créer une branche depuis `develop`
+2. Développer et lancer `bun run lint`
+3. Exécuter les tests pertinents
+4. Ouvrir une pull request vers `develop`
