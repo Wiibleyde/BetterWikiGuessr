@@ -1,4 +1,5 @@
 import { describe, expect, it, mock } from "bun:test";
+import { NextRequest } from "next/server";
 
 const verifyWinMock = mock();
 const getAllWordPositionsMock = mock();
@@ -10,8 +11,8 @@ mock.module("@/lib/game/game", () => ({
 
 const { POST } = await import("./route");
 
-function createRequest(body: unknown): Request {
-    return new Request("http://localhost/api/game/reveal", {
+function createRequest(body: unknown): NextRequest {
+    return new NextRequest("http://localhost/api/game/reveal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
