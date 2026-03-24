@@ -16,6 +16,7 @@ import {
 import { fetchGame } from "@/lib/queries";
 import { clearOldCaches, loadCache } from "@/utils/cache";
 import { checkWinCondition } from "@/utils/game";
+import { normalizeHintImageUrls } from "@/utils/hintImage";
 import useGame from "./useGame";
 
 const useArticle = () => {
@@ -59,9 +60,12 @@ const useArticle = () => {
                 if (cache) {
                     const cachedGuesses = cache.guesses ?? [];
                     const cachedRevealed = cache.revealed ?? {};
+                    const cachedRevealedImages = normalizeHintImageUrls(
+                        cache.revealedImages,
+                    );
                     setGuesses(cachedGuesses);
                     setRevealed(cachedRevealed);
-                    setRevealedImages(cache.revealedImages ?? []);
+                    setRevealedImages(cachedRevealedImages);
                     if (cache.saved) setSaved(true);
                     if (checkWinCondition(data, cachedRevealed)) {
                         setWon(true);

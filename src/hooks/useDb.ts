@@ -5,6 +5,7 @@ import * as atomGame from "@/atom/game";
 import type { GameCache } from "@/types/game";
 import { loadCache, saveCache } from "@/utils/cache";
 import { checkWinCondition } from "@/utils/game";
+import { normalizeHintImageUrls } from "@/utils/hintImage";
 import { fetchStateFromServer, pushStateToServer } from "@/utils/server";
 import { useAuth } from "./useAuth";
 import useGame from "./useGame";
@@ -47,9 +48,12 @@ const useDb = () => {
 
         if (dbState && dbCount > 0 && dbCount >= localCount) {
             // DB has equal or more progress — use it
+            const normalizedDbImages = normalizeHintImageUrls(
+                dbState.revealedImages,
+            );
             setGuesses(dbState.guesses);
             setRevealed(dbState.revealed);
-            setRevealedImages(dbState.revealedImages ?? []);
+            setRevealedImages(normalizedDbImages);
             if (dbState.saved) {
                 setSaved(true);
             }
@@ -70,11 +74,16 @@ const useDb = () => {
                 dbState.guesses,
                 dbState.revealed,
                 dbState.saved,
-                dbState.revealedImages,
+                normalizedDbImages,
             );
         } else if (localCache && localCount > 0) {
             // Local has more progress — push it to DB
-            await pushStateToServer(localCache);
+            await pushStateToServer({
+                ...localCache,
+                revealedImages: normalizeHintImageUrls(
+                    localCache.revealedImages,
+                ),
+            });
         }
 
         setSynced(true);
