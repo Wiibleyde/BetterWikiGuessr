@@ -10,7 +10,9 @@ export async function verifyDatabaseConnection(): Promise<void> {
         await prisma.$queryRaw`SELECT 1`;
         console.log("[db-check] ✓ Connexion à la base de données réussie");
     } catch (_error) {
-        console.error("[db-check] ✗ Impossible de se connecter à la base de données:");
+        console.error(
+            "[db-check] ✗ Impossible de se connecter à la base de données:",
+        );
         console.error("[db-check] Arrêt du programme...");
         process.exit(1);
     }

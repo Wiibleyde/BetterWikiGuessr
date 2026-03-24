@@ -1,7 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth/auth";
 import { ensureDailyWikiPage } from "@/lib/game/daily-wiki";
-import { createOrUpdateGameState, getGameStateByUserAndDailyPage } from "@/lib/repositories/gameStateRepository";
+import {
+    createOrUpdateGameState,
+    getGameStateByUserAndDailyPage,
+} from "@/lib/repositories/gameStateRepository";
 import type { GameCache, RevealedMap, StoredGuess } from "@/types/game";
 
 export const dynamic = "force-dynamic";

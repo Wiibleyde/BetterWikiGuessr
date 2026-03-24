@@ -53,10 +53,11 @@ export function jaroSimilarity(a: string, b: string): number {
     }
 
     return (
-        matches / lenA +
-        matches / lenB +
-        (matches - transpositions / 2) / matches
-    ) / 3;
+        (matches / lenA +
+            matches / lenB +
+            (matches - transpositions / 2) / matches) /
+        3
+    );
 }
 
 /**

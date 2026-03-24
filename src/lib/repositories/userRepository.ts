@@ -22,10 +22,10 @@ export const getUserById = async (id: number): Promise<User | null> => {
     return prisma.user.findUnique({
         where: { id },
     });
-}
+};
 
 export const getUserWhereIdIn = async (ids: number[]): Promise<User[]> => {
     return prisma.user.findMany({
         where: { id: { in: ids } },
     });
-}
+};

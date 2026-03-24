@@ -21,18 +21,18 @@ export const getTodaysArticle = async () => {
     return prisma.dailyWikiPage.findUnique({
         where: { date: today },
     });
-}
+};
 
 export const getYesterdaysArticle = async () => {
     const yesterday = yesterdayInGameTZ();
     return prisma.dailyWikiPage.findUnique({
         where: { date: yesterday },
     });
-}
+};
 
 export const getArticleLtDate = async (date: Date) => {
     return prisma.dailyWikiPage.findMany({
         where: { date: { lt: date } },
-        orderBy: { date: "desc" }
+        orderBy: { date: "desc" },
     });
-}
+};

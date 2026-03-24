@@ -4,7 +4,11 @@ import type {
     LeaderboardEntry,
 } from "@/types/leaderboard";
 import { HINT_PENALTY } from "../constants/game";
-import { getBestScoreByUser, getMostWins, getVictoriesGroupedByUser } from "./repositories/gameResultRepository";
+import {
+    getBestScoreByUser,
+    getMostWins,
+    getVictoriesGroupedByUser,
+} from "./repositories/gameResultRepository";
 import { getUserWhereIdIn } from "./repositories/userRepository";
 
 const LEADERBOARD_LIMIT = 20;
@@ -202,7 +206,6 @@ async function computeBestGuess(): Promise<LeaderboardEntry[]> {
 }
 
 async function computeMostWins(): Promise<LeaderboardEntry[]> {
-
     const results = await getMostWins();
 
     // Récupérer les infos users en une seule requête

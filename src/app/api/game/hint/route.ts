@@ -32,7 +32,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         if (user) {
             // Authenticated: verify against DB state (cannot be spoofed)
             const dailyPage = await ensureDailyWikiPage();
-            const gameState = await getGameStateByUserAndDailyPage(user, dailyPage);
+            const gameState = await getGameStateByUserAndDailyPage(
+                user,
+                dailyPage,
+            );
             const dbGuessCount = Array.isArray(gameState?.guesses)
                 ? (gameState.guesses as unknown[]).length
                 : 0;

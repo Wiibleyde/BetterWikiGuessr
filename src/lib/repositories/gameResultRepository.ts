@@ -73,4 +73,4 @@ export const getGameResultsByUserId = async (userId: number) => {
         orderBy: { createdAt: "desc" },
     });
     return results;
-}
+};
