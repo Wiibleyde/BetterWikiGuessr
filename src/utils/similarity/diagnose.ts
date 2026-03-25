@@ -48,7 +48,7 @@ export function diagnoseProximity(
         if (lenDiff > 0) {
             return {
                 type: "deletion",
-                description: `${plural(count, "lettre manquante", "lettres manquantes")} }`,
+                description: `${plural(count, "lettre manquante", "lettres manquantes")}`,
             };
         }
         return {

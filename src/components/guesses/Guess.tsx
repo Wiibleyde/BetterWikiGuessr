@@ -18,6 +18,8 @@ const PROXIMITY_ICONS: Record<ProximityReasonType, string> = {
 export default function Guess({ guess }: GuessProps) {
     const isClose = !guess.found && (guess.similarity ?? 0) >= CLOSE_THRESHOLD;
 
+    console.log("Rendering guess:", guess.proximityReason);
+
     return (
         <div
             className={[
@@ -41,7 +43,7 @@ export default function Guess({ guess }: GuessProps) {
                 {guess.found
                     ? `x${guess.occurrences}`
                     : isClose
-                      ? `${guess.proximityReason?.description} ${PROXIMITY_ICONS[guess.proximityReason?.type as ProximityReasonType] || ""}`
+                      ? `${guess.proximityReason?.description} ${PROXIMITY_ICONS[guess.proximityReason?.type || "mixed"] || ""}`
                       : ""}
             </GuessInfos>
         </div>
