@@ -40,7 +40,7 @@ export default function Navbar() {
 
                     <nav className="hidden sm:flex items-center gap-1">
                         {NAV_LINKS.map((link) => (
-                            <Link key={link.href} href={link.href}>
+                            <Link key={link.href} href={link.href} onClick={() => setOpen(false)}>
                                 <Button
                                     className={
                                         pathname === link.href
