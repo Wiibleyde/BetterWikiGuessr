@@ -1,7 +1,7 @@
 "use client";
 
 import type { StoredGuess } from "@/types/game";
-import Guess from "./guesses/Guess";
+import Guess from "./Guess";
 
 interface GuessListProps {
     guesses: StoredGuess[];

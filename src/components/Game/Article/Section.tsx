@@ -1,5 +1,5 @@
-import TokenList from "@/components/TokenList";
 import type { RevealedMap, Token } from "@/types/game";
+import TokenList from "./TokenList";
 
 interface SectionProps {
     sectionIndex: number;

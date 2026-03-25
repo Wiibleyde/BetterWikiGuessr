@@ -5,9 +5,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import NavbarAuth from "./navbar/NavbarAuth";
-import NavbarButton from "./navbar/NavbarButton";
-import Button from "./ui/Button";
+import Button from "../ui/Button";
+import NavbarAuth from "./NavbarAuth";
+import NavbarButton from "./NavbarButton";
 
 const NAV_LINKS = [
     { href: "/", label: "Jouer" },

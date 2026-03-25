@@ -2,10 +2,10 @@
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { guessesAtom, inputAtom, lastGuessFoundAtom } from "@/atom/game";
-import YesterdayWord from "@/components/YesterdayWord";
+import YesterdayWord from "@/components/Game/GameHeader/YesterdayWord";
 import { formatDateWithMonthName } from "@/utils/date";
 import { plural } from "@/utils/helper";
-import Input from "./ui/Input";
+import Input from "./Input";
 
 interface GameHeaderProps {
     date: string;

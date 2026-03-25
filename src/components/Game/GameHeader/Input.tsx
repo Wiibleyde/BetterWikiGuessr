@@ -6,7 +6,7 @@ import {
     lastGuessSimilarityAtom,
 } from "@/atom/game";
 import { CLOSE_THRESHOLD } from "@/constants/game";
-import Button from "./Button";
+import Button from "@/components/ui/Button";
 
 interface InputProps {
     input: string;

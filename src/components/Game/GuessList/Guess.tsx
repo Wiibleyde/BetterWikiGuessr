@@ -18,8 +18,6 @@ const PROXIMITY_ICONS: Record<ProximityReasonType, string> = {
 export default function Guess({ guess }: GuessProps) {
     const isClose = !guess.found && (guess.similarity ?? 0) >= CLOSE_THRESHOLD;
 
-    console.log("Rendering guess:", guess.proximityReason);
-
     return (
         <div
             className={[

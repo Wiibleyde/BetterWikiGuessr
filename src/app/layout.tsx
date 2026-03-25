@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { ReactNode } from "react";
-import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/ui/Footer";
 
 export const metadata: Metadata = {
     title: "Wiki Guessr",

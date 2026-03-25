@@ -1,7 +1,7 @@
 "use client";
 
 import type { MaskedArticle, RevealedMap } from "@/types/game";
-import Section from "./article/Section";
+import Section from "./Section";
 import TokenList from "./TokenList";
 
 interface ArticleViewProps {

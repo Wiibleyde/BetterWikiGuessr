@@ -1,6 +1,6 @@
+import Word from "@/components/ui/Word";
 import type { RevealedMap, Token } from "@/types/game";
 import { posKey } from "@/utils/helper";
-import Word from "./ui/Word";
 
 interface TokenListProps {
     tokens: Token[];
