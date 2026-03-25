@@ -1,16 +1,7 @@
 "use client";
 
-import type { ProximityReasonType, StoredGuess } from "@/types/game";
-
-const CLOSE_THRESHOLD = 0.65;
-
-const PROXIMITY_ICONS: Record<ProximityReasonType, string> = {
-    transposition: "🔄",
-    insertion: "➕",
-    deletion: "➖",
-    substitution: "🔤",
-    mixed: "✏️",
-};
+import type { StoredGuess } from "@/types/game";
+import Guess from "./guesses/Guess";
 
 interface GuessListProps {
     guesses: StoredGuess[];
@@ -29,67 +20,9 @@ export default function GuessList({ guesses }: GuessListProps) {
                             Aucun essai
                         </p>
                     ) : (
-                        guesses.map((g, i) => {
-                            const isClose =
-                                !g.found &&
-                                (g.similarity ?? 0) >= CLOSE_THRESHOLD;
-                            return (
-                                <div
-                                    key={`${g.word}-${i}`}
-                                    className={[
-                                        "flex items-center justify-between px-4 py-1.5 text-sm",
-                                        g.found
-                                            ? "bg-emerald-50/60"
-                                            : isClose
-                                              ? "bg-amber-50/60"
-                                              : "bg-red-50/60",
-                                    ].join(" ")}
-                                >
-                                    <span
-                                        className={
-                                            g.found
-                                                ? "text-emerald-800"
-                                                : isClose
-                                                  ? "text-amber-700"
-                                                  : "text-red-400 line-through"
-                                        }
-                                    >
-                                        {g.word}
-                                    </span>
-                                    {g.found && (
-                                        <span className="text-emerald-600 font-mono text-xs">
-                                            ×{g.occurrences}
-                                        </span>
-                                    )}
-                                    {isClose && g.proximityReason && (
-                                        <span
-                                            className="text-amber-500 text-xs flex items-center gap-1"
-                                            title={`~${Math.round((g.similarity ?? 0) * 100)}%`}
-                                        >
-                                            <span>
-                                                {
-                                                    PROXIMITY_ICONS[
-                                                        g.proximityReason.type
-                                                    ]
-                                                }
-                                            </span>
-                                            <span>
-                                                {g.proximityReason.description}
-                                            </span>
-                                        </span>
-                                    )}
-                                    {isClose && !g.proximityReason && (
-                                        <span className="text-amber-500 font-mono text-xs">
-                                            ~
-                                            {Math.round(
-                                                (g.similarity ?? 0) * 100,
-                                            )}
-                                            %
-                                        </span>
-                                    )}
-                                </div>
-                            );
-                        })
+                        guesses.map((guess, i) => (
+                            <Guess key={`${guess.word}-${i}`} guess={guess} />
+                        ))
                     )}
                 </div>
             </div>
