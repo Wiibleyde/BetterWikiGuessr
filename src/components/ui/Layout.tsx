@@ -5,7 +5,7 @@ interface LayoutProps {
 }
 const Layout = ({ title, subtitle, children }: LayoutProps) => {
     return (
-        <div className="min-h-screen bg-stone-50 text-gray-900">
+        <div className="min-h-screen bg-stone-50 text-gray-900 w-full">
             <main className="max-w-3xl mx-auto px-4 py-8 space-y-4">
                 <div className="text-center mb-6">
                     <h2 className="text-2xl font-bold text-gray-800">

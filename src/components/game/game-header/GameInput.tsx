@@ -1,5 +1,6 @@
 import type React from "react";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 
 interface InputProps {
     input: string;
@@ -8,7 +9,7 @@ interface InputProps {
     guessing: boolean;
 }
 
-export default function Input({
+export default function GameInput({
     input,
     onInputChange,
     onSubmit,
@@ -16,13 +17,11 @@ export default function Input({
 }: InputProps) {
     return (
         <form onSubmit={onSubmit} className="flex gap-2">
-            <input
-                type="text"
+            <Input
                 value={input}
                 onChange={(e) => onInputChange(e.target.value)}
-                placeholder="Devinez un mot…"
-                className="min-w-0 flex-1 px-3 sm:px-4 py-2 border rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 border-gray-300"
                 readOnly={guessing}
+                placeholder="Devinez un mot…"
             />
             <Button
                 variant="primary"

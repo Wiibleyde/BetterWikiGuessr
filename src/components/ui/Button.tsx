@@ -2,7 +2,7 @@ import { cn } from "@/utils/cn";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     children: React.ReactNode;
-    variant?: "primary" | "secondary" | "navbar";
+    variant?: "primary" | "secondary" | "navbar" | "navbarActive";
 }
 export default function Button({
     children,
@@ -14,6 +14,7 @@ export default function Button({
         primary: "bg-blue-600 text-white hover:bg-indigo-700",
         secondary: "bg-red-500 text-gray-200 hover:text-white",
         navbar: "text-gray-500 hover:text-gray-800 hover:bg-gray-50",
+        navbarActive: "bg-gray-100 text-gray-900 hover:text-gray-800 hover:bg-gray-50",
     };
 
     return (

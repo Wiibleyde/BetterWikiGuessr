@@ -4,7 +4,7 @@ import YesterdayWord from "@/components/game/game-header/YesterdayWord";
 import Badge from "@/components/ui/Badge";
 import ProgressBar from "@/components/ui/ProgressBar";
 import { plural } from "@/utils/helper";
-import Input from "./Input";
+import GameInput from "./GameInput";
 
 interface GameHeaderProps {
     date: string;
@@ -65,7 +65,7 @@ export default function GameHeader({
                         </p>
                     </div>
                 ) : (
-                    <Input
+                    <GameInput
                         input={input}
                         onInputChange={onInputChange}
                         onSubmit={onSubmit}
