@@ -15,21 +15,24 @@ export default function GuessWord({ word, isFound, isClose, player }: GuessWordP
     };
 
     return (
-        <span
-            className={
-                isFound
-                    ? wordClass.found
-                    : isClose
-                      ? wordClass.close
-                      : wordClass.notFound
-            }
+        <div
+            className="flex items-center gap-1 text-sm font-medium"
         >
             {player && (
-                <span className="text-xs font-medium text-gray-500 mr-1">
+                <span className="text-gray-500">
                     {player.displayName}:
                 </span>
             )}
-            {word}
-        </span>
+            <span className={
+                isFound
+                    ? wordClass.found
+                    : isClose
+                        ? wordClass.close
+                        : wordClass.notFound
+            }>
+
+                {word}
+            </span>
+        </div>
     );
 }
