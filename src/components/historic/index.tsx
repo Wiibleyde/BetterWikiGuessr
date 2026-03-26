@@ -7,7 +7,7 @@ import NoDataMessage from "@/components/ui/NoDataMessage";
 import type { PageEntry } from "@/types/historic";
 import { fetcher } from "@/utils/fetcher";
 import Layout from "../ui/Layout";
-import PageHistoric from "./PageHistoric";
+import HistoricalPageEntry from "./PageHistoric";
 
 export default function HistoricContent() {
     const {
@@ -32,7 +32,7 @@ export default function HistoricContent() {
             subtitle="Découvrez les dernières pages Wikipédia qui ont été devinées dans WikiGuessr."
         >
             {pages?.map((page) => (
-                <PageHistoric page={page} key={page.id} />
+                <HistoricalPageEntry page={page} key={page.id} />
             ))}
         </Layout>
     );

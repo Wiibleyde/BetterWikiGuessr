@@ -3,7 +3,7 @@ import type { PageEntry } from "@/types/historic";
 import { formatDateWithMonthName } from "@/utils/date";
 import Button from "../ui/Button";
 
-export default function PageHistoric({ page }: { page: PageEntry }) {
+export default function HistoricalPageEntry({ page }: { page: PageEntry }) {
     return (
         <div className="flex items-center justify-between bg-white rounded-xl border border-gray-200 px-4 py-3 gap-4">
             <div className="flex flex-col min-w-0">
