@@ -68,7 +68,12 @@ export default function useCoopRealtime(code: string | null) {
                 const { guess } = payload as { guess: CoopGuessEntry };
                 setGuesses((prev: CoopGuessEntry[]) => {
                     if (prev.some((g) => g.id === guess.id)) return prev;
-                    return [guess, ...prev];
+
+                    return [guess, ...prev].sort(
+                        (left, right) =>
+                            new Date(right.createdAt).getTime() -
+                            new Date(left.createdAt).getTime(),
+                    );
                 });
 
                 if (guess.found && guess.positions.length > 0) {

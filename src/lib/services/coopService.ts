@@ -148,6 +148,7 @@ export async function submitCoopGuess(
             similarity: guessResult.similarity,
             positions: guessResult.positions,
             proximityReason: guessResult.proximityReason,
+            createdAt: guess.createdAt.toISOString(),
             player: {
                 id: player.id,
                 displayName: player.displayName,

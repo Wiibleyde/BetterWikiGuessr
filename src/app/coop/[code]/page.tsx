@@ -48,16 +48,28 @@ export default function CoopLobbyPage() {
         if (code) loadState(code);
     }, [code, loadState]);
 
-    // Silent reconciliation so joined players catch missed updates without reload.
+    // One-shot reconciliation for clients joining during a transition.
     useEffect(() => {
         if (!code) return;
 
-        const interval = window.setInterval(() => {
+        const timeout = window.setTimeout(() => {
             loadState(code, { silent: true });
-        }, 1500);
+        }, 1200);
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === "visible") {
+                loadState(code, { silent: true });
+            }
+        };
+
+        document.addEventListener("visibilitychange", handleVisibilityChange);
 
         return () => {
-            window.clearInterval(interval);
+            window.clearTimeout(timeout);
+            document.removeEventListener(
+                "visibilitychange",
+                handleVisibilityChange,
+            );
         };
     }, [code, loadState]);
 

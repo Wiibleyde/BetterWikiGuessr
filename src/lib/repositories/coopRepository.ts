@@ -29,7 +29,7 @@ export async function getLobbyByCode(code: string) {
         include: {
             players: { orderBy: { joinedAt: "asc" } },
             guesses: {
-                orderBy: { createdAt: "asc" },
+                orderBy: { createdAt: "desc" },
                 include: {
                     player: { select: { id: true, displayName: true } },
                 },
