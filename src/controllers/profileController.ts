@@ -1,5 +1,5 @@
 import type { NextRequest, NextResponse } from "next/server";
-import { getUserStats } from "@/services/profileService";
+import { getUserStats } from "@/lib/services/profileService";
 import type { AuthUser } from "@/types/auth";
 import { ok } from "@/utils/response";
 

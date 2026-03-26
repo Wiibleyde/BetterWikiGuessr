@@ -11,7 +11,7 @@ import {
     revealAll,
     saveGameState,
     submitGuess,
-} from "@/services/gameService";
+} from "@/lib/services/gameService";
 import type { AuthUser } from "@/types/auth";
 import type { GameCache } from "@/types/game";
 import { err, ok } from "@/utils/response";

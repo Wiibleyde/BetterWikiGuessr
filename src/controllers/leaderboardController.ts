@@ -1,5 +1,5 @@
 import type { NextRequest, NextResponse } from "next/server";
-import { getLeaderboard } from "@/services/leaderboardService";
+import { getLeaderboard } from "@/lib/services/leaderboardService";
 import type { LeaderboardResponse } from "@/types/leaderboard";
 import { ok } from "@/utils/response";
 

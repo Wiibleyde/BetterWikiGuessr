@@ -1,5 +1,5 @@
 import type { NextRequest, NextResponse } from "next/server";
-import { getHistoric } from "@/services/historicService";
+import { getHistoric } from "@/lib/services/historicService";
 import { ok } from "@/utils/response";
 
 export async function getHistoricHandler(
