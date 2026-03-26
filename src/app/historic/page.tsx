@@ -1,4 +1,4 @@
-import HistoricContent from "@/components/Historic";
+import HistoricContent from "@/components/historic";
 
 export default function HistoricPage() {
     return <HistoricContent />;
