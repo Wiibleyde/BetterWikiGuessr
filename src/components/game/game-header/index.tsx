@@ -1,10 +1,8 @@
 "use client";
 
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { guessesAtom, inputAtom, lastGuessFoundAtom } from "@/atom/game";
 import YesterdayWord from "@/components/game/game-header/YesterdayWord";
+import Badge from "@/components/ui/Badge";
 import ProgressBar from "@/components/ui/ProgressBar";
-import { formatDateWithMonthName } from "@/utils/date";
 import { plural } from "@/utils/helper";
 import Input from "./Input";
 
@@ -14,42 +12,41 @@ interface GameHeaderProps {
     won: boolean;
     hintsUsed: number;
     onSubmit: (e?: React.FormEvent) => void;
+    coop?: boolean;
+    input: string;
+    setInput: (value: string) => void;
+    guessCount: number;
+    guessing: boolean;
+    datas: string[];
 }
 
 export default function GameHeader({
-    date,
     percentage,
     won,
     hintsUsed,
     onSubmit,
+    input,
+    setInput,
+    guessCount,
+    coop = false,
+    datas,
+    guessing,
 }: GameHeaderProps) {
-    const [input, setInput] = useAtom(inputAtom);
-    const setLastGuessFound = useSetAtom(lastGuessFoundAtom);
-    const guesses = useAtomValue(guessesAtom);
-
     const onInputChange = (value: string) => {
         setInput(value);
-        setLastGuessFound(null);
     };
 
     return (
         <div className="bg-white border-b border-gray-200">
             <div className="max-w-5xl mx-auto px-4 py-3 space-y-2">
                 <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-500 flex-wrap">
-                    <span>{formatDateWithMonthName(date)}</span>
-                    <span className="hidden sm:inline">·</span>
-                    <span>
-                        {plural(guesses.length, "essai", "essais")}
-                        {hintsUsed > 0 && (
-                            <span className="text-amber-500">
-                                {" "}
-                                {plural(hintsUsed, "indice", "indices")}
-                            </span>
-                        )}
-                    </span>
-                    <span className="hidden sm:inline">·</span>
-                    <span>{plural(percentage, "% révélé", "% révélés")}</span>
-                    <span>·</span>
+                    {coop && <Badge color="green">Co-op</Badge>}
+                    {datas.map((value) => (
+                        <span key={value}>
+                            <span className="hidden sm:inline">· </span>
+                            {value}
+                        </span>
+                    ))}
                     <span className="hidden sm:inline">
                         <YesterdayWord />
                     </span>
@@ -64,7 +61,7 @@ export default function GameHeader({
                     <div className="bg-emerald-50 border  border-emerald-300 rounded-lg p-3 text-center">
                         <p className="text-emerald-800 font-bold text-lg">
                             Bravo !
-                            {` Trouvé en ${plural(guesses.length, "essai", "essais")}${hintsUsed > 0 ? ` avec ${plural(hintsUsed, "indice", "indices")}` : ""} !`}
+                            {` Trouvé en ${plural(guessCount, "essai", "essais")}${hintsUsed > 0 ? ` avec ${plural(hintsUsed, "indice", "indices")}` : ""} !`}
                         </p>
                     </div>
                 ) : (
@@ -72,6 +69,7 @@ export default function GameHeader({
                         input={input}
                         onInputChange={onInputChange}
                         onSubmit={onSubmit}
+                        guessing={guessing}
                     />
                 )}
             </div>

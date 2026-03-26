@@ -12,8 +12,9 @@ import {
 import ArticleView from "@/components/game/article";
 import useCoopGuess from "@/hooks/useCoopGuess";
 import useCoopLobby from "@/hooks/useCoopLobby";
-import CoopGameHeader from "./CoopGameHeader";
-import CoopGuessList from "./CoopGuessList";
+import { plural } from "@/utils/helper";
+import GameHeader from "../game/game-header";
+import GuessList from "../game/guess-list";
 import CoopPlayerList from "./CoopPlayerList";
 
 interface CoopGameProps {
@@ -34,15 +35,22 @@ export default function CoopGame({ code }: CoopGameProps) {
 
     return (
         <div className="min-h-screen bg-stone-50 text-gray-900">
-            <CoopGameHeader
+            <GameHeader
+                date={article.date}
                 percentage={percentage}
                 won={won}
-                guessCount={guesses.length}
-                playerCount={players.length}
-                input={input}
-                onInputChange={setInput}
+                hintsUsed={0}
                 onSubmit={submitGuess}
+                coop
+                input={input}
+                setInput={setInput}
+                guessCount={guesses.length}
                 guessing={guessing}
+                datas={[
+                    plural(players.length, "joueur", "joueurs"),
+                    plural(guesses.length, "essai", "essais"),
+                    plural(percentage, "% révélé", "% révélés"),
+                ]}
             />
 
             <div className="max-w-5xl mx-auto px-4 py-4">
@@ -51,7 +59,7 @@ export default function CoopGame({ code }: CoopGameProps) {
 
             <div className="max-w-5xl mx-auto px-4 pb-6 flex flex-col lg:flex-row gap-6">
                 <ArticleView article={article} revealed={revealed} />
-                <CoopGuessList guesses={guesses} players={players} />
+                <GuessList guesses={guesses} />
             </div>
         </div>
     );

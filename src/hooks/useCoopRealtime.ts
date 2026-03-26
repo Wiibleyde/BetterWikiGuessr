@@ -7,20 +7,17 @@ import {
     coopGuessesAtom,
     coopLobbyAtom,
     coopPlayersAtom,
-    coopRevealedAtom,
     coopWonAtom,
 } from "@/atom/coop";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { CoopGuessEntry, CoopPlayerInfo } from "@/types/coop";
-import type { MaskedArticle } from "@/types/game";
-import { applyPositions } from "@/utils/helper";
+import type { CoopPlayerInfo } from "@/types/coop";
+import type { MaskedArticle, StoredGuess } from "@/types/game";
 
 export default function useCoopRealtime(code: string | null) {
     const setPlayers = useSetAtom(coopPlayersAtom);
     const setArticle = useSetAtom(coopArticleAtom);
     const setGuesses = useSetAtom(coopGuessesAtom);
     const setLobby = useSetAtom(coopLobbyAtom);
-    const setRevealed = useSetAtom(coopRevealedAtom);
     const setWon = useSetAtom(coopWonAtom);
     const channelRef = useRef<ReturnType<
         ReturnType<typeof getSupabaseBrowserClient>["channel"]
@@ -65,26 +62,14 @@ export default function useCoopRealtime(code: string | null) {
                 setArticle(article);
             })
             .on("broadcast", { event: "guess_result" }, ({ payload }) => {
-                const { guess } = payload as { guess: CoopGuessEntry };
-                setGuesses((prev: CoopGuessEntry[]) => {
-                    if (prev.some((g) => g.id === guess.id)) return prev;
-
-                    return [guess, ...prev].sort(
-                        (left, right) =>
-                            new Date(right.createdAt).getTime() -
-                            new Date(left.createdAt).getTime(),
-                    );
+                const { guess } = payload as { guess: StoredGuess };
+                setGuesses((prev: StoredGuess[]) => {
+                    return [guess, ...prev];
                 });
-
-                if (guess.found && guess.positions.length > 0) {
-                    setRevealed((prev) =>
-                        applyPositions(prev, guess.positions),
-                    );
-                }
 
                 setPlayers((prev: CoopPlayerInfo[]) =>
                     prev.map((p) =>
-                        p.id === guess.player.id
+                        p.id === guess.player?.id
                             ? { ...p, guessCount: p.guessCount + 1 }
                             : p,
                     ),
@@ -107,13 +92,5 @@ export default function useCoopRealtime(code: string | null) {
             supabase.removeChannel(channel);
             channelRef.current = null;
         };
-    }, [
-        code,
-        setPlayers,
-        setArticle,
-        setGuesses,
-        setLobby,
-        setRevealed,
-        setWon,
-    ]);
+    }, [code, setPlayers, setArticle, setGuesses, setLobby, setWon]);
 }

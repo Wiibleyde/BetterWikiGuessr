@@ -6,8 +6,6 @@ import {
     guessesAtom,
     guessingAtom,
     inputAtom,
-    lastGuessFoundAtom,
-    lastGuessSimilarityAtom,
     revealedAtom,
     revealedImagesAtom,
     wonAtom,
@@ -25,8 +23,6 @@ const useGuess = () => {
     const { reloadArticle } = useArticle();
     const [input, setInput] = useAtom(inputAtom);
     const article = useAtomValue(articleAtom);
-    const setLastGuessFound = useSetAtom(lastGuessFoundAtom);
-    const setLastGuessSimilarity = useSetAtom(lastGuessSimilarityAtom);
     const [guessing, setGuessing] = useAtom(guessingAtom);
     const [revealed, setRevealed] = useAtom(revealedAtom);
     const [guesses, setGuesses] = useAtom(guessesAtom);
@@ -49,7 +45,6 @@ const useGuess = () => {
             }
 
             setGuessing(true);
-            setLastGuessFound(null);
 
             try {
                 const foundWords = guesses
@@ -84,8 +79,6 @@ const useGuess = () => {
 
                 setGuesses(newGuesses);
                 setRevealed(newRevealed);
-                setLastGuessFound(guessResult.found);
-                setLastGuessSimilarity(guessResult.similarity);
 
                 saveCache(
                     article.date,
@@ -121,8 +114,6 @@ const useGuess = () => {
             reloadArticle,
             setGuesses,
             setRevealed,
-            setLastGuessFound,
-            setLastGuessSimilarity,
             setGuessing,
             setError,
             setInput,
