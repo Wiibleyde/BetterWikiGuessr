@@ -47,9 +47,7 @@ export default function GameHeader({
                         )}
                     </span>
                     <span className="hidden sm:inline">·</span>
-                    <span>
-                        {plural(percentage, "% révélé", "% révélés")}
-                    </span>
+                    <span>{plural(percentage, "% révélé", "% révélés")}</span>
                     <span>·</span>
                     <span className="hidden sm:inline">
                         <YesterdayWord />

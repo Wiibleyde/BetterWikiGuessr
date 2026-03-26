@@ -13,9 +13,9 @@ datasource db {
 // ─── BetterAuth core models ───────────────────────────────────────────────────
 
 model User {
-  id            String    @id
+  id            String       @id
   name          String
-  email         String    @unique
+  email         String       @unique
   emailVerified Boolean
   image         String?
   createdAt     DateTime
@@ -24,6 +24,7 @@ model User {
   accounts      Account[]
   gameResults   GameResult[]
   gameStates    GameState[]
+  coopPlayers   CoopPlayer[]
 }
 
 model Session {
@@ -110,4 +111,48 @@ model GameState {
   dailyWikiPage   DailyWikiPage @relation(fields: [dailyWikiPageId], references: [id], onDelete: Cascade)
 
   @@unique([userId, dailyWikiPageId])
+}
+
+// ─── Co-op models ──────────────────────────────────────────────────────────────
+
+model CoopLobby {
+  id           Int          @id @default(autoincrement())
+  code         String       @unique
+  status       String       @default("waiting") // waiting | playing | finished
+  maxPlayers   Int          @default(4)
+  wikiTitle    String?
+  wikiSections Json? // WikiSection[]
+  wikiImages   String[]
+  wikiUrl      String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  players      CoopPlayer[]
+  guesses      CoopGuess[]
+}
+
+model CoopPlayer {
+  id          Int         @id @default(autoincrement())
+  lobbyId     Int
+  userId      String?
+  displayName String
+  token       String      @unique
+  isLeader    Boolean     @default(false)
+  joinedAt    DateTime    @default(now())
+  lobby       CoopLobby   @relation(fields: [lobbyId], references: [id], onDelete: Cascade)
+  user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  guesses     CoopGuess[]
+}
+
+model CoopGuess {
+  id          Int        @id @default(autoincrement())
+  lobbyId     Int
+  playerId    Int
+  word        String
+  found       Boolean
+  occurrences Int        @default(0)
+  similarity  Float      @default(0)
+  positions   Json       @default("[]") // WordPosition[]
+  createdAt   DateTime   @default(now())
+  lobby       CoopLobby  @relation(fields: [lobbyId], references: [id], onDelete: Cascade)
+  player      CoopPlayer @relation(fields: [playerId], references: [id], onDelete: Cascade)
 }

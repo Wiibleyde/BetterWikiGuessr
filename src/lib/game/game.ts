@@ -90,7 +90,7 @@ function indexWords(
 
 let articleCache: ArticleCache | null = null;
 
-function buildArticleCache(
+export function buildArticleCache(
     title: string,
     sections: WikiSection[],
     date: string,
@@ -162,8 +162,16 @@ export async function checkGuess(
     word: string,
     revealedWords?: string[],
 ): Promise<GuessResult> {
-    const normalizedGuess = normalizeWord(word.trim());
     const cache = await getArticleCache();
+    return checkGuessAgainstCache(cache, word, revealedWords);
+}
+
+export function checkGuessAgainstCache(
+    cache: ArticleCache,
+    word: string,
+    revealedWords?: string[],
+): GuessResult {
+    const normalizedGuess = normalizeWord(word.trim());
 
     if (!normalizedGuess) {
         return {
@@ -293,6 +301,13 @@ export async function getImageCount(): Promise<number> {
 
 export async function verifyWin(guessedWords: string[]): Promise<boolean> {
     const cache = await getArticleCache();
+    return verifyWinAgainstCache(cache, guessedWords);
+}
+
+export function verifyWinAgainstCache(
+    cache: ArticleCache,
+    guessedWords: string[],
+): boolean {
     const normalizedGuesses = guessedWords.map(normalizeWord);
 
     return cache.titleWords.every((titleWord) => {
