@@ -14,5 +14,5 @@ export const providers: LoginProvider[] = [
         label: "Continuer avec Discord",
         icon: <FaDiscord />,
         className: "bg-[#5865F2] text-white hover:bg-[#4752c4]",
-    }
+    },
 ];

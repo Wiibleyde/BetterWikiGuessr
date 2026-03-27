@@ -19,7 +19,7 @@ export default function Modal({
     setOpen,
     title,
     subtitle,
-    children
+    children,
 }: ModalProps) {
     const ref = useClickAway<HTMLDivElement>(() => {
         setOpen(false);
@@ -56,14 +56,10 @@ export default function Modal({
                     <h2 className="text-2xl font-extrabold text-gray-900">
                         {title}
                     </h2>
-                    <p className="mt-1 text-sm text-gray-500">
-                        {subtitle}
-                    </p>
+                    <p className="mt-1 text-sm text-gray-500">{subtitle}</p>
                 </div>
 
-                <div className="flex flex-col gap-3">
-                    {children}
-                </div>
+                <div className="flex flex-col gap-3">{children}</div>
             </div>
         </div>,
         document.body,

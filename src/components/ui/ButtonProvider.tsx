@@ -9,13 +9,12 @@ interface ButtonProviderProps {
     onClose: () => void;
 }
 
-
 export default function ButtonProvider({
     name,
     label,
     icon,
     className,
-    onClose
+    onClose,
 }: ButtonProviderProps) {
     const { login } = useAuth();
 
@@ -36,5 +35,5 @@ export default function ButtonProvider({
             {icon}
             {label}
         </button>
-    )
+    );
 }
