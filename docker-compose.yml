@@ -168,6 +168,8 @@ services:
       timeout: 10s
       interval: 5s
       retries: 3
+    ports:
+      - "9000:3000"
     environment:
       HOSTNAME: "::"
       STUDIO_PG_META_URL: http://meta:8080
