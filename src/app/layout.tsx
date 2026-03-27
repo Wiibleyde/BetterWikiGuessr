@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import type { ReactNode } from "react";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/ui/Footer";
+import env from "@/env";
 
 export const metadata: Metadata = {
     title: "Wiki Guessr",
@@ -28,9 +30,21 @@ export default function RootLayout({
 }: Readonly<{
     children: ReactNode;
 }>) {
+    const runtimeConfig = JSON.stringify({
+        NEXT_PUBLIC_SUPABASE_URL: env.NEXT_PUBLIC_SUPABASE_URL,
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    }).replace(/</g, "\\u003c");
+
     return (
         <html lang="fr">
             <body className="antialiased m-0 p-0 min-h-screen flex flex-col">
+                <Script
+                    id="runtime-config"
+                    strategy="beforeInteractive"
+                    dangerouslySetInnerHTML={{
+                        __html: `window.__WIKIGUESSR_ENV__ = ${runtimeConfig};`,
+                    }}
+                />
                 <Navbar />
                 <main className="flex-1">{children}</main>
                 <Footer />
