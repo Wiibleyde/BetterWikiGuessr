@@ -11,7 +11,7 @@ import NavbarButton from "./NavbarButton";
 
 const NAV_LINKS = [
     { href: "/", label: "Jouer" },
-    { href: "/coop/:id", label: "Co-op" },
+    { href: "/coop", label: "Co-op" },
     { href: "/historic", label: "Historique" },
     { href: "/leaderboard", label: "Classement" },
     { href: "/profile", label: "Profil" },
