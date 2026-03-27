@@ -56,8 +56,9 @@ export default function InputOtp({
             }
         });
         setCode(pasteData);
-        if (pasteData.length < length) {
-            inputsRef.current[pasteData.length - 1]?.focus();
+        if (pasteData.length > 0) {
+            const lastIdx = Math.min(pasteData.length, length) - 1;
+            inputsRef.current[lastIdx]?.focus();
         }
     };
 
