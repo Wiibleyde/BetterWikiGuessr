@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import useSWR from "swr";
-import ErrorMessage from "@/components/ui/Error";
-import Loader from "@/components/ui/Loader";
 import type { LeaderboardCategoryData } from "@/types/leaderboard";
 import { fetcher } from "@/utils/fetcher";
 import Layout from "../ui/Layout";
@@ -37,15 +35,13 @@ export default function LeaderboardContent() {
         });
     }
 
-    if (isLoading) return <Loader message="Chargement du classement…" />;
-
-    if (error)
-        return <ErrorMessage message="Impossible de charger le classement." />;
-
     return (
         <Layout
             title="🏅 Classement"
             subtitle="Les meilleurs joueurs de WikiGuessr"
+            error={error || "Impossible de charger le classement."}
+            loadingMessage={"Chargement du classement…"}
+            isLoading={isLoading}
         >
             {categories.length === 0 ? (
                 <p className="text-center text-gray-400 text-sm">

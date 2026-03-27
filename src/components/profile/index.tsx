@@ -1,7 +1,6 @@
 "use client";
 
 import useSWR from "swr";
-import Loader from "@/components/ui/Loader";
 import { useAuth } from "@/hooks/useAuth";
 import type { ProfileStats } from "@/types/auth";
 import { fetcher } from "@/utils/fetcher";
@@ -17,9 +16,6 @@ export default function ProfileContent() {
         fetcher,
         { revalidateOnFocus: false },
     );
-
-    if (authLoading || statsLoading)
-        return <Loader message="Chargement de votre profil…" />;
 
     if (!user) {
         return (
@@ -42,6 +38,8 @@ export default function ProfileContent() {
         <Layout
             title={`👤 Profil de: ${user.name}`}
             subtitle="Consultez vos statistiques et votre historique de parties"
+            isLoading={authLoading || statsLoading}
+            loadingMessage={"Chargement de votre profil…"}
         >
             {stats && (
                 <>
