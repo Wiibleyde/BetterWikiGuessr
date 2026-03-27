@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import type { CoopJoinResponse } from "@/types/coop";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
+import InputOtp from "../ui/InputOtp";
 
 interface CoopFormProps {
     mode: "create" | "join";
@@ -38,7 +39,7 @@ export default function CoopForm({
     const { user } = useAuth();
     const router = useRouter();
     const [displayName, setDisplayName] = useState(user?.name ?? "");
-    const [joinCode, setJoinCode] = useState<string>("");
+    const [joinCode, setJoinCode] = useState<Array<string>>(Array(6).fill(""));
 
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -52,9 +53,9 @@ export default function CoopForm({
 
     const handleJoin = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!displayName.trim() || !joinCode.trim()) return;
+        if (!displayName.trim() || !joinCode.some((v) => v.trim())) return;
         const result = await joinLobby(
-            joinCode.trim().toUpperCase(),
+            joinCode.join("").trim().toUpperCase(),
             displayName.trim(),
             user?.id,
         );
@@ -68,14 +69,14 @@ export default function CoopForm({
     const disabled = () => {
         if (loading) return true;
         if (!displayName.trim()) return true;
-        if (mode === "join" && !joinCode.trim()) return true;
+        if (mode === "join" && !joinCode.some((v) => v.trim())) return true;
         return false;
     };
 
     return (
         <form
             onSubmit={mode === "create" ? handleCreate : handleJoin}
-            className="flex flex-col gap-4"
+            className="flex flex-col gap-4 mx-auto max-w-sm"
         >
             <div>
                 <label
@@ -102,15 +103,11 @@ export default function CoopForm({
                     >
                         Code du lobby
                     </label>
-                    <Input
-                        id="joinCode"
+                    <InputOtp
+                        length={6}
+                        className="mt-4"
+                        setCode={(code) => setJoinCode(code)}
                         value={joinCode}
-                        onChange={(e) =>
-                            setJoinCode(e.target.value.toUpperCase())
-                        }
-                        placeholder="Ex: ABC123"
-                        maxLength={6}
-                        className="mt-2 w-full uppercase"
                     />
                 </div>
             )}
