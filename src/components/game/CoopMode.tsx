@@ -3,7 +3,6 @@ import { useAtomValue } from "jotai";
 import {
     coopArticleAtom,
     coopGuessesAtom,
-    coopPlayerIdAtom,
     coopPlayersAtom,
     coopRevealedAtom,
     coopWonAtom,
@@ -22,7 +21,6 @@ const CoopMode = ({ code }: CoopGameProps) => {
     const revealed = useAtomValue(coopRevealedAtom);
     const players = useAtomValue(coopPlayersAtom);
     const won = useAtomValue(coopWonAtom);
-    const playerId = useAtomValue(coopPlayerIdAtom);
     const { percentage } = useCoopLobby();
     const { input, setInput, submitGuess, guessing } = useCoopGuess(code);
 
@@ -47,7 +45,6 @@ const CoopMode = ({ code }: CoopGameProps) => {
             setInput={setInput}
             guessing={guessing}
             players={players}
-            playerId={playerId}
             coop
         />
     );

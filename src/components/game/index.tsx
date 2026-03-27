@@ -33,7 +33,6 @@ interface GameProps {
     guessing: boolean;
     players?: CoopPlayerInfo[];
     coop?: boolean;
-    playerId?: number | null;
 }
 
 export default function Game({
@@ -55,7 +54,6 @@ export default function Game({
     guessing,
     players,
     coop = false,
-    playerId,
 }: GameProps) {
     if (loading) return <Loader message="Chargement de l'article du jour…" />;
 
@@ -94,11 +92,10 @@ export default function Game({
                 onRevealHint={revealHint}
             />
 
-            {coop && players && playerId !== undefined && (
+            {coop && players && (
                 <div className="max-w-5xl mx-auto px-4 py-4">
                     <CoopPlayerList
                         players={players}
-                        currentPlayerId={playerId}
                     />
                 </div>
             )}

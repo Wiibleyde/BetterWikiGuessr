@@ -8,7 +8,6 @@ import {
     coopIsLeaderAtom,
     coopLoadingAtom,
     coopLobbyAtom,
-    coopPlayerIdAtom,
     coopPlayersAtom,
     coopPlayerTokenAtom,
 } from "@/atom/coop";
@@ -28,7 +27,6 @@ export default function CoopLobbyPage() {
     const article = useAtomValue(coopArticleAtom);
     const loading = useAtomValue(coopLoadingAtom);
     const isLeader = useAtomValue(coopIsLeaderAtom);
-    const setPlayerId = useSetAtom(coopPlayerIdAtom);
     const setPlayerToken = useSetAtom(coopPlayerTokenAtom);
     const setIsLeader = useSetAtom(coopIsLeaderAtom);
 
@@ -38,10 +36,8 @@ export default function CoopLobbyPage() {
     useEffect(() => {
         if (!code) return;
         const token = sessionStorage.getItem(`coop:${code}:token`);
-        const id = sessionStorage.getItem(`coop:${code}:playerId`);
         if (token) setPlayerToken(token);
-        if (id) setPlayerId(Number(id));
-    }, [code, setPlayerId, setPlayerToken]);
+    }, [code, setPlayerToken]);
 
     // Load lobby state
     useEffect(() => {
