@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
 
-export const BASE_URL = "https://better-wiki-guessr.vercel.app";
+export const BASE_URL = "https://wikiguessr.bonnell.fr";
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const pages = [
         { url: "/", lastModified: new Date() },
+        { url: "/coop", lastModified: new Date() },
         { url: "/leaderboard", lastModified: new Date() },
     ];
 
@@ -19,6 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
 function getPriority(url: string): number {
     if (url === "/") return 1.0; // Home page has the highest priority
+    if (url === "/coop") return 0.9; // Coop page is important but less than home
     if (url === "/leaderboard") return 0.8; // Leaderboard is important but less than home
     return 0.5; // Other pages have a lower priority
 }

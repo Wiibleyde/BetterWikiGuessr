@@ -9,6 +9,7 @@ const envSchema = z.object({
     GAME_TIMEZONE: z.string().default("Europe/Paris"),
     NEXT_PUBLIC_SUPABASE_URL: z.string().default(""),
     NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().default(""),
+    SUPABASE_ANON_KEY: z.string().default(""),
     SUPABASE_INTERNAL_URL: z.string().default(""),
 });
 
@@ -21,6 +22,7 @@ const env = envSchema.parse({
     GAME_TIMEZONE: process.env.GAME_TIMEZONE,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
     SUPABASE_INTERNAL_URL: process.env.SUPABASE_INTERNAL_URL,
 });
 

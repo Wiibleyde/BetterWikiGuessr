@@ -10,7 +10,7 @@ export async function broadcastToLobby(
     payload: Record<string, unknown>,
 ): Promise<void> {
     const url = `${env.SUPABASE_INTERNAL_URL || env.NEXT_PUBLIC_SUPABASE_URL}/realtime/v1/api/broadcast`;
-    const key = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const key = env.SUPABASE_ANON_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     const response = await fetch(url, {
         method: "POST",

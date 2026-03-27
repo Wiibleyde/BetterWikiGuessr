@@ -3,7 +3,7 @@ import { HINT_IMAGE_URL_VERSION } from "@/utils/hintImage";
 
 const MAX_WIDTH = 600;
 const WEBP_QUALITY = 75;
-const USER_AGENT = "WikiGuessr/1.0 (https://wikiguessr.com)";
+const USER_AGENT = "WikiGuessr/1.0 (https://wikiguessr.bonnell.fr)";
 const MAX_CONCURRENT_WIKI_FETCHES = 1;
 const MAX_FETCH_RETRIES = 4;
 const MIN_TIME_BETWEEN_FETCHES_MS = 1200;
@@ -19,7 +19,7 @@ const OBFUSCATION_BLUR = 3;
 
 export const RESPONSE_CACHE_CONTROL =
     process.env.NODE_ENV === "production"
-        ? `public, max-age=86400, immutable`
+        ? "no-store, no-cache, must-revalidate"
         : "no-store";
 
 export { OBFUSCATION_PROFILE };
