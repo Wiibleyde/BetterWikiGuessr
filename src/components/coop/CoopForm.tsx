@@ -65,7 +65,6 @@ export default function CoopForm({
         }
     };
 
-
     const disabled = () => {
         if (loading) return true;
         if (!displayName.trim()) return true;
@@ -111,15 +110,12 @@ export default function CoopForm({
                     />
                 </div>
             )}
-            <Button
-                type="submit"
-                disabled={disabled()}
-                className="w-full"
-            >
-                {loading ? "Connexion…" :
-                    mode === "create" ?
-                        "Créer le lobby" : "Rejoindre le lobby"
-                }
+            <Button type="submit" disabled={disabled()} className="w-full">
+                {loading
+                    ? "Connexion…"
+                    : mode === "create"
+                      ? "Créer le lobby"
+                      : "Rejoindre le lobby"}
             </Button>
         </form>
     );

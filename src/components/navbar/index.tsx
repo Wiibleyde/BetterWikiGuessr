@@ -53,7 +53,11 @@ export default function Navbar() {
                             >
                                 <Button
                                     className="w-full text-left md:w-auto md:text-center"
-                                    variant={pathname === link.href ? "navbarActive" : "navbar"}
+                                    variant={
+                                        pathname === link.href
+                                            ? "navbarActive"
+                                            : "navbar"
+                                    }
                                 >
                                     {link.label}
                                 </Button>

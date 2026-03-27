@@ -9,7 +9,7 @@ import CoopForm from "./CoopForm";
 
 export default function CoopHome() {
     const { createLobby, joinLobby, loading, error } = useCoopLobby();
-    const [mode, setMode] = useState<"create" | "join">("join");    
+    const [mode, setMode] = useState<"create" | "join">("join");
 
     if (error) {
         return <ErrorMessage message={error} />;
