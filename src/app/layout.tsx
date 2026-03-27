@@ -5,7 +5,6 @@ import "./globals.css";
 import type { ReactNode } from "react";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/ui/Footer";
-import env from "@/env";
 
 export const metadata: Metadata = {
     title: "Wiki Guessr",
@@ -33,9 +32,15 @@ export default async function RootLayout({
 }>) {
     await connection();
 
+    const supabaseUrl =
+        process.env.SUPABASE_PUBLIC_URL ??
+        process.env["NEXT_PUBLIC_SUPABASE_URL"] ??
+        "";
+    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY ?? "";
+
     const runtimeConfig = JSON.stringify({
-        NEXT_PUBLIC_SUPABASE_URL: env.NEXT_PUBLIC_SUPABASE_URL,
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+        NEXT_PUBLIC_SUPABASE_URL: supabaseUrl,
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: supabaseAnonKey,
     }).replace(/</g, "\\u003c");
 
     return (
