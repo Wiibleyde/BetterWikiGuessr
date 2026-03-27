@@ -20,3 +20,10 @@ export interface ProfileStats {
     averageHints: number;
     results: GameResultData[];
 }
+
+export interface LoginProvider {
+    name: string;
+    label: string;
+    icon: React.ReactNode;
+    className?: string;
+}

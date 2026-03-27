@@ -1,47 +1,35 @@
 "use client";
 
 import useSWR from "swr";
-import Loader from "@/components/ui/Loader";
 import { useAuth } from "@/hooks/useAuth";
 import type { ProfileStats } from "@/types/auth";
 import { fetcher } from "@/utils/fetcher";
 import Layout from "../ui/Layout";
+import NoAuthScreen from "../ui/NoAuthScreen";
 import NoDataMessage from "../ui/NoDataMessage";
 import ProfileResult from "./ProfileResult";
 import ProfileStatsRender from "./ProfileStatsRender";
 
 export default function ProfileContent() {
-    const { user, loading: authLoading, login } = useAuth();
+    const { user, loading: authLoading } = useAuth();
     const { data: stats, isLoading: statsLoading } = useSWR<ProfileStats>(
         user ? "/api/profile/stats" : null,
         fetcher,
         { revalidateOnFocus: false },
     );
 
-    if (authLoading || statsLoading)
-        return <Loader message="Chargement de votre profil…" />;
-
     if (!user) {
-        return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-stone-50 gap-4">
-                <p className="text-gray-600 text-lg">
-                    Connectez-vous avec Discord pour voir vos statistiques.
-                </p>
-                <button
-                    type="button"
-                    onClick={login}
-                    className="px-5 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
-                >
-                    Connexion Discord
-                </button>
-            </div>
-        );
+        return <NoAuthScreen />;
     }
 
     return (
         <Layout
             title={`👤 Profil de: ${user.name}`}
             subtitle="Consultez vos statistiques et votre historique de parties"
+            isLoading={authLoading || statsLoading}
+            loadingMessage={"Chargement de votre profil…"}
+            noData={!stats && !statsLoading}
+            noDataMessage={"Aucune statistique disponible pour le moment."}
         >
             {stats && (
                 <>

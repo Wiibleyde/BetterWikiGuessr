@@ -1,9 +1,6 @@
 "use client";
 
 import useSWR from "swr";
-import ErrorMessage from "@/components/ui/Error";
-import Loader from "@/components/ui/Loader";
-import NoDataMessage from "@/components/ui/NoDataMessage";
 import type { PageEntry } from "@/types/historic";
 import { fetcher } from "@/utils/fetcher";
 import Layout from "../ui/Layout";
@@ -18,18 +15,16 @@ export default function HistoricContent() {
         revalidateOnFocus: false,
     });
 
-    if (isLoading) return <Loader message="Chargement du classement…" />;
-
-    if (error)
-        return <ErrorMessage message="Impossible de charger le classement." />;
-
-    if (pages && pages.length === 0 && !isLoading)
-        return <NoDataMessage message="Aucune page disponible." />;
-
     return (
         <Layout
             title="🕒 Historique"
             subtitle="Découvrez les dernières pages Wikipédia qui ont été devinées dans WikiGuessr."
+            isError={!!error}
+            error={"Impossible de charger le historique."}
+            isLoading={isLoading}
+            loadingMessage={"Chargement du historique…"}
+            noData={pages && pages.length === 0 && !isLoading}
+            noDataMessage={"Aucune page disponible."}
         >
             {pages?.map((page) => (
                 <HistoricalPageEntry page={page} key={page.id} />

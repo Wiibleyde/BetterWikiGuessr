@@ -1,38 +1,60 @@
 "use client";
 
-import { useAtomValue } from "jotai";
-import { guessingAtom } from "@/atom/game";
+import type { FormEvent } from "react";
 import GameHeader from "@/components/game/game-header";
 import ImageHint from "@/components/game/ImageHint";
-import { useWikiGuessr } from "@/hooks/useWikiGuessr";
+import type { CoopPlayerInfo } from "@/types/coop";
+import type { MaskedArticle, RevealedMap, StoredGuess } from "@/types/game";
 import { formatDateWithMonthName } from "@/utils/date";
 import { plural } from "@/utils/helper";
+import CoopPlayerList from "../coop/CoopPlayerList";
 import ErrorMessage from "../ui/Error";
 import Loader from "../ui/Loader";
 import NoDataMessage from "../ui/NoDataMessage";
 import ArticleView from "./article";
 import GuessList from "./guess-list";
 
-export default function Game() {
-    const guessing = useAtomValue(guessingAtom);
-    const {
-        article,
-        guesses,
-        revealed,
-        loading,
-        won,
-        error,
-        percentage,
-        submitGuess,
-        revealedImages,
-        revealingHint,
-        revealHint,
-        hintsUsed,
-        imageCount,
-        input,
-        setInput,
-    } = useWikiGuessr();
+interface GameProps {
+    article: MaskedArticle | null;
+    guesses: StoredGuess[];
+    revealed: RevealedMap;
+    loading: boolean;
+    won: boolean;
+    error: string | null;
+    percentage: number;
+    submitGuess: (e?: FormEvent<Element> | undefined) => Promise<void>;
+    revealedImages: string[];
+    revealingHint: boolean;
+    revealHint: () => void;
+    hintsUsed: number;
+    imageCount: number;
+    input: string;
+    setInput: (value: string) => void;
+    guessing: boolean;
+    players?: CoopPlayerInfo[];
+    coop?: boolean;
+}
 
+export default function Game({
+    article,
+    guesses,
+    revealed,
+    loading,
+    won,
+    error,
+    percentage,
+    submitGuess,
+    revealedImages,
+    revealingHint,
+    revealHint,
+    hintsUsed,
+    imageCount,
+    input,
+    setInput,
+    guessing,
+    players,
+    coop = false,
+}: GameProps) {
     if (loading) return <Loader message="Chargement de l'article du jour…" />;
 
     if (error && !article) return <ErrorMessage message={error} />;
@@ -69,6 +91,8 @@ export default function Game() {
                 won={won}
                 onRevealHint={revealHint}
             />
+
+            {coop && players && <CoopPlayerList players={players} />}
 
             <div className="max-w-5xl mx-auto px-4 py-6 flex flex-col lg:flex-row gap-6">
                 <ArticleView article={article} revealed={revealed} />

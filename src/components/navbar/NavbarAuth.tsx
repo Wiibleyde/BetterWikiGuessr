@@ -5,7 +5,7 @@ import UserMenu from "./UserMenu";
 interface NavbarAuthProps {
     user: AuthUser | null;
     loading: boolean;
-    onLogin: () => void;
+    onOpenLoginModal: () => void;
     mobile?: boolean;
     open: boolean;
     setOpen: (open: boolean) => void;
@@ -14,7 +14,7 @@ interface NavbarAuthProps {
 export default function NavbarAuth({
     user,
     loading,
-    onLogin,
+    onOpenLoginModal,
     mobile = false,
     open,
     setOpen,
@@ -27,14 +27,11 @@ export default function NavbarAuth({
 
     return (
         <Button
-            onClick={() => {
-                onLogin();
-                setOpen(!open);
-            }}
+            onClick={onOpenLoginModal}
             variant="primary"
             className={mobile ? "w-full" : ""}
         >
-            Connexion Discord
+            Connexion
         </Button>
     );
 }

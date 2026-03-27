@@ -9,7 +9,6 @@ import {
     coopIsLeaderAtom,
     coopLoadingAtom,
     coopLobbyAtom,
-    coopPlayerIdAtom,
     coopPlayersAtom,
     coopPlayerTokenAtom,
     coopRevealedAtom,
@@ -21,17 +20,15 @@ import { applyPositions } from "@/utils/helper";
 
 export default function useCoopLobby() {
     const [lobby, setLobby] = useAtom(coopLobbyAtom);
-    const setPlayers = useSetAtom(coopPlayersAtom);
-    const setArticle = useSetAtom(coopArticleAtom);
+    const [players, setPlayers] = useAtom(coopPlayersAtom);
+    const [article, setArticle] = useAtom(coopArticleAtom);
     const setGuesses = useSetAtom(coopGuessesAtom);
     const setRevealed = useSetAtom(coopRevealedAtom);
     const setWon = useSetAtom(coopWonAtom);
-    const [playerId, setPlayerId] = useAtom(coopPlayerIdAtom);
     const [playerToken, setPlayerToken] = useAtom(coopPlayerTokenAtom);
     const [isLeader, setIsLeader] = useAtom(coopIsLeaderAtom);
     const [loading, setLoading] = useAtom(coopLoadingAtom);
     const [error, setError] = useAtom(coopErrorAtom);
-    const article = useAtomValue(coopArticleAtom);
 
     const percentage = computeRevealPercentage(
         useAtomValue(coopRevealedAtom),
@@ -56,7 +53,6 @@ export default function useCoopLobby() {
                     return null;
                 }
                 const join = data as CoopJoinResponse;
-                setPlayerId(join.playerId);
                 setPlayerToken(join.playerToken);
                 setIsLeader(join.isLeader);
                 return join;
@@ -67,7 +63,7 @@ export default function useCoopLobby() {
                 setLoading(false);
             }
         },
-        [setLoading, setError, setPlayerId, setPlayerToken, setIsLeader],
+        [setLoading, setError, setPlayerToken, setIsLeader],
     );
 
     const joinLobby = useCallback(
@@ -88,7 +84,7 @@ export default function useCoopLobby() {
                     return null;
                 }
                 const join = data as CoopJoinResponse;
-                setPlayerId(join.playerId);
+                // setPlayerId(join.playerId);
                 setPlayerToken(join.playerToken);
                 setIsLeader(join.isLeader);
                 return join;
@@ -99,7 +95,7 @@ export default function useCoopLobby() {
                 setLoading(false);
             }
         },
-        [setLoading, setError, setPlayerId, setPlayerToken, setIsLeader],
+        [setLoading, setError, setPlayerToken, setIsLeader],
     );
 
     const loadState = useCallback(
@@ -187,9 +183,8 @@ export default function useCoopLobby() {
 
     return {
         lobby,
-        playerId,
+        players,
         playerToken,
-        isLeader,
         loading,
         error,
         percentage,
@@ -197,5 +192,9 @@ export default function useCoopLobby() {
         joinLobby,
         loadState,
         startGame,
+        article,
+        setPlayerToken,
+        isLeader,
+        setIsLeader,
     };
 }

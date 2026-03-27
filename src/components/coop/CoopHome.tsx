@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Button from "@/components/ui/Button";
 import useCoopLobby from "@/hooks/useCoopLobby";
-import ErrorMessage from "../ui/Error";
 import Layout from "../ui/Layout";
 import CoopForm from "./CoopForm";
 
@@ -11,14 +10,14 @@ export default function CoopHome() {
     const { createLobby, joinLobby, loading, error } = useCoopLobby();
     const [mode, setMode] = useState<"create" | "join">("join");
 
-    if (error) {
-        return <ErrorMessage message={error} />;
-    }
-
     return (
         <Layout
             title="🤝 Mode Co-op"
             subtitle="Jouez à plusieurs pour deviner l'article Wikipédia !"
+            error={error || "Impossible de charger le mode en ligne."}
+            isError={!!error}
+            isLoading={loading}
+            loadingMessage={"Chargement du mode en ligne"}
         >
             <div className="flex flex-row items-start justify-center mb-6 rounded-xl py-2 ">
                 <Button

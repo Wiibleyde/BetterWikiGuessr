@@ -1,5 +1,5 @@
-import Game from "@/components/game";
+import SingleMode from "@/components/game/SingleMode";
 
 export default function Home() {
-    return <Game />;
+    return <SingleMode />;
 }

@@ -8,7 +8,6 @@ export const coopArticleAtom = atom<MaskedArticle | null>(null);
 export const coopGuessesAtom = atom<StoredGuess[]>([]);
 export const coopRevealedAtom = atom<RevealedMap>({});
 export const coopWonAtom = atom<boolean>(false);
-export const coopPlayerIdAtom = atom<number | null>(null);
 export const coopPlayerTokenAtom = atom<string | null>(null);
 export const coopIsLeaderAtom = atom<boolean>(false);
 export const coopLoadingAtom = atom<boolean>(false);

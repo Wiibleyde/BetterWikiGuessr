@@ -8,7 +8,7 @@ interface UserProps {
 
 export default function User({ name, image, pictureWidth = 20 }: UserProps) {
     return (
-        <div className="flex items-center gap-2 min-w-0 flex-1">
+        <div className="flex items-center gap-2 min-w-0">
             {image ? (
                 <Image
                     src={image}
