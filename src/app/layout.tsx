@@ -5,6 +5,7 @@ import "./globals.css";
 import type { ReactNode } from "react";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/ui/Footer";
+import env from "@/env";
 
 export const metadata: Metadata = {
     title: "Wiki Guessr",
@@ -32,11 +33,9 @@ export default async function RootLayout({
 }>) {
     await connection();
 
-    const supabaseUrl =
-        process.env.SUPABASE_PUBLIC_URL ??
-        process.env["NEXT_PUBLIC_SUPABASE_URL"] ??
-        "";
-    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY ?? "";
+    const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey =
+        env.SUPABASE_ANON_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     const runtimeConfig = JSON.stringify({
         NEXT_PUBLIC_SUPABASE_URL: supabaseUrl,
@@ -49,6 +48,7 @@ export default async function RootLayout({
                 <Script
                     id="runtime-config"
                     strategy="beforeInteractive"
+                    // biome-ignore lint/security/noDangerouslySetInnerHtml: intentional runtime env injection for Docker deployments; values come from server env vars, not user input
                     dangerouslySetInnerHTML={{
                         __html: `window.__WIKIGUESSR_ENV__ = ${runtimeConfig};`,
                     }}
