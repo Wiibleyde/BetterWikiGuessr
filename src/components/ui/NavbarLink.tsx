@@ -12,14 +12,10 @@ export default function NavbarLink({
     href,
     label,
     isActive,
-    onClick
+    onClick,
 }: NavbarLinkProps) {
     return (
-        <Link
-            key={href}
-            href={href}
-            onClick={onClick}
-        >
+        <Link key={href} href={href} onClick={onClick}>
             <Button
                 className="w-full text-left md:w-auto md:text-center"
                 variant={isActive ? "navbarActive" : "navbar"}
@@ -27,5 +23,5 @@ export default function NavbarLink({
                 {label}
             </Button>
         </Link>
-    )
+    );
 }
