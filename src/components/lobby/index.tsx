@@ -1,18 +1,16 @@
-"use client";
-
-import { useParams } from "next/navigation";
 import { useEffect } from "react";
-import CoopWaiting from "@/components/coop/CoopWaiting";
-import CoopMode from "@/components/game/CoopMode";
-import ErrorMessage from "@/components/ui/Error";
-import Loader from "@/components/ui/Loader";
 import useCoopLobby from "@/hooks/useCoopLobby";
 import useCoopRealtime from "@/hooks/useCoopRealtime";
+import CoopWaiting from "../coop/CoopWaiting";
+import CoopMode from "../game/CoopMode";
+import ErrorMessage from "../ui/Error";
+import Loader from "../ui/Loader";
 
-export default function CoopLobbyPage() {
-    const params = useParams<{ code: string }>();
-    const code = params.code;
+interface LobbyProps {
+    code: string;
+}
 
+const Lobby = ({ code }: LobbyProps) => {
     const {
         loadState,
         startGame,
@@ -73,4 +71,6 @@ export default function CoopLobbyPage() {
     }
 
     return <CoopMode code={code} />;
-}
+};
+
+export default Lobby;
