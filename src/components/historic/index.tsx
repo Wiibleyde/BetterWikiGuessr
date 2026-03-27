@@ -25,7 +25,6 @@ export default function HistoricContent() {
             loadingMessage={"Chargement du historique…"}
             noData={pages && pages.length === 0 && !isLoading}
             noDataMessage={"Aucune page disponible."}
-
         >
             {pages?.map((page) => (
                 <HistoricalPageEntry page={page} key={page.id} />

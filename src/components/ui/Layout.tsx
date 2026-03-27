@@ -22,16 +22,13 @@ const Layout = ({
     noData = false,
     loadingMessage = "Chargement en cours…",
     error = "Une erreur est survenue.",
-    noDataMessage = "Aucune donnée disponible."
+    noDataMessage = "Aucune donnée disponible.",
 }: LayoutProps) => {
-
-    if (noData)
-        return <NoDataMessage message={noDataMessage} />;
+    if (noData) return <NoDataMessage message={noDataMessage} />;
 
     if (isLoading) return <Loader message={loadingMessage} />;
 
-    if (isError)
-        return <ErrorMessage message={error} />;
+    if (isError) return <ErrorMessage message={error} />;
 
     return (
         <div className="min-h-screen bg-stone-50 text-gray-900 w-full">

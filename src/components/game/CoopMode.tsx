@@ -38,7 +38,7 @@ const CoopMode = ({ code }: CoopGameProps) => {
             submitGuess={submitGuess}
             revealedImages={[]}
             revealingHint={false}
-            revealHint={() => { }}
+            revealHint={() => {}}
             hintsUsed={0}
             imageCount={article.imageCount}
             input={input}

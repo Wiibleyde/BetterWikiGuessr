@@ -92,11 +92,7 @@ export default function Game({
                 onRevealHint={revealHint}
             />
 
-            {coop && players && (
-                <CoopPlayerList
-                    players={players}
-                />
-            )}
+            {coop && players && <CoopPlayerList players={players} />}
 
             <div className="max-w-5xl mx-auto px-4 py-6 flex flex-col lg:flex-row gap-6">
                 <ArticleView article={article} revealed={revealed} />

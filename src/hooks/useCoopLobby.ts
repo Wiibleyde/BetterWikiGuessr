@@ -20,8 +20,8 @@ import { applyPositions } from "@/utils/helper";
 
 export default function useCoopLobby() {
     const [lobby, setLobby] = useAtom(coopLobbyAtom);
-    const setPlayers = useSetAtom(coopPlayersAtom);
-    const setArticle = useSetAtom(coopArticleAtom);
+    const [players, setPlayers] = useAtom(coopPlayersAtom);
+    const [article, setArticle] = useAtom(coopArticleAtom);
     const setGuesses = useSetAtom(coopGuessesAtom);
     const setRevealed = useSetAtom(coopRevealedAtom);
     const setWon = useSetAtom(coopWonAtom);
@@ -29,7 +29,6 @@ export default function useCoopLobby() {
     const [isLeader, setIsLeader] = useAtom(coopIsLeaderAtom);
     const [loading, setLoading] = useAtom(coopLoadingAtom);
     const [error, setError] = useAtom(coopErrorAtom);
-    const article = useAtomValue(coopArticleAtom);
 
     const percentage = computeRevealPercentage(
         useAtomValue(coopRevealedAtom),
@@ -184,9 +183,8 @@ export default function useCoopLobby() {
 
     return {
         lobby,
-        // playerId,
+        players,
         playerToken,
-        isLeader,
         loading,
         error,
         percentage,
@@ -194,5 +192,9 @@ export default function useCoopLobby() {
         joinLobby,
         loadState,
         startGame,
+        article,
+        setPlayerToken,
+        isLeader,
+        setIsLeader,
     };
 }
