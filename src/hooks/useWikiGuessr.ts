@@ -1,8 +1,9 @@
 "use client";
 
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { useEffect } from "react";
 import * as atomGame from "@/atom/game";
+import { computeRevealPercentage } from "@/utils/game";
 import useArticle from "./useArticle";
 import useDb from "./useDb";
 import useGame from "./useGame";
@@ -19,11 +20,9 @@ export function useWikiGuessr() {
     const revealedImages = useAtomValue(atomGame.revealedImagesAtom);
     const winImages = useAtomValue(atomGame.winImagesAtom);
     const revealingHint = useAtomValue(atomGame.revealingHintAtom);
+    const [input, setInput] = useAtom(atomGame.inputAtom);
 
-    const revealedCount = Object.keys(revealed).length;
-    const totalWords = article?.totalWords ?? 0;
-    const percentage =
-        totalWords > 0 ? Math.round((revealedCount / totalWords) * 100) : 0;
+    const percentage = computeRevealPercentage(revealed, article);
     const hintsUsed = revealedImages.length;
     const imageCount = article?.imageCount ?? 0;
     const displayImages =
@@ -53,5 +52,7 @@ export function useWikiGuessr() {
         revealHint,
         hintsUsed,
         imageCount,
+        input,
+        setInput,
     };
 }

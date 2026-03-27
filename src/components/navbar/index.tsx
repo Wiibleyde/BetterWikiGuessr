@@ -11,6 +11,7 @@ import NavbarButton from "./NavbarButton";
 
 const NAV_LINKS = [
     { href: "/", label: "Jouer" },
+    { href: "/coop", label: "Co-op" },
     { href: "/historic", label: "Historique" },
     { href: "/leaderboard", label: "Classement" },
     { href: "/profile", label: "Profil" },
@@ -51,8 +52,12 @@ export default function Navbar() {
                                 onClick={() => setOpen(false)}
                             >
                                 <Button
-                                    className={`w-full text-left md:w-auto md:text-center ${pathname === link.href ? "bg-gray-100 text-gray-900" : ""}`}
-                                    variant="navbar"
+                                    className="w-full text-left md:w-auto md:text-center"
+                                    variant={
+                                        pathname === link.href
+                                            ? "navbarActive"
+                                            : "navbar"
+                                    }
                                 >
                                     {link.label}
                                 </Button>

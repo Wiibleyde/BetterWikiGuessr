@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json bun.lock* ./
 
 RUN --mount=type=cache,target=/root/.bun/install/cache \
-    bun install --no-save --frozen-lockfile --ignore-scripts
+    bun install --frozen-lockfile --ignore-scripts
 
 # ============================================
 # Stage 2: Build Next.js application in standalone mode
@@ -21,6 +21,19 @@ COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 
 ENV NODE_ENV=production
+
+# Dummy build-time env vars to satisfy Zod validation during next build.
+# These are NOT carried over to the runner stage; real values come from docker-compose.
+ARG DATABASE_URL=postgresql://placeholder:placeholder@localhost:5432/placeholder
+ARG DISCORD_CLIENT_ID=placeholder
+ARG DISCORD_CLIENT_SECRET=placeholder
+ARG BETTER_AUTH_SECRET=placeholder-secret-placeholder-secret-00
+ARG BETTER_AUTH_URL=http://localhost:3000
+ENV DATABASE_URL=$DATABASE_URL
+ENV DISCORD_CLIENT_ID=$DISCORD_CLIENT_ID
+ENV DISCORD_CLIENT_SECRET=$DISCORD_CLIENT_SECRET
+ENV BETTER_AUTH_SECRET=$BETTER_AUTH_SECRET
+ENV BETTER_AUTH_URL=$BETTER_AUTH_URL
 
 # Generate Prisma client
 RUN bunx prisma generate
@@ -35,7 +48,7 @@ FROM oven/bun:1-slim AS prisma-deps
 WORKDIR /prisma-deps
 
 RUN --mount=type=cache,target=/root/.bun/install/cache \
-    bun add prisma@7.4.0 dotenv@17.3.1 --no-save
+    bun add prisma@7.4.0 dotenv@17.3.1
 
 # ============================================
 # Stage 4: Run Next.js application

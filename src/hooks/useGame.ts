@@ -14,7 +14,7 @@ import { MIN_GUESSES_FOR_HINT } from "@/constants/game";
 import { fetchGameReveal, fetchImageHint } from "@/lib/queries";
 import type { MaskedArticle, RevealedMap, StoredGuess } from "@/types/game";
 import { saveCache } from "@/utils/cache";
-import { posKey } from "@/utils/helper";
+import { applyPositions } from "@/utils/helper";
 
 const useGame = () => {
     const setWinImages = useSetAtom(winImagesAtom);
@@ -35,11 +35,10 @@ const useGame = () => {
         ) => {
             const reveal = await fetchGameReveal(words);
             if (reveal) {
-                const fullRevealed = { ...currentRevealed };
-                for (const pos of reveal.positions) {
-                    fullRevealed[posKey(pos.section, pos.part, pos.wordIndex)] =
-                        pos.display;
-                }
+                const fullRevealed = applyPositions(
+                    currentRevealed,
+                    reveal.positions,
+                );
                 setRevealed(fullRevealed);
                 saveCache(art.date, currentGuesses, fullRevealed);
                 return;

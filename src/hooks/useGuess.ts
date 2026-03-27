@@ -6,8 +6,6 @@ import {
     guessesAtom,
     guessingAtom,
     inputAtom,
-    lastGuessFoundAtom,
-    lastGuessSimilarityAtom,
     revealedAtom,
     revealedImagesAtom,
     wonAtom,
@@ -17,7 +15,7 @@ import { checkGameGuess } from "@/lib/queries";
 import type { StoredGuess } from "@/types/game";
 import { saveCache } from "@/utils/cache";
 import { checkWinCondition } from "@/utils/game";
-import { posKey } from "@/utils/helper";
+import { applyPositions } from "@/utils/helper";
 import useArticle from "./useArticle";
 import useGame from "./useGame";
 
@@ -25,8 +23,6 @@ const useGuess = () => {
     const { reloadArticle } = useArticle();
     const [input, setInput] = useAtom(inputAtom);
     const article = useAtomValue(articleAtom);
-    const setLastGuessFound = useSetAtom(lastGuessFoundAtom);
-    const setLastGuessSimilarity = useSetAtom(lastGuessSimilarityAtom);
     const [guessing, setGuessing] = useAtom(guessingAtom);
     const [revealed, setRevealed] = useAtom(revealedAtom);
     const [guesses, setGuesses] = useAtom(guessesAtom);
@@ -49,7 +45,6 @@ const useGuess = () => {
             }
 
             setGuessing(true);
-            setLastGuessFound(null);
 
             try {
                 const foundWords = guesses
@@ -77,16 +72,13 @@ const useGuess = () => {
                 };
 
                 const newGuesses = [newGuess, ...guesses];
-                const newRevealed = { ...revealed };
-                for (const pos of guessResult.positions) {
-                    newRevealed[posKey(pos.section, pos.part, pos.wordIndex)] =
-                        pos.display;
-                }
+                const newRevealed = applyPositions(
+                    revealed,
+                    guessResult.positions,
+                );
 
                 setGuesses(newGuesses);
                 setRevealed(newRevealed);
-                setLastGuessFound(guessResult.found);
-                setLastGuessSimilarity(guessResult.similarity);
 
                 saveCache(
                     article.date,
@@ -122,8 +114,6 @@ const useGuess = () => {
             reloadArticle,
             setGuesses,
             setRevealed,
-            setLastGuessFound,
-            setLastGuessSimilarity,
             setGuessing,
             setError,
             setInput,

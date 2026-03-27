@@ -31,6 +31,7 @@ export default function Guess({ guess }: GuessProps) {
         >
             <GuessWord
                 word={guess.word}
+                player={guess.player}
                 isFound={guess.found}
                 isClose={isClose}
             />

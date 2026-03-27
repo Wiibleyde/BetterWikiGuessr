@@ -1,6 +1,16 @@
 import type { MaskedArticle, RevealedMap, WordToken } from "@/types/game";
 import { posKey } from "./helper";
 
+export function computeRevealPercentage(
+    revealed: RevealedMap,
+    article: MaskedArticle | null,
+): number {
+    const totalWords = article?.totalWords ?? 0;
+    return totalWords > 0
+        ? Math.round((Object.keys(revealed).length / totalWords) * 100)
+        : 0;
+}
+
 export function checkWinCondition(
     article: MaskedArticle,
     revealed: RevealedMap,

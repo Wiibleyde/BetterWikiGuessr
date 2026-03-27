@@ -7,6 +7,8 @@ const envSchema = z.object({
     BETTER_AUTH_SECRET: z.string().min(32),
     BETTER_AUTH_URL: z.url(),
     GAME_TIMEZONE: z.string().default("Europe/Paris"),
+    NEXT_PUBLIC_SUPABASE_URL: z.string().default(""),
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().default(""),
 });
 
 const env = envSchema.parse({
@@ -16,6 +18,8 @@ const env = envSchema.parse({
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
     GAME_TIMEZONE: process.env.GAME_TIMEZONE,
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
 });
 
 export default env;
