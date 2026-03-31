@@ -1,3 +1,4 @@
+import * as cron from 'node-cron'
 import { todayKeyInGameTZ } from "@/lib/game/date";
 import { fetchRandomWikiPage } from "@/lib/game/wiki";
 import type { prisma } from "@/lib/prisma";
@@ -62,19 +63,14 @@ export async function ensureDailyWikiPage(): Promise<DailyWikiPage> {
 }
 
 export function startDailyCron(): () => void {
-    let lastCheckedDay = todayKeyInGameTZ();
-
-    const interval = setInterval(async () => {
-        const currentDay = todayKeyInGameTZ();
-        if (currentDay !== lastCheckedDay) {
-            lastCheckedDay = currentDay;
-            try {
-                await ensureDailyWikiPage();
-            } catch (error) {
-                console.error("[daily-wiki] Erreur fetch quotidien :", error);
-            }
+    const task = cron.schedule("0 0 * * *", async () => {
+        try {
+            console.log("[daily-wiki] Running daily wiki page fetch...");
+            await ensureDailyWikiPage();
+        } catch (error) {
+            console.error("[daily-wiki] Erreur fetch quotidien :", error);
         }
-    }, 60_000);
+    }, {timezone: "Europe/Paris"});
 
-    return () => clearInterval(interval);
+    return () => task.stop();
 }
