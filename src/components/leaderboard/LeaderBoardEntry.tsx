@@ -33,7 +33,7 @@ export default function LeaderBoardEntry({
             <User name={entry.name} image={entry.image} pictureWidth={28} />
 
             {/* Valeur + détail */}
-            <div className="text-right shrink-0">
+            <div className="ml-auto text-right shrink-0">
                 <span className="text-sm font-semibold text-gray-900">
                     {`${entry.value} ${meta.valueLabel}`}
                 </span>
