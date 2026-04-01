@@ -8,6 +8,11 @@ export function storeCoopSession(result: CoopJoinResponse): void {
     sessionStorage.setItem(PLAYER_ID_KEY(result.code), String(result.playerId));
 }
 
+export function clearCoopSession(code: string): void {
+    sessionStorage.removeItem(TOKEN_KEY(code));
+    sessionStorage.removeItem(PLAYER_ID_KEY(code));
+}
+
 export function getCoopToken(code: string): string | null {
     return sessionStorage.getItem(TOKEN_KEY(code));
 }

@@ -30,6 +30,30 @@ export default function useCoopLobby() {
     const [loading, setLoading] = useAtom(coopLoadingAtom);
     const [error, setError] = useAtom(coopErrorAtom);
 
+    const resetState = useCallback(() => {
+        setLobby(null);
+        setPlayers([]);
+        setArticle(null);
+        setGuesses([]);
+        setRevealed({});
+        setWon(false);
+        setPlayerToken(null);
+        setIsLeader(false);
+        setLoading(false);
+        setError(null);
+    }, [
+        setLobby,
+        setPlayers,
+        setArticle,
+        setGuesses,
+        setRevealed,
+        setWon,
+        setPlayerToken,
+        setIsLeader,
+        setLoading,
+        setError,
+    ]);
+
     const percentage = computeRevealPercentage(
         useAtomValue(coopRevealedAtom),
         article,
@@ -196,5 +220,6 @@ export default function useCoopLobby() {
         setPlayerToken,
         isLeader,
         setIsLeader,
+        resetState,
     };
 }

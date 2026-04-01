@@ -13,9 +13,10 @@ import Game from ".";
 
 interface CoopGameProps {
     code: string;
+    onLeave: () => void;
 }
 
-const CoopMode = ({ code }: CoopGameProps) => {
+const CoopMode = ({ code, onLeave }: CoopGameProps) => {
     const article = useAtomValue(coopArticleAtom);
     const guesses = useAtomValue(coopGuessesAtom);
     const revealed = useAtomValue(coopRevealedAtom);
@@ -46,6 +47,7 @@ const CoopMode = ({ code }: CoopGameProps) => {
             guessing={guessing}
             players={players}
             coop
+            onLeave={onLeave}
         />
     );
 };

@@ -1,8 +1,10 @@
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import useCoopLobby from "@/hooks/useCoopLobby";
 import useCoopRealtime from "@/hooks/useCoopRealtime";
 import {
+    clearCoopSession,
     getCoopPlayerId,
     getCoopToken,
     storeCoopSession,
@@ -19,6 +21,7 @@ interface LobbyProps {
 
 const Lobby = ({ code }: LobbyProps) => {
     const { user } = useAuth();
+    const router = useRouter();
     const {
         loadState,
         startGame,
@@ -27,17 +30,18 @@ const Lobby = ({ code }: LobbyProps) => {
         loading,
         lobby,
         players,
-        playerToken,
         article,
         setPlayerToken,
         isLeader,
         setIsLeader,
+        resetState,
     } = useCoopLobby();
 
     const [hasSession, setHasSession] = useState<boolean | null>(null);
 
-    // Restore session tokens
+    // Reset all coop atoms and check session for this specific code
     useEffect(() => {
+        resetState();
         if (!code) return;
         const token = getCoopToken(code);
         if (token) {
@@ -46,7 +50,7 @@ const Lobby = ({ code }: LobbyProps) => {
         } else {
             setHasSession(false);
         }
-    }, [code, setPlayerToken]);
+    }, [code, resetState, setPlayerToken]);
 
     // Load lobby state once we have a session
     useEffect(() => {
@@ -73,13 +77,19 @@ const Lobby = ({ code }: LobbyProps) => {
         }
     };
 
+    const handleLeave = () => {
+        clearCoopSession(code);
+        resetState();
+        router.push("/coop");
+    };
+
     // Still checking sessionStorage
     if (hasSession === null) {
         return <Loader message="Chargement du lobby…" />;
     }
 
     // No session — show join form
-    if (!hasSession && !playerToken) {
+    if (!hasSession) {
         return (
             <CoopJoinForm
                 code={code}
@@ -108,11 +118,12 @@ const Lobby = ({ code }: LobbyProps) => {
                 isLeader={isLeader}
                 loading={loading}
                 onStart={startGame}
+                onLeave={handleLeave}
             />
         );
     }
 
-    return <CoopMode code={code} />;
+    return <CoopMode code={code} onLeave={handleLeave} />;
 };
 
 export default Lobby;

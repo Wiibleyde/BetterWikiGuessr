@@ -13,6 +13,7 @@ interface CoopWaitingProps {
     isLeader: boolean;
     loading: boolean;
     onStart: () => void;
+    onLeave: () => void;
 }
 
 export default function CoopWaiting({
@@ -21,6 +22,7 @@ export default function CoopWaiting({
     isLeader,
     loading,
     onStart,
+    onLeave,
 }: CoopWaitingProps) {
     const [copied, setCopied] = useState(false);
     const [copiedLink, setCopiedLink] = useState(false);
@@ -106,6 +108,14 @@ export default function CoopWaiting({
                     En attente du leader pour lancer la partie…
                 </div>
             )}
+
+            <Button
+                onClick={onLeave}
+                variant="secondary"
+                className="w-full mt-2"
+            >
+                Quitter le lobby
+            </Button>
         </Layout>
     );
 }

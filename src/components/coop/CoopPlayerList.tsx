@@ -9,7 +9,7 @@ interface CoopPlayerListProps {
 
 export default function CoopPlayerList({ players }: CoopPlayerListProps) {
     return (
-        <div className="max-w-5xl mx-auto px-4 py-4 flex gap-4 mb-4">
+        <div className="py-4 flex gap-4">
             {players.map((player) => (
                 <User
                     key={player.id}

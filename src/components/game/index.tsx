@@ -8,6 +8,7 @@ import type { MaskedArticle, RevealedMap, StoredGuess } from "@/types/game";
 import { formatDateWithMonthName } from "@/utils/date";
 import { plural } from "@/utils/helper";
 import CoopPlayerList from "../coop/CoopPlayerList";
+import Button from "../ui/Button";
 import ErrorMessage from "../ui/Error";
 import Loader from "../ui/Loader";
 import NoDataMessage from "../ui/NoDataMessage";
@@ -33,6 +34,7 @@ interface GameProps {
     guessing: boolean;
     players?: CoopPlayerInfo[];
     coop?: boolean;
+    onLeave?: () => void;
 }
 
 export default function Game({
@@ -54,6 +56,7 @@ export default function Game({
     guessing,
     players,
     coop = false,
+    onLeave,
 }: GameProps) {
     if (loading) return <Loader message="Chargement de l'article du jour…" />;
 
@@ -92,7 +95,20 @@ export default function Game({
                 onRevealHint={revealHint}
             />
 
-            {coop && players && <CoopPlayerList players={players} />}
+            {coop && players && (
+                <div className="flex items-center justify-between max-w-5xl mx-auto px-4">
+                    <CoopPlayerList players={players} />
+                    {onLeave && (
+                        <Button
+                            variant="secondary"
+                            onClick={onLeave}
+                            className="shrink-0"
+                        >
+                            Quitter
+                        </Button>
+                    )}
+                </div>
+            )}
 
             <div className="max-w-5xl mx-auto px-4 py-6 flex flex-col lg:flex-row gap-6">
                 <ArticleView article={article} revealed={revealed} />
