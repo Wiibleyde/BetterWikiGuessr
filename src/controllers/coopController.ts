@@ -1,6 +1,7 @@
 import type { NextRequest, NextResponse } from "next/server";
 import {
     createCoopLobby,
+    DuplicateGuessError,
     GameAlreadyStartedError,
     GameNotStartedError,
     getCoopLobbyState,
@@ -74,6 +75,9 @@ export async function joinLobbyHandler(
     if (!nameResult.valid) return nameResult.response;
 
     const code = body.code.trim().toUpperCase();
+    if (!/^[A-Z2-9]{6}$/.test(code)) {
+        return err("Code invalide (6 caractères attendus)", 400);
+    }
     const { trimmed } = nameResult;
 
     const userId = typeof body.userId === "string" ? body.userId : undefined;
@@ -166,6 +170,8 @@ export async function submitCoopGuessHandler(
         if (error instanceof LobbyNotFoundError) return err(error.message, 404);
         if (error instanceof GameNotStartedError)
             return err(error.message, 400);
+        if (error instanceof DuplicateGuessError)
+            return err(error.message, 409);
         throw error;
     }
 }

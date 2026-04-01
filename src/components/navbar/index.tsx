@@ -3,8 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { NAV_LINKS, providers } from "@/constants/navbar";
+import LoginContext from "@/context/LoginContext";
 import { useAuth } from "@/hooks/useAuth";
 import ButtonProvider from "../ui/ButtonProvider";
 import Modal from "../ui/Modal";
@@ -15,7 +16,7 @@ import NavbarButton from "./NavbarButton";
 export default function Navbar() {
     const { user, loading } = useAuth();
     const [open, setOpen] = useState<boolean>(false);
-    const [loginOpen, setLoginOpen] = useState<boolean>(false);
+    const { setShowLogin, showLogin } = useContext(LoginContext);
     const pathname = usePathname();
 
     return (
@@ -66,7 +67,7 @@ export default function Navbar() {
                             loading={loading}
                             onOpenLoginModal={() => {
                                 setOpen(false);
-                                setLoginOpen(true);
+                                setShowLogin(true);
                             }}
                             open={open}
                             setOpen={setOpen}
@@ -77,16 +78,16 @@ export default function Navbar() {
             </div>
 
             <Modal
-                setOpen={setLoginOpen}
-                open={loginOpen}
-                onClose={() => setLoginOpen(false)}
+                setOpen={setShowLogin}
+                open={showLogin}
+                onClose={() => setShowLogin(false)}
                 title="Se connecter"
                 subtitle="Choisissez un fournisseur pour continuer"
             >
                 {providers.map((provider) => (
                     <ButtonProvider
                         key={provider.name}
-                        onClose={() => setLoginOpen(false)}
+                        onClose={() => setShowLogin(false)}
                         {...provider}
                     />
                 ))}

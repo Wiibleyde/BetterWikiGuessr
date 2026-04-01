@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/ui/Footer";
 import env from "@/env";
+import LoginProvider from "@/provider/LoginProvider";
 
 export const metadata: Metadata = {
     title: "Wiki Guessr",
@@ -53,9 +54,11 @@ export default async function RootLayout({
                         __html: `window.__WIKIGUESSR_ENV__ = ${runtimeConfig};`,
                     }}
                 />
-                <Navbar />
-                <main className="flex-1">{children}</main>
-                <Footer />
+                <LoginProvider>
+                    <Navbar />
+                    <main className="flex-1">{children}</main>
+                    <Footer />
+                </LoginProvider>
             </body>
         </html>
     );

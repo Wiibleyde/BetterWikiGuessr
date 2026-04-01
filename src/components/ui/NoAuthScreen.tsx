@@ -1,20 +1,23 @@
-import { useAuth } from "@/hooks/useAuth";
+import { useContext } from "react";
+import LoginContext from "@/context/LoginContext";
+import Button from "./Button";
 
 const NoAuthScreen = () => {
-    const { login } = useAuth();
+    const { setShowLogin } = useContext(LoginContext);
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-stone-50 gap-4">
             <p className="text-gray-600 text-lg">
-                Connectez-vous avec Discord pour voir vos statistiques.
+                Connectez-vous pour voir votre profil et visualiser vos
+                statistiques de jeu.
             </p>
-            <button
+            <Button
                 type="button"
-                onClick={() => login()}
-                className="px-5 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+                onClick={() => setShowLogin(true)}
+                variant="primary"
             >
                 Connexion Discord
-            </button>
+            </Button>
         </div>
     );
 };

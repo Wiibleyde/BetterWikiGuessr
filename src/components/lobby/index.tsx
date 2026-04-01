@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import useCoopLobby from "@/hooks/useCoopLobby";
 import useCoopRealtime from "@/hooks/useCoopRealtime";
+import { getCoopPlayerId, getCoopToken } from "@/utils/coopSession";
 import CoopWaiting from "../coop/CoopWaiting";
 import CoopMode from "../game/CoopMode";
 import ErrorMessage from "../ui/Error";
@@ -27,7 +28,7 @@ const Lobby = ({ code }: LobbyProps) => {
     // Restore session tokens
     useEffect(() => {
         if (!code) return;
-        const token = sessionStorage.getItem(`coop:${code}:token`);
+        const token = getCoopToken(code);
         if (token) setPlayerToken(token);
     }, [code, setPlayerToken]);
 
@@ -38,9 +39,9 @@ const Lobby = ({ code }: LobbyProps) => {
 
     // Detect leader from loaded players
     useEffect(() => {
-        const storedId = sessionStorage.getItem(`coop:${code}:playerId`);
-        if (storedId && players.length > 0) {
-            const me = players.find((p) => p.id === Number(storedId));
+        const storedId = getCoopPlayerId(code);
+        if (storedId !== null && players.length > 0) {
+            const me = players.find((p) => p.id === storedId);
             if (me?.isLeader) setIsLeader(true);
         }
     }, [code, players, setIsLeader]);

@@ -12,31 +12,35 @@ export async function broadcastToLobby(
     const url = `${env.SUPABASE_INTERNAL_URL || env.NEXT_PUBLIC_SUPABASE_URL}/realtime/v1/api/broadcast`;
     const key = env.SUPABASE_ANON_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    const response = await fetch(url, {
-        method: "POST",
-        headers: {
-            apikey: key,
-            Authorization: `Bearer ${key}`,
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            messages: [
-                {
-                    topic: `coop:${code}`,
-                    event,
-                    payload,
-                    private: false,
-                },
-            ],
-        }),
-    });
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                apikey: key,
+                Authorization: `Bearer ${key}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                messages: [
+                    {
+                        topic: `coop:${code}`,
+                        event,
+                        payload,
+                        private: false,
+                    },
+                ],
+            }),
+        });
 
-    if (!response.ok) {
-        console.error(
-            "[broadcast] failed:",
-            response.status,
-            await response.text(),
-        );
+        if (!response.ok) {
+            console.error(
+                "[broadcast] failed:",
+                response.status,
+                await response.text(),
+            );
+        }
+    } catch (error) {
+        console.error("[broadcast] network error:", error);
     }
 }
 

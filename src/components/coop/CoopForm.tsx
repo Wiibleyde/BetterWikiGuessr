@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import type { CoopJoinResponse } from "@/types/coop";
+import { storeCoopSession } from "@/utils/coopSession";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
 import InputOtp from "../ui/InputOtp";
@@ -19,15 +20,6 @@ interface CoopFormProps {
         displayName: string,
         userId: string | undefined,
     ) => Promise<CoopJoinResponse | null>;
-}
-
-// TODO: Mettre ça ailleurs dans les utils
-function storeCoopSession(result: CoopJoinResponse) {
-    sessionStorage.setItem(`coop:${result.code}:token`, result.playerToken);
-    sessionStorage.setItem(
-        `coop:${result.code}:playerId`,
-        String(result.playerId),
-    );
 }
 
 export default function CoopForm({

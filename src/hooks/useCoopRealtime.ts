@@ -7,11 +7,13 @@ import {
     coopGuessesAtom,
     coopLobbyAtom,
     coopPlayersAtom,
+    coopRevealedAtom,
     coopWonAtom,
 } from "@/atom/coop";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { CoopPlayerInfo } from "@/types/coop";
-import type { MaskedArticle, StoredGuess } from "@/types/game";
+import type { CoopGuessEntry, CoopPlayerInfo } from "@/types/coop";
+import type { MaskedArticle } from "@/types/game";
+import { applyPositions } from "@/utils/helper";
 
 export default function useCoopRealtime(code: string | null) {
     const setPlayers = useSetAtom(coopPlayersAtom);
@@ -19,6 +21,7 @@ export default function useCoopRealtime(code: string | null) {
     const setGuesses = useSetAtom(coopGuessesAtom);
     const setLobby = useSetAtom(coopLobbyAtom);
     const setWon = useSetAtom(coopWonAtom);
+    const setRevealed = useSetAtom(coopRevealedAtom);
     const channelRef = useRef<ReturnType<
         NonNullable<ReturnType<typeof getSupabaseBrowserClient>>["channel"]
     > | null>(null);
@@ -63,10 +66,16 @@ export default function useCoopRealtime(code: string | null) {
                 setArticle(article);
             })
             .on("broadcast", { event: "guess_result" }, ({ payload }) => {
-                const { guess } = payload as { guess: StoredGuess };
-                setGuesses((prev: StoredGuess[]) => {
+                const { guess } = payload as { guess: CoopGuessEntry };
+                setGuesses((prev: CoopGuessEntry[]) => {
                     return [guess, ...prev];
                 });
+
+                if (guess.found && guess.positions.length > 0) {
+                    setRevealed((prev) =>
+                        applyPositions(prev, guess.positions),
+                    );
+                }
 
                 setPlayers((prev: CoopPlayerInfo[]) =>
                     prev.map((p) =>
@@ -93,5 +102,13 @@ export default function useCoopRealtime(code: string | null) {
             supabase.removeChannel(channel);
             channelRef.current = null;
         };
-    }, [code, setPlayers, setArticle, setGuesses, setLobby, setWon]);
+    }, [
+        code,
+        setPlayers,
+        setArticle,
+        setGuesses,
+        setLobby,
+        setWon,
+        setRevealed,
+    ]);
 }

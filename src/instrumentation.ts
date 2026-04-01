@@ -15,5 +15,9 @@ export async function register() {
         }
 
         startDailyCron();
+
+        // Cleanup stale coop caches every 30 minutes
+        const { cleanupCoopCaches } = await import("@/lib/game/coop-game");
+        setInterval(() => cleanupCoopCaches(), 30 * 60 * 1000);
     }
 }

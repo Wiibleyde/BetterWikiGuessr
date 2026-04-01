@@ -123,3 +123,12 @@ export async function getFoundGuessWords(lobbyId: number): Promise<string[]> {
     });
     return guesses.map((g) => g.word);
 }
+
+export async function getAllGuessedWords(lobbyId: number): Promise<string[]> {
+    const guesses = await prisma.coopGuess.findMany({
+        where: { lobbyId },
+        select: { word: true },
+        distinct: ["word"],
+    });
+    return guesses.map((g) => g.word);
+}
