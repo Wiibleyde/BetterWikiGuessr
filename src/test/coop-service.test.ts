@@ -11,6 +11,7 @@ const updateLobbyStatusMock = mock();
 const getPlayerCountMock = mock();
 const addGuessMock = mock();
 const getFoundGuessWordsMock = mock();
+const getAllGuessedWordsMock = mock();
 
 mock.module("@/lib/repositories/coopRepository", () => ({
     createLobby: createLobbyMock,
@@ -22,6 +23,7 @@ mock.module("@/lib/repositories/coopRepository", () => ({
     getPlayerCount: getPlayerCountMock,
     addGuess: addGuessMock,
     getFoundGuessWords: getFoundGuessWordsMock,
+    getAllGuessedWords: getAllGuessedWordsMock,
 }));
 
 const broadcastToLobbyMock = mock();
@@ -261,6 +263,7 @@ describe("submitCoopGuess", () => {
         getPlayerByTokenMock.mockReset();
         getLobbyByCodeMock.mockReset();
         getFoundGuessWordsMock.mockReset();
+        getAllGuessedWordsMock.mockReset();
         addGuessMock.mockReset();
         broadcastToLobbyMock.mockReset();
         updateLobbyStatusMock.mockReset();
@@ -314,6 +317,7 @@ describe("submitCoopGuess", () => {
             }),
         );
         getFoundGuessWordsMock.mockResolvedValue([]);
+        getAllGuessedWordsMock.mockResolvedValue([]);
         addGuessMock.mockResolvedValue({
             id: 1,
             createdAt: new Date("2026-03-31T12:05:00Z"),

@@ -5,12 +5,14 @@ import { useCallback } from "react";
 import {
     coopArticleAtom,
     coopErrorAtom,
+    coopGuessesAtom,
     coopGuessingAtom,
     coopInputAtom,
     coopPlayerTokenAtom,
     coopRevealedAtom,
     coopWonAtom,
 } from "@/atom/coop";
+import { normalizeWord } from "@/lib/game/normalize";
 import type { GuessResult } from "@/types/game";
 import { applyPositions } from "@/utils/helper";
 
@@ -18,6 +20,7 @@ export default function useCoopGuess(code: string | null) {
     const [input, setInput] = useAtom(coopInputAtom);
     const article = useAtomValue(coopArticleAtom);
     const playerToken = useAtomValue(coopPlayerTokenAtom);
+    const guesses = useAtomValue(coopGuessesAtom);
     const won = useAtomValue(coopWonAtom);
     const [guessing, setGuessing] = useAtom(coopGuessingAtom);
     const setRevealed = useSetAtom(coopRevealedAtom);
@@ -37,6 +40,13 @@ export default function useCoopGuess(code: string | null) {
                 return;
 
             const raw = input.trim();
+            const normalized = normalizeWord(raw);
+
+            if (guesses.some((g) => g.word === normalized)) {
+                setInput("");
+                return;
+            }
+
             setGuessing(true);
 
             try {
@@ -77,6 +87,7 @@ export default function useCoopGuess(code: string | null) {
             playerToken,
             won,
             guessing,
+            guesses,
             setGuessing,
             setRevealed,
             setError,

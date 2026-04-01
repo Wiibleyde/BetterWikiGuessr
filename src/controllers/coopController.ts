@@ -1,7 +1,6 @@
 import type { NextRequest, NextResponse } from "next/server";
 import {
     createCoopLobby,
-    DuplicateGuessError,
     GameAlreadyStartedError,
     GameNotStartedError,
     getCoopLobbyState,
@@ -170,8 +169,6 @@ export async function submitCoopGuessHandler(
         if (error instanceof LobbyNotFoundError) return err(error.message, 404);
         if (error instanceof GameNotStartedError)
             return err(error.message, 400);
-        if (error instanceof DuplicateGuessError)
-            return err(error.message, 409);
         throw error;
     }
 }

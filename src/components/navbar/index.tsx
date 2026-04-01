@@ -43,16 +43,20 @@ export default function Navbar() {
                 >
                     <nav className="flex flex-col gap-1 md:flex-row md:items-center">
                         {NAV_LINKS.map((link) => {
+                            const inCoopGame =
+                                pathname.startsWith("/coop/") &&
+                                link.href === "/coop";
                             const isCoop =
                                 pathname.startsWith("/coop") &&
                                 link.href === "/coop";
                             const isActive = isCoop
                                 ? pathname.startsWith("/coop")
                                 : pathname === link.href;
+                            const href = inCoopGame ? pathname : link.href;
                             return (
                                 <NavbarLink
                                     key={link.href}
-                                    href={link.href}
+                                    href={href}
                                     label={link.label}
                                     isActive={isActive}
                                     onClick={() => setOpen(false)}

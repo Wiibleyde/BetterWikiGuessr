@@ -60,6 +60,18 @@ export async function joinCoopLobby(
         }
     }
 
+    // Allow non-authenticated players to rejoin by display name
+    if (!userId) {
+        const existing = lobby.players.find(
+            (p) =>
+                !p.userId &&
+                p.displayName.toLowerCase() === displayName.toLowerCase(),
+        );
+        if (existing) {
+            return { lobby, player: existing, playerToken: existing.token };
+        }
+    }
+
     const playerCount = lobby.players.length;
     if (playerCount >= lobby.maxPlayers) throw new LobbyFullError();
 
@@ -134,7 +146,16 @@ export async function submitCoopGuess(
     const allGuessedWords = await getAllGuessedWords(lobby.id);
     const normalizedWord = normalizeWord(word.trim());
     if (normalizedWord && allGuessedWords.includes(normalizedWord)) {
-        throw new DuplicateGuessError();
+        return {
+            guessResult: {
+                found: false,
+                word: normalizedWord,
+                positions: [],
+                occurrences: 0,
+                similarity: 0,
+            },
+            won: false,
+        };
     }
 
     const revealedWords = await getFoundGuessWords(lobby.id);
@@ -283,12 +304,5 @@ export class GameNotStartedError extends Error {
     constructor() {
         super("La partie n'a pas encore commencé");
         this.name = "GameNotStartedError";
-    }
-}
-
-export class DuplicateGuessError extends Error {
-    constructor() {
-        super("Ce mot a déjà été proposé");
-        this.name = "DuplicateGuessError";
     }
 }
