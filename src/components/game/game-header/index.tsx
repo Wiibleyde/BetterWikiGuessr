@@ -41,12 +41,17 @@ export default function GameHeader({
             <div className="max-w-5xl mx-auto px-4 py-3 space-y-2">
                 <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-500 flex-wrap">
                     {coop && <Badge color="green">Co-op</Badge>}
-                    {datas.map((value) => (
-                        <span key={value}>
-                            <span className="hidden sm:inline">· </span>
-                            {value}
-                        </span>
-                    ))}
+                    {datas.map((value) => {
+                        const isFirst = datas[0] === value;
+                        return (
+                            <span key={value}>
+                                <span className="hidden sm:inline">
+                                    {!isFirst && "· "}{" "}
+                                </span>
+                                {value}
+                            </span>
+                        );
+                    })}
                     <span className="hidden sm:inline">
                         <YesterdayWord />
                     </span>
