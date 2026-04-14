@@ -60,5 +60,3 @@ export async function ensureDailyWikiPage(): Promise<DailyWikiPage> {
         throw error;
     }
 }
-
-

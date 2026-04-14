@@ -4,9 +4,7 @@ export async function register() {
         const { verifyDatabaseConnection } = await import("@/lib/db-check");
         await verifyDatabaseConnection();
 
-        const { ensureDailyWikiPage } = await import(
-            "@/lib/game/daily-wiki"
-        );
+        const { ensureDailyWikiPage } = await import("@/lib/game/daily-wiki");
 
         const { dailyPurge } = await import("@/lib/batchs/purge");
         const { startDailyCron } = await import("@/lib/batchs/dailyPage");

@@ -25,7 +25,9 @@ export default function MentionsLegalesPage() {
                 </p>
                 <ul className="space-y-3 text-text-secondary">
                     <li>
-                        <span className="font-semibold text-text">Nathan Bonnell</span>
+                        <span className="font-semibold text-text">
+                            Nathan Bonnell
+                        </span>
                         {" — "}
                         <Link
                             href="https://nathan.bonnell.fr"
@@ -44,7 +46,9 @@ export default function MentionsLegalesPage() {
                         </a>
                     </li>
                     <li>
-                        <span className="font-semibold text-text">Mathéo Lang</span>
+                        <span className="font-semibold text-text">
+                            Mathéo Lang
+                        </span>
                         {" — "}
                         <Link
                             href="https://matheolang.fr"
@@ -153,10 +157,11 @@ export default function MentionsLegalesPage() {
                     Responsabilité
                 </h2>
                 <p className="text-text-secondary">
-                    Les éditeurs s&apos;efforcent d&apos;assurer l&apos;exactitude des
-                    informations publiées, mais ne sauraient être tenus
-                    responsables des erreurs ou omissions, ni de
-                    l&apos;utilisation qui en est faite par les utilisateurs.
+                    Les éditeurs s&apos;efforcent d&apos;assurer
+                    l&apos;exactitude des informations publiées, mais ne
+                    sauraient être tenus responsables des erreurs ou omissions,
+                    ni de l&apos;utilisation qui en est faite par les
+                    utilisateurs.
                 </p>
             </section>
 
