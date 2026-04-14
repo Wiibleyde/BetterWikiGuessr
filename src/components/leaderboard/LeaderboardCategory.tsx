@@ -26,7 +26,7 @@ export default function LeaderboardCategory({
                 <div className="flex items-center gap-2">
                     <span className="text-lg">{meta.icon}</span>
                     <div className="text-left">
-                        <h3 className="font-semibold text-text font-[family-name:var(--font-heading)] text-sm">
+                        <h3 className="font-semibold text-text font-(family-name:--font-heading) text-sm">
                             {meta.label}
                         </h3>
                         <p className="text-xs text-muted">{meta.description}</p>

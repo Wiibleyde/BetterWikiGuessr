@@ -16,7 +16,7 @@ export default function AppError({
                     <span className="text-5xl select-none">🚫</span>
                 </div>
 
-                <h1 className="text-3xl font-extrabold text-text font-[family-name:var(--font-heading)] mb-2 tracking-tight">
+                <h1 className="text-3xl font-extrabold text-text font-(family-name:--font-heading) mb-2 tracking-tight">
                     Une erreur s&apos;est produite
                 </h1>
                 <p className="text-muted text-sm mb-6">

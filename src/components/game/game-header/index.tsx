@@ -69,7 +69,7 @@ export default function GameHeader({
                         className="bg-success-light border border-success/30 rounded-xl p-3 text-center"
                         aria-live="polite"
                     >
-                        <p className="text-success-text font-bold text-lg font-[family-name:var(--font-heading)]">
+                        <p className="text-success-text font-bold text-lg font-(family-name:--font-heading)">
                             Bravo !
                             {` Trouvé en ${plural(guessCount, "essai", "essais")}${hintsUsed > 0 ? ` avec ${plural(hintsUsed, "indice", "indices")}` : ""} !`}
                         </p>

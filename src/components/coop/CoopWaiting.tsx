@@ -53,7 +53,7 @@ export default function CoopWaiting({
                         onClick={copyCode}
                         className="inline-flex items-center gap-2 px-6 py-3 bg-page rounded-lg border border-border hover:bg-subtle transition-colors cursor-pointer"
                     >
-                        <span className="text-3xl font-bold tracking-[0.3em] text-text font-[family-name:var(--font-heading)]">
+                        <span className="text-3xl font-bold tracking-[0.3em] text-text font-(family-name:--font-heading)">
                             {code}
                         </span>
                         <span className="text-xs text-muted">

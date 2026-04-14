@@ -55,7 +55,7 @@ export default function ProfileContent() {
                     {stats.results.length > 0 ? (
                         <div className="bg-surface rounded-xl border border-border overflow-hidden">
                             <div className="px-4 py-3 border-b border-subtle">
-                                <h2 className="font-semibold text-text font-[family-name:var(--font-heading)]">
+                                <h2 className="font-semibold text-text font-(family-name:--font-heading)">
                                     Historique
                                 </h2>
                             </div>

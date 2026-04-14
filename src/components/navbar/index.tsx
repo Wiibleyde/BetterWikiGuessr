@@ -31,7 +31,7 @@ export default function Navbar() {
                     />
                     <Link
                         href="/"
-                        className="text-xl font-extrabold tracking-tight text-text hover:text-primary transition-colors font-[family-name:var(--font-heading)]"
+                        className="text-xl font-extrabold tracking-tight text-text hover:text-primary transition-colors font-(family-name:--font-heading)"
                     >
                         WikiGuessr
                     </Link>

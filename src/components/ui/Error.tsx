@@ -12,7 +12,7 @@ export default function ErrorMessage({ message }: ErrorProps) {
                     <span className="text-4xl select-none">⚠️</span>
                 </div>
 
-                <h2 className="text-2xl font-extrabold text-text mb-3 tracking-tight font-[family-name:var(--font-heading)]">
+                <h2 className="text-2xl font-extrabold text-text mb-3 tracking-tight font-(family-name:--font-heading)">
                     Quelque chose s&apos;est mal passé
                 </h2>
 

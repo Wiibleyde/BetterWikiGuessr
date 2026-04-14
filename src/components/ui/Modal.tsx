@@ -109,7 +109,7 @@ export default function Modal({
                 <div className="text-center">
                     <h2
                         id={titleId}
-                        className="text-2xl font-extrabold text-text font-[family-name:var(--font-heading)]"
+                        className="text-2xl font-extrabold text-text font-(family-name:--font-heading)"
                     >
                         {title}
                     </h2>

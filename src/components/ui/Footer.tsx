@@ -7,7 +7,7 @@ export default function Footer() {
         <footer className="border-t border-border bg-surface/95 backdrop-blur mt-auto">
             <div className="max-w-5xl mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-text font-[family-name:var(--font-heading)]">
+                    <span className="text-sm font-bold text-text font-(family-name:--font-heading)">
                         WikiGuessr
                     </span>
                     <span className="text-xs text-muted">© {currentYear}</span>

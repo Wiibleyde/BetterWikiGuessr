@@ -16,7 +16,7 @@ export default function NotFound() {
                     </div>
                 </div>
 
-                <h1 className="text-3xl font-extrabold text-text font-[family-name:var(--font-heading)] mb-3 tracking-tight">
+                <h1 className="text-3xl font-extrabold text-text font-(family-name:--font-heading) mb-3 tracking-tight">
                     Page introuvable
                 </h1>
                 <p className="text-muted text-base leading-relaxed mb-8">

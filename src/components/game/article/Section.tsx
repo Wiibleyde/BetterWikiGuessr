@@ -17,7 +17,7 @@ export function Section({
     return (
         <section className="p-5 bg-surface rounded-xl shadow-sm border border-border">
             {titleTokens.length > 0 && (
-                <h3 className="text-lg font-semibold mb-2 leading-[2.2] font-[family-name:var(--font-heading)] text-text">
+                <h3 className="text-lg font-semibold mb-2 leading-[2.2] font-(family-name:--font-heading) text-text">
                     <TokenList
                         tokens={titleTokens}
                         section={sectionIndex}

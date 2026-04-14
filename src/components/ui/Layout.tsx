@@ -34,7 +34,7 @@ const Layout = ({
         <div className="h-full bg-page text-text w-full">
             <main className="max-w-3xl mx-auto px-4 py-8 space-y-4 animate-fade-in">
                 <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold text-text font-[family-name:var(--font-heading)]">
+                    <h2 className="text-2xl font-bold text-text font-(family-name:--font-heading)">
                         {title}
                     </h2>
                     <p className="text-sm text-muted mt-1">{subtitle}</p>
