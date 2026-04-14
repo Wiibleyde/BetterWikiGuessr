@@ -30,6 +30,8 @@ export const metadata: Metadata = {
         { name: "Mathéo Lang", url: "https://matheolang.fr" },
     ],
     keywords: [
+        "wiki guessr",
+        "wikiguessr",
         "jeu",
         "wikipedia",
         "deviner",
@@ -37,7 +39,18 @@ export const metadata: Metadata = {
         "indices",
         "challenge",
         "culture générale",
+        "coop",
     ],
+    category: "game",
+    classification: "general",
+    creator: "Nathan Bonnell et Mathéo Lang",
+    robots: {
+        index: true,
+        follow: true,
+    },
+    verification: {
+        google: "google-site-verification=a4uoCtPLK4IRbmmpoko6el3U8PAeRUvlnEWAcBFi0NA",
+    },
 };
 
 export default async function RootLayout({
