@@ -53,13 +53,16 @@ const {
     startCoopGame,
     submitCoopGuess,
     getCoopLobbyState,
+} = await import("@/lib/services/coopService");
+
+const {
     LobbyNotFoundError,
     LobbyFullError,
     LobbyFinishedError,
     NotLeaderError,
     GameAlreadyStartedError,
     GameNotStartedError,
-} = await import("@/lib/services/coopService");
+} = await import("@/lib/errors/coopError");
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
