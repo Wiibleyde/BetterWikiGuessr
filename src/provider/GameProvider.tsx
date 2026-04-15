@@ -20,6 +20,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
     const [synced, setSynced] = useState(false);
     const [revealedImages, setRevealedImages] = useState<string[]>([]);
     const [winImages, setWinImages] = useState<string[]>([]);
+    const [yesterday, setYesterday] = useState<string | null>(null);
 
     return (
         <GameContext.Provider
@@ -46,6 +47,8 @@ const GameProvider = ({ children }: GameProviderProps) => {
                 setRevealedImages,
                 winImages,
                 setWinImages,
+                yesterday,
+                setYesterday,
             }}
         >
             {children}

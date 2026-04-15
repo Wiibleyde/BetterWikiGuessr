@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { fetchGame } from "@/lib/queries";
+import { fetchGame, fetchYesterdayWord } from "@/lib/queries";
 import { clearOldCaches, loadCache } from "@/utils/cache";
 import { checkWinCondition } from "@/utils/game";
 import { normalizeHintImageUrls } from "@/utils/hintImage";
@@ -19,6 +19,7 @@ const useArticle = () => {
         setRevealedImages,
         setWinImages,
         setArticle,
+        setYesterday,
     } = useGameState();
 
     const { revealAllWords, revealAllImages } = useGame();
@@ -35,6 +36,15 @@ const useArticle = () => {
         setInput("");
         setRevealedImages([]);
         setWinImages([]);
+        setYesterday(null);
+
+        fetchYesterdayWord()
+            .then((title) => {
+                setYesterday(title);
+            })
+            .catch(() => {
+                setYesterday(null);
+            });
 
         fetchGame()
             .then((data) => {
@@ -83,6 +93,7 @@ const useArticle = () => {
         setInput,
         setRevealedImages,
         setWinImages,
+        setYesterday,
         setLoading,
     ]);
 

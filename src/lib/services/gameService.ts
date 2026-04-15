@@ -7,7 +7,7 @@ import {
     getMaskedArticle,
     verifyWin,
 } from "@/lib/game/game";
-import { getYesterdaysArticle } from "@/lib/repositories/articleRepository";
+import { getCachedYesterdayTitle } from "@/lib/game/yesterday";
 import { createOrUpdateGameResult } from "@/lib/repositories/gameResultRepository";
 import {
     createOrUpdateGameState,
@@ -16,12 +16,14 @@ import {
 import type { AuthUser } from "@/types/auth";
 import type {
     GameCache,
+    HintResult,
     MaskedArticle,
     RevealedMap,
     StoredGuess,
     WordPosition,
 } from "@/types/game";
 import { buildHintImageUrl } from "@/utils/hintImage";
+import { GameVerificationError, HintLockedError, HintNotFoundError } from "../errors/gameError";
 
 export async function getArticle(): Promise<MaskedArticle> {
     return getMaskedArticle();
@@ -100,14 +102,7 @@ export async function revealAll(words: string[]): Promise<WordPosition[]> {
 }
 
 export async function getYesterday(): Promise<string | null> {
-    const page = await getYesterdaysArticle();
-    return page?.title ?? null;
-}
-
-export interface HintResult {
-    imageUrl: string;
-    hintIndex: number;
-    totalImages: number;
+    return getCachedYesterdayTitle();
 }
 
 export async function getHint(
@@ -146,29 +141,4 @@ export async function getHint(
         hintIndex: result.hintIndex,
         totalImages: result.totalImages,
     };
-}
-
-// ─── Domain errors ────────────────────────────────────────────────────────────
-
-export class GameVerificationError extends Error {
-    constructor(message: string) {
-        super(message);
-        this.name = "GameVerificationError";
-    }
-}
-
-export class HintLockedError extends Error {
-    readonly minGuesses: number;
-    constructor(minGuesses: number) {
-        super(`Les indices images se débloquent après ${minGuesses} essais`);
-        this.name = "HintLockedError";
-        this.minGuesses = minGuesses;
-    }
-}
-
-export class HintNotFoundError extends Error {
-    constructor(hintIndex: number) {
-        super(`Aucune image disponible pour l'index ${hintIndex}`);
-        this.name = "HintNotFoundError";
-    }
 }

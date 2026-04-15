@@ -109,3 +109,9 @@ export interface HintResponse {
     hintIndex: number;
     totalImages: number;
 }
+
+export interface HintResult {
+    imageUrl: string;
+    hintIndex: number;
+    totalImages: number;
+}

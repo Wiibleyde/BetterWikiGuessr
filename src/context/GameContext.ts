@@ -26,6 +26,8 @@ export interface GameContextValue {
     setRevealedImages: Dispatch<SetStateAction<string[]>>;
     winImages: string[];
     setWinImages: Dispatch<SetStateAction<string[]>>;
+    yesterday: string | null;
+    setYesterday: Dispatch<SetStateAction<string | null>>;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);

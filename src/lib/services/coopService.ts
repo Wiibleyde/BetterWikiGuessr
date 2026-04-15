@@ -23,19 +23,16 @@ import {
 } from "@/lib/repositories/coopRepository";
 import { broadcastToLobby, removeCoopChannel } from "@/lib/supabase/broadcast";
 import type { WikiSection } from "@/types/wiki";
-
-function generateLobbyCode(): string {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    let code = "";
-    for (let i = 0; i < 6; i++) {
-        code += chars[Math.floor(Math.random() * chars.length)];
-    }
-    return code;
-}
-
-function toDateKey(date: Date): string {
-    return date.toISOString().split("T")[0];
-}
+import { generateLobbyCode } from "@/utils/coop";
+import { toDateKey } from "@/utils/date";
+import {
+    GameAlreadyStartedError,
+    GameNotStartedError,
+    LobbyFinishedError,
+    LobbyFullError,
+    LobbyNotFoundError,
+    NotLeaderError,
+} from "../errors/coopError";
 
 export async function createCoopLobby(displayName: string, userId?: string) {
     const code = generateLobbyCode();
@@ -301,48 +298,4 @@ export async function getCoopLobbyState(code: string) {
         })),
         article,
     };
-}
-
-// ─── Domain errors ────────────────────────────────────────────────────────────
-
-export class LobbyNotFoundError extends Error {
-    constructor() {
-        super("Lobby introuvable");
-        this.name = "LobbyNotFoundError";
-    }
-}
-
-export class LobbyFullError extends Error {
-    constructor() {
-        super("Le lobby est plein");
-        this.name = "LobbyFullError";
-    }
-}
-
-export class LobbyFinishedError extends Error {
-    constructor() {
-        super("La partie est terminée");
-        this.name = "LobbyFinishedError";
-    }
-}
-
-export class NotLeaderError extends Error {
-    constructor() {
-        super("Seul le leader peut démarrer la partie");
-        this.name = "NotLeaderError";
-    }
-}
-
-export class GameAlreadyStartedError extends Error {
-    constructor() {
-        super("La partie a déjà commencé");
-        this.name = "GameAlreadyStartedError";
-    }
-}
-
-export class GameNotStartedError extends Error {
-    constructor() {
-        super("La partie n'a pas encore commencé");
-        this.name = "GameNotStartedError";
-    }
 }

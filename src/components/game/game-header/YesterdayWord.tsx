@@ -1,16 +1,9 @@
 "use client";
 
-import useSWR from "swr";
-import { fetchYesterdayWord } from "@/lib/queries";
+import { useGameState } from "@/hooks/useGameState";
 
 export default function YesterdayWord() {
-    const { data: title } = useSWR<string | null>(
-        "yesterday-word",
-        fetchYesterdayWord,
-        {
-            revalidateOnFocus: false,
-        },
-    );
+    const { yesterday: title } = useGameState();
 
     if (!title) return null;
 
