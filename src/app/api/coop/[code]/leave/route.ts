@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { leaveLobbyHandler } from "@/controllers/coopController";
+import { leaveLobbyHandler } from "@/lib/controllers/coopController";
 import { err } from "@/utils/response";
 
 export const dynamic = "force-dynamic";

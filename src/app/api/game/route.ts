@@ -1,4 +1,4 @@
-import { getArticleHandler } from "@/controllers/gameController";
+import { getArticleHandler } from "@/lib/controllers/gameController";
 import { withErrorHandler } from "@/utils/handler";
 
 export const dynamic = "force-dynamic";

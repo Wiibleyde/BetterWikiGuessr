@@ -1,7 +1,7 @@
 import {
     getStateHandler,
     saveStateHandler,
-} from "@/controllers/gameController";
+} from "@/lib/controllers/gameController";
 import { withAuth, withErrorHandler } from "@/utils/handler";
 
 export const dynamic = "force-dynamic";

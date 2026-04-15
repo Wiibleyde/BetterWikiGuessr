@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { startGameHandler } from "@/controllers/coopController";
+import { startGameHandler } from "@/lib/controllers/coopController";
 import { err } from "@/utils/response";
 
 export const dynamic = "force-dynamic";

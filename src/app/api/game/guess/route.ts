@@ -1,4 +1,4 @@
-import { submitGuessHandler } from "@/controllers/gameController";
+import { submitGuessHandler } from "@/lib/controllers/gameController";
 import { withErrorHandler, withRateLimit } from "@/utils/handler";
 
 export const dynamic = "force-dynamic";

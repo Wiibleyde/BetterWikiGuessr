@@ -1,4 +1,4 @@
-import { getLeaderboardHandler } from "@/controllers/leaderboardController";
+import { getLeaderboardHandler } from "@/lib/controllers/leaderboardController";
 import { withErrorHandler } from "@/utils/handler";
 
 export const dynamic = "force-dynamic";

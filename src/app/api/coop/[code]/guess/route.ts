@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { submitCoopGuessHandler } from "@/controllers/coopController";
 import { checkRateLimit } from "@/lib/auth/rate-limit";
+import { submitCoopGuessHandler } from "@/lib/controllers/coopController";
 import { err } from "@/utils/response";
 
 export const dynamic = "force-dynamic";

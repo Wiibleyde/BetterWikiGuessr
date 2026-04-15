@@ -1,6 +1,6 @@
 import type { NextRequest, NextResponse } from "next/server";
-import { getHintHandler } from "@/controllers/gameController";
 import { auth } from "@/lib/auth/auth";
+import { getHintHandler } from "@/lib/controllers/gameController";
 import type { AuthUser } from "@/types/auth";
 import { withErrorHandler } from "@/utils/handler";
 

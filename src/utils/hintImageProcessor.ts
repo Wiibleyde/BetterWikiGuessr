@@ -1,25 +1,19 @@
+import { sleep } from "bun";
 import sharp from "sharp";
-import { HINT_IMAGE_URL_VERSION } from "@/utils/hintImage";
-
-const MAX_WIDTH = 600;
-const WEBP_QUALITY = 75;
-const USER_AGENT = "WikiGuessr/1.0 (https://wikiguessr.bonnell.fr)";
-const MAX_CONCURRENT_WIKI_FETCHES = 1;
-const MAX_FETCH_RETRIES = 4;
-const MIN_TIME_BETWEEN_FETCHES_MS = 1200;
-const BASE_RETRY_DELAY_MS = 1500;
-const OBFUSCATION_PROFILE = `hard-v${HINT_IMAGE_URL_VERSION}`;
-const PIXELATION_DIVISOR = 14;
-const MIN_PIXELATED_WIDTH = 24;
-const MIN_PIXELATED_HEIGHT = 24;
-const OBFUSCATION_BLUR = 3;
-
-export const RESPONSE_CACHE_CONTROL =
-    process.env.NODE_ENV === "production"
-        ? "no-store, no-cache, must-revalidate"
-        : "no-store";
-
-export { OBFUSCATION_PROFILE };
+import {
+    BASE_RETRY_DELAY_MS,
+    MAX_CONCURRENT_WIKI_FETCHES,
+    MAX_FETCH_RETRIES,
+    MAX_WIDTH,
+    MIN_PIXELATED_HEIGHT,
+    MIN_PIXELATED_WIDTH,
+    MIN_TIME_BETWEEN_FETCHES_MS,
+    OBFUSCATION_BLUR,
+    OBFUSCATION_PROFILE,
+    PIXELATION_DIVISOR,
+    USER_AGENT,
+    WEBP_QUALITY,
+} from "@/constants/hint";
 
 // In-memory cache: date → (index → processed image buffer)
 let imageCache: {
@@ -35,10 +29,6 @@ const inFlight = new Map<number, Promise<Uint8Array | null>>();
 let activeFetches = 0;
 const waitQueue: Array<() => void> = [];
 let nextAllowedFetchAt = 0;
-
-function sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 function getRetryDelayMs(response: Response, attempt: number): number {
     const retryAfter = response.headers.get("retry-after");

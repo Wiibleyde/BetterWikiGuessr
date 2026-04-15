@@ -1,4 +1,4 @@
-import { createLobbyHandler } from "@/controllers/coopController";
+import { createLobbyHandler } from "@/lib/controllers/coopController";
 import { withErrorHandler } from "@/utils/handler";
 
 export const dynamic = "force-dynamic";

@@ -1,0 +1,14 @@
+export const HINT_IMAGE_URL_VERSION = "3";
+export const MAX_WIDTH = 600;
+export const WEBP_QUALITY = 75;
+export const USER_AGENT = "WikiGuessr/1.0 (https://wikiguessr.bonnell.fr)";
+export const MAX_CONCURRENT_WIKI_FETCHES = 1;
+export const MAX_FETCH_RETRIES = 4;
+export const MIN_TIME_BETWEEN_FETCHES_MS = 1200;
+export const BASE_RETRY_DELAY_MS = 1500;
+export const OBFUSCATION_PROFILE = `hard-v${HINT_IMAGE_URL_VERSION}`;
+export const PIXELATION_DIVISOR = 14;
+export const MIN_PIXELATED_WIDTH = 24;
+export const MIN_PIXELATED_HEIGHT = 24;
+export const OBFUSCATION_BLUR = 3;
+export const RESPONSE_CACHE_CONTROL = "no-store, no-cache, must-revalidate";

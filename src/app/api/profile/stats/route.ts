@@ -1,4 +1,4 @@
-import { getStatsHandler } from "@/controllers/profileController";
+import { getStatsHandler } from "@/lib/controllers/profileController";
 import { withAuth, withErrorHandler } from "@/utils/handler";
 
 export const dynamic = "force-dynamic";
