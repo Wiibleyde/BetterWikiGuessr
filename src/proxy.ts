@@ -2,7 +2,7 @@ import { createServerClient as createSSRServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function proxy(request: NextRequest): Promise<NextResponse> {
-    const response = NextResponse.next();
+    const response = NextResponse.next({ request });
     response.headers.set("X-Request-Id", crypto.randomUUID());
 
     // Refresh the Supabase auth session token via cookies

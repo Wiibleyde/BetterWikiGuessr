@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { checkRateLimit } from "@/lib/auth/rate-limit";
 import { prisma } from "@/lib/prisma";
-import { createServerClientFromRequest } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/server";
 import type { AuthUser } from "@/types/auth";
 import { err } from "./response";
 
@@ -34,7 +34,7 @@ export function withErrorHandler(handler: Handler): Handler {
  */
 export function withAuth(handler: AuthHandler): Handler {
     return async (request: NextRequest): Promise<NextResponse> => {
-        const supabase = createServerClientFromRequest(request);
+        const supabase = await createServerClient();
         const {
             data: { user: authUser },
         } = await supabase.auth.getUser();

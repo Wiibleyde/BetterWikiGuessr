@@ -30,7 +30,7 @@ BEGIN
         "updatedAt" = EXCLUDED."updatedAt";
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Trigger: fire on every auth.users insert
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
@@ -56,7 +56,7 @@ BEGIN
     WHERE id = NEW.id::text;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Trigger: fire on every auth.users update
 DROP TRIGGER IF EXISTS on_auth_user_updated ON auth.users;

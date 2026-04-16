@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { AuthUser } from "@/types/auth";
 
-type SocialProvider = "discord";
+export type SocialProvider = "discord";
 
 export function useAuth(): {
     user: AuthUser | null;
@@ -22,26 +22,37 @@ export function useAuth(): {
             return;
         }
 
-        supabase.auth.getUser().then(({ data: { user: authUser } }) => {
-            if (authUser) {
-                setUser({
-                    id: authUser.id,
-                    name:
-                        authUser.user_metadata?.full_name ??
-                        authUser.user_metadata?.name ??
-                        authUser.email?.split("@")[0] ??
-                        "Joueur",
-                    email: authUser.email ?? "",
-                    emailVerified: !!authUser.email_confirmed_at,
-                    image: authUser.user_metadata?.avatar_url ?? null,
-                    createdAt: new Date(authUser.created_at),
-                    updatedAt: new Date(
-                        authUser.updated_at ?? authUser.created_at,
-                    ),
-                } as AuthUser);
+        (async () => {
+            try {
+                const {
+                    data: { user: authUser },
+                } = await supabase.auth.getUser();
+
+                if (authUser) {
+                    setUser({
+                        id: authUser.id,
+                        name:
+                            authUser.user_metadata?.full_name ??
+                            authUser.user_metadata?.name ??
+                            authUser.email?.split("@")[0] ??
+                            "Joueur",
+                        email: authUser.email ?? "",
+                        emailVerified: !!authUser.email_confirmed_at,
+                        image: authUser.user_metadata?.avatar_url ?? null,
+                        createdAt: new Date(authUser.created_at),
+                        updatedAt: new Date(
+                            authUser.updated_at ?? authUser.created_at,
+                        ),
+                    } as AuthUser);
+                } else {
+                    setUser(null);
+                }
+            } catch {
+                setUser(null);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
-        });
+        })();
 
         const {
             data: { subscription },
