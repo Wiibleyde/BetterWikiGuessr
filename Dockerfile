@@ -1,7 +1,7 @@
 # ============================================
 # Stage 1: Dependencies Installation Stage
 # ============================================
-FROM oven/bun:1 AS dependencies
+FROM oven/bun:1.3.11 AS dependencies
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ RUN --mount=type=cache,target=/root/.bun/install/cache \
 # ============================================
 # Stage 2: Build Next.js application in standalone mode
 # ============================================
-FROM oven/bun:1 AS builder
+FROM oven/bun:1.3.11 AS builder
 
 WORKDIR /app
 
@@ -47,7 +47,7 @@ RUN bun run build
 # ============================================
 # Stage 3: Minimal Prisma dependencies for migrations
 # ============================================
-FROM oven/bun:1-slim AS prisma-deps
+FROM oven/bun:1.3.11-slim AS prisma-deps
 
 WORKDIR /prisma-deps
 
@@ -57,7 +57,7 @@ RUN --mount=type=cache,target=/root/.bun/install/cache \
 # ============================================
 # Stage 4: Run Next.js application
 # ============================================
-FROM oven/bun:1-slim AS runner
+FROM oven/bun:1.3.11-slim AS runner
 
 WORKDIR /app
 
