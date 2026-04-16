@@ -19,10 +19,7 @@ export default function LeaderBoardEntry({
 }) {
     return (
         <div
-            className={[
-                "flex items-center gap-3 px-4 py-3 transition-colors",
-                entry.rank <= 3 ? "bg-warning-light/40" : "hover:bg-page",
-            ].join(" ")}
+            className={`flex items-center gap-3 px-4 py-3 transition-colors ${entry.rank <= 3 ? "bg-warning-light/40" : "hover:bg-page"}`}
         >
             {/* Rang */}
             <span className="w-8 text-center text-sm font-bold text-muted shrink-0">

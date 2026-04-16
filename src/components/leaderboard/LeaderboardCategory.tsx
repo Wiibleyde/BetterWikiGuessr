@@ -1,6 +1,10 @@
 "use client";
 
+import { IoIosArrowUp } from "react-icons/io";
 import type { LeaderboardCategoryData } from "@/types/leaderboard";
+
+import { plural } from "@/utils/helper";
+import Badge from "../ui/Badge";
 import LeaderboardTable from "./LeaderboardTable";
 
 interface LeaderboardCategoryProps {
@@ -33,29 +37,14 @@ export default function LeaderboardCategory({
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    {entries.length > 0 && (
-                        <span className="text-xs text-primary-text bg-primary-light px-2 py-0.5 rounded-full">
-                            {entries.length} joueur{entries.length !== 1 && "s"}
-                        </span>
-                    )}
-                    <svg
-                        className={[
-                            "w-4 h-4 text-muted transition-transform duration-200",
-                            isOpen ? "rotate-180" : "",
-                        ].join(" ")}
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
+                    <Badge color="primary">
+                        {plural(entries.length, "joueur", "joueurs")}
+                    </Badge>
+                    <IoIosArrowUp
+                        className={`w-4 h-4 text-muted transition-transform duration-300 ${isOpen ? "" : "rotate-180"}`}
                         role="img"
                         aria-label="Basculer la catégorie"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M19 9l-7 7-7-7"
-                        />
-                    </svg>
+                    />
                 </div>
             </button>
 
