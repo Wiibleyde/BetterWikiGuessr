@@ -1,10 +1,6 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
-
-const ensureDailyWikiPageMock = mock();
-
-mock.module("@/lib/game/daily-wiki", () => ({
-    ensureDailyWikiPage: ensureDailyWikiPageMock,
-}));
+import { beforeEach, describe, expect, it } from "bun:test";
+import "@/test/mocks/articleRepoModule";
+import { ensureDailyWikiPageMock } from "@/test/mocks/dailyWikiModule";
 
 const { checkGuess, verifyWin } = await import("@/lib/game/game");
 

@@ -1,31 +1,13 @@
-import { describe, expect, it, mock } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import { NextRequest } from "next/server";
-
-const getSessionMock = mock();
-const ensureDailyWikiPageMock = mock();
-const findUniqueMock = mock();
-const upsertMock = mock();
-
-mock.module("@/lib/auth/auth", () => ({
-    auth: {
-        api: {
-            getSession: getSessionMock,
-        },
-    },
-}));
-
-mock.module("@/lib/game/daily-wiki", () => ({
-    ensureDailyWikiPage: ensureDailyWikiPageMock,
-}));
-
-mock.module("@/lib/prisma", () => ({
-    prisma: {
-        gameState: {
-            findUnique: findUniqueMock,
-            upsert: upsertMock,
-        },
-    },
-}));
+import "@/test/mocks/articleRepoModule";
+import "@/test/mocks/gameModule";
+import { getSessionMock } from "@/test/mocks/authModule";
+import { ensureDailyWikiPageMock } from "@/test/mocks/dailyWikiModule";
+import {
+    createOrUpdateGameStateMock,
+    getGameStateByUserAndDailyPageMock,
+} from "@/test/mocks/gameStateRepoModule";
 
 const { GET, PUT } = await import("./route");
 
@@ -48,7 +30,7 @@ describe("GET /api/game/state", () => {
     it("retourne state null si aucun état n'existe", async () => {
         getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
         ensureDailyWikiPageMock.mockResolvedValue({ id: "page-1" });
-        findUniqueMock.mockResolvedValue(null);
+        getGameStateByUserAndDailyPageMock.mockResolvedValue(null);
 
         const response = await GET(makeRequest());
         const body = (await response.json()) as { state: null };
@@ -83,7 +65,7 @@ describe("PUT /api/game/state", () => {
     it("upsert l'état courant quand payload valide", async () => {
         getSessionMock.mockResolvedValue({ user: { id: "user-1" } });
         ensureDailyWikiPageMock.mockResolvedValue({ id: "page-1" });
-        upsertMock.mockResolvedValue({});
+        createOrUpdateGameStateMock.mockResolvedValue({});
 
         const response = await PUT(
             makeRequest("PUT", {
@@ -104,6 +86,6 @@ describe("PUT /api/game/state", () => {
 
         expect(response.status).toBe(200);
         expect(body.success).toBe(true);
-        expect(upsertMock).toHaveBeenCalled();
+        expect(createOrUpdateGameStateMock).toHaveBeenCalled();
     });
 });

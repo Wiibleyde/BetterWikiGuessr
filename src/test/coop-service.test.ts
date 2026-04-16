@@ -21,6 +21,7 @@ mock.module("@/lib/repositories/coopRepository", () => ({
     getLobbyByCode: getLobbyByCodeMock,
     addPlayer: addPlayerMock,
     getPlayerByToken: getPlayerByTokenMock,
+    getPlayerByUserAndLobby: mock(),
     setLobbyWikiPage: setLobbyWikiPageMock,
     updateLobbyStatus: updateLobbyStatusMock,
     getPlayerCount: getPlayerCountMock,
@@ -30,6 +31,7 @@ mock.module("@/lib/repositories/coopRepository", () => ({
     removePlayer: removePlayerMock,
     transferLeadership: transferLeadershipMock,
     deleteLobby: deleteLobbyMock,
+    deleteOldLobbies: mock(),
 }));
 
 const broadcastToLobbyMock = mock();

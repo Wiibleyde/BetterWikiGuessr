@@ -8,13 +8,7 @@ import { useCoopState } from "./useCoopState";
 
 export default function useCoopGuess(code: string | null) {
     const [input, setInput] = useState("");
-    const {
-        article,
-        playerToken,
-        guesses,
-        won,
-        setRevealed,
-    } = useCoopState();
+    const { article, playerToken, guesses, won, setRevealed } = useCoopState();
     const [guessing, setGuessing] = useState(false);
     const [error, setError] = useState<string | null>(null);
 

@@ -1,11 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 import { NextRequest } from "next/server";
-
-const getMaskedArticleMock = mock();
-
-mock.module("@/lib/game/game", () => ({
-    getMaskedArticle: getMaskedArticleMock,
-}));
+import "@/test/mocks/articleRepoModule";
+import { getMaskedArticleMock } from "@/test/mocks/gameModule";
 
 const { GET } = await import("./route");
 

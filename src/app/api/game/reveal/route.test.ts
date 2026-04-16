@@ -1,13 +1,10 @@
-import { describe, expect, it, mock } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import { NextRequest } from "next/server";
-
-const verifyWinMock = mock();
-const getAllWordPositionsMock = mock();
-
-mock.module("@/lib/game/game", () => ({
-    verifyWin: verifyWinMock,
-    getAllWordPositions: getAllWordPositionsMock,
-}));
+import "@/test/mocks/articleRepoModule";
+import {
+    getAllWordPositionsMock,
+    verifyWinMock,
+} from "@/test/mocks/gameModule";
 
 const { POST } = await import("./route");
 

@@ -1,15 +1,12 @@
 import { describe, expect, it, mock } from "bun:test";
 import { NextRequest } from "next/server";
+import "@/test/mocks/articleRepoModule";
+import { checkGuessMock } from "@/test/mocks/gameModule";
 
 const checkRateLimitMock = mock();
-const checkGuessMock = mock();
 
 mock.module("@/lib/auth/rate-limit", () => ({
     checkRateLimit: checkRateLimitMock,
-}));
-
-mock.module("@/lib/game/game", () => ({
-    checkGuess: checkGuessMock,
 }));
 
 const { POST } = await import("./route");
