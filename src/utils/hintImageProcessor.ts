@@ -1,4 +1,3 @@
-import { sleep } from "bun";
 import sharp from "sharp";
 import {
     BASE_RETRY_DELAY_MS,
@@ -14,6 +13,7 @@ import {
     USER_AGENT,
     WEBP_QUALITY,
 } from "@/constants/hint";
+import { sleep } from "./date";
 
 // In-memory cache: date → (index → processed image buffer)
 let imageCache: {

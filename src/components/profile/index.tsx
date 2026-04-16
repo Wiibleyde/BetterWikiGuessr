@@ -1,9 +1,7 @@
 "use client";
 
-import useSWR from "swr";
 import { useAuth } from "@/hooks/useAuth";
-import type { ProfileStats } from "@/types/auth";
-import { fetcher } from "@/utils/fetcher";
+import { useFetchProfileStats } from "@/lib/query";
 import Layout from "../ui/Layout";
 import NoAuthScreen from "../ui/NoAuthScreen";
 import NoDataMessage from "../ui/NoDataMessage";
@@ -12,10 +10,9 @@ import ProfileStatsRender from "./ProfileStatsRender";
 
 export default function ProfileContent() {
     const { user, loading: authLoading } = useAuth();
-    const { data: stats, isLoading: statsLoading } = useSWR<ProfileStats>(
-        user ? "/api/profile/stats" : null,
-        fetcher,
-        { revalidateOnFocus: false },
+    const { data: stats, isLoading: statsLoading } = useFetchProfileStats(
+        user?.id ?? "",
+        !authLoading,
     );
 
     if (!user) {

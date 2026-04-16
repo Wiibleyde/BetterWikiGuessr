@@ -8,7 +8,13 @@ import { useCoopState } from "./useCoopState";
 
 export default function useCoopGuess(code: string | null) {
     const [input, setInput] = useState("");
-    const { article, playerToken, guesses, won, setRevealed } = useCoopState();
+    const {
+        article,
+        playerToken,
+        guesses,
+        won,
+        setRevealed,
+    } = useCoopState();
     const [guessing, setGuessing] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -48,8 +54,6 @@ export default function useCoopGuess(code: string | null) {
                     return;
                 }
 
-                // Broadcast will update guess list for all players.
-                // We only update revealed map locally for instant article feedback.
                 const result = (await res.json()) as GuessResult & {
                     won: boolean;
                 };

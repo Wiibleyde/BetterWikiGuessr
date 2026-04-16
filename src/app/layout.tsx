@@ -8,6 +8,7 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/ui/Footer";
 import env from "@/env";
 import LoginProvider from "@/provider/LoginProvider";
+import QueryProvider from "@/provider/QueryProvider";
 
 const inter = Inter({
     subsets: ["latin"],
@@ -80,16 +81,18 @@ export default async function RootLayout({
                         __html: `window.__WIKIGUESSR_ENV__ = ${runtimeConfig};`,
                     }}
                 />
-                <LoginProvider>
-                    <a href="#main-content" className="skip-nav">
-                        Aller au contenu principal
-                    </a>
-                    <Navbar />
-                    <main id="main-content" className="flex-1">
-                        {children}
-                    </main>
-                    <Footer />
-                </LoginProvider>
+                <QueryProvider>
+                    <LoginProvider>
+                        <a href="#main-content" className="skip-nav">
+                            Aller au contenu principal
+                        </a>
+                        <Navbar />
+                        <main id="main-content" className="flex-1">
+                            {children}
+                        </main>
+                        <Footer />
+                    </LoginProvider>
+                </QueryProvider>
             </body>
         </html>
     );

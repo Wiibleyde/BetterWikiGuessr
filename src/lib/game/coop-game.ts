@@ -1,4 +1,9 @@
-import type { ArticleCache, GuessResult, MaskedArticle } from "@/types/game";
+import type {
+    ArticleCache,
+    GuessResult,
+    MaskedArticle,
+    WordPosition,
+} from "@/types/game";
 import type { WikiSection } from "@/types/wiki";
 import {
     buildArticleCache,
@@ -59,6 +64,20 @@ export function verifyCoopWin(
     const cache = getCoopCache(lobbyCode);
     if (!cache) return false;
     return verifyWinAgainstCache(cache, guessedWords);
+}
+
+export function getAllCoopWordPositions(lobbyCode: string): WordPosition[] {
+    const cache = getCoopCache(lobbyCode);
+    if (!cache) return [];
+
+    const allPositions: WordPosition[] = [];
+    for (const positions of cache.wordGroups.values()) {
+        for (const position of positions) {
+            allPositions.push(position);
+        }
+    }
+
+    return allPositions;
 }
 
 export function removeCoopCache(lobbyCode: string): void {

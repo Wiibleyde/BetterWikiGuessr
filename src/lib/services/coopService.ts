@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import {
     checkCoopGuess,
+    getAllCoopWordPositions,
     getOrBuildCoopCache,
     verifyCoopWin,
 } from "@/lib/game/coop-game";
@@ -238,11 +239,14 @@ export async function submitCoopGuess(
         if (freshLobby && freshLobby.status === "playing") {
             await updateLobbyStatus(code, "finished");
             const playerCount = await getPlayerCount(lobby.id);
+            const revealedPositions = getAllCoopWordPositions(code);
             await broadcastToLobby(code, "game_won", {
                 totalGuesses: lobby.guesses.length + 1,
                 playerCount,
+                positions: revealedPositions,
             });
             removeCoopChannel(code);
+            return { guessResult, won };
         }
     }
 

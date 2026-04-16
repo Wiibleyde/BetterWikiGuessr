@@ -1,12 +1,9 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { OBFUSCATION_PROFILE, RESPONSE_CACHE_CONTROL } from "@/constants/hint";
 import { getHintImage } from "@/lib/game/game";
 import { withErrorHandler } from "@/utils/handler";
-import {
-    OBFUSCATION_PROFILE,
-    processHintImage,
-    RESPONSE_CACHE_CONTROL,
-} from "@/utils/hintImageProcessor";
+import { processHintImage } from "@/utils/hintImageProcessor";
 import { err } from "@/utils/response";
 
 export const dynamic = "force-dynamic";

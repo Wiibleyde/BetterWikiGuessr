@@ -1,6 +1,6 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { normalizeWord } from "@/lib/game/normalize";
-import { checkGameGuess } from "@/lib/queries";
+import { useSubmitGuess } from "@/lib/query";
 import type { StoredGuess } from "@/types/game";
 import { saveCache } from "@/utils/cache";
 import { checkWinCondition } from "@/utils/game";
@@ -24,7 +24,10 @@ const useGuess = () => {
         setWon,
         setError,
     } = useGameState();
-    const [guessing, setGuessing] = useState(false);
+
+    // TanStack Query mutation for submitting guess
+    const { mutateAsync: submitGuessMutation, isPending: guessing } =
+        useSubmitGuess();
     const { revealAllWords, revealAllImages } = useGame();
 
     const submitGuess = useCallback<(e?: React.FormEvent) => Promise<void>>(
@@ -40,14 +43,15 @@ const useGuess = () => {
                 return;
             }
 
-            setGuessing(true);
-
             try {
                 const foundWords = guesses
                     .filter((g) => g.found)
                     .map((g) => g.word);
 
-                const guessResult = await checkGameGuess(raw, foundWords);
+                const guessResult = await submitGuessMutation({
+                    word: raw,
+                    revealedWords: foundWords,
+                });
 
                 if (!guessResult) {
                     throw new Error("Erreur lors de la vérification du mot");
@@ -93,7 +97,6 @@ const useGuess = () => {
             } catch {
                 setError("Erreur lors de la soumission");
             } finally {
-                setGuessing(false);
                 setInput("");
             }
         },
@@ -113,6 +116,7 @@ const useGuess = () => {
             setError,
             setInput,
             setWon,
+            submitGuessMutation,
         ],
     );
 
