@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import useSWR from "swr";
-import type { LeaderboardCategoryData } from "@/types/leaderboard";
-import { fetcher } from "@/utils/fetcher";
+import { useEffect, useState } from "react";
+import { useFetchLeaderboard } from "@/lib/query";
 import Layout from "../ui/Layout";
 import LeaderboardCategory from "./LeaderboardCategory";
 
@@ -12,16 +10,15 @@ export default function LeaderboardContent() {
         new Set(),
     );
 
-    const { data, error, isLoading } = useSWR<{
-        categories: LeaderboardCategoryData[];
-    }>("/api/leaderboard", fetcher, {
-        revalidateOnFocus: false,
-        onSuccess: (data) => {
-            setOpenCategories(new Set(data.categories.map((c) => c.meta.id)));
-        },
-    });
+    const { data, error, isLoading } = useFetchLeaderboard();
+    const categories = Array.isArray(data) ? data : [];
 
-    const categories = data?.categories ?? [];
+    // Set open categories when data loads
+    useEffect(() => {
+        if (data && data.length > 0) {
+            setOpenCategories(new Set(data.map((c) => c.meta.id)));
+        }
+    }, [data]);
 
     function toggleCategory(id: string): void {
         setOpenCategories((prev) => {
@@ -39,7 +36,7 @@ export default function LeaderboardContent() {
         <Layout
             title="🏅 Classement"
             subtitle="Les meilleurs joueurs de WikiGuessr"
-            error={error || "Impossible de charger le classement."}
+            error={error ? "Impossible de charger le classement." : undefined}
             loadingMessage={"Chargement du classement…"}
             isLoading={isLoading}
         >

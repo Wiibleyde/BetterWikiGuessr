@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { CoopGuessEntry, CoopPlayerInfo } from "@/types/coop";
-import type { MaskedArticle } from "@/types/game";
+import type { MaskedArticle, WordPosition } from "@/types/game";
 import { applyPositions } from "@/utils/helper";
 import { useCoopState } from "./useCoopState";
 
@@ -83,6 +83,16 @@ export default function useCoopRealtime(code: string | null) {
             .on("broadcast", { event: "guess_result" }, ({ payload }) => {
                 const { guess } = payload as { guess: CoopGuessEntry };
                 setGuesses((prev: CoopGuessEntry[]) => {
+                    if (
+                        prev.some(
+                            (entry) =>
+                                entry.id === guess.id ||
+                                entry.word === guess.word,
+                        )
+                    ) {
+                        return prev;
+                    }
+
                     return [guess, ...prev];
                 });
 
@@ -100,7 +110,8 @@ export default function useCoopRealtime(code: string | null) {
                     ),
                 );
             })
-            .on("broadcast", { event: "game_won" }, () => {
+            .on("broadcast", { event: "game_won" }, ({ payload }) => {
+                const { positions } = payload as { positions: WordPosition[] };
                 setLobby((prev) =>
                     prev
                         ? {
@@ -109,6 +120,9 @@ export default function useCoopRealtime(code: string | null) {
                           }
                         : prev,
                 );
+                if (positions.length > 0) {
+                    setRevealed((prev) => applyPositions(prev, positions));
+                }
                 setWon(true);
             })
             .subscribe();

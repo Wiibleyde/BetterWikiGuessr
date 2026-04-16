@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import {
     checkCoopGuess,
+    getAllCoopWordPositions,
     getOrBuildCoopCache,
     verifyCoopWin,
 } from "@/lib/game/coop-game";
@@ -22,6 +23,7 @@ import {
     updateLobbyStatus,
 } from "@/lib/repositories/coopRepository";
 import { broadcastToLobby, removeCoopChannel } from "@/lib/supabase/broadcast";
+import type { CoopGuessEntry } from "@/types/coop";
 import type { WikiSection } from "@/types/wiki";
 import { generateLobbyCode } from "@/utils/coop";
 import { toDateKey } from "@/utils/date";
@@ -191,6 +193,8 @@ export async function submitCoopGuess(
                 occurrences: 0,
                 similarity: 0,
             },
+            guess: undefined,
+            revealedPositions: [],
             won: false,
         };
     }
@@ -226,6 +230,21 @@ export async function submitCoopGuess(
         },
     });
 
+    const guessEntry: CoopGuessEntry = {
+        id: guess.id,
+        word: guessResult.word,
+        found: guessResult.found,
+        occurrences: guessResult.occurrences,
+        similarity: guessResult.similarity,
+        positions: guessResult.positions,
+        proximityReason: guessResult.proximityReason,
+        createdAt: guess.createdAt.toISOString(),
+        player: {
+            id: player.id,
+            displayName: player.displayName,
+        },
+    };
+
     // Check win
     const allFoundWords = guessResult.found
         ? [...revealedWords, guessResult.word]
@@ -238,15 +257,18 @@ export async function submitCoopGuess(
         if (freshLobby && freshLobby.status === "playing") {
             await updateLobbyStatus(code, "finished");
             const playerCount = await getPlayerCount(lobby.id);
+            const revealedPositions = getAllCoopWordPositions(code);
             await broadcastToLobby(code, "game_won", {
                 totalGuesses: lobby.guesses.length + 1,
                 playerCount,
+                positions: revealedPositions,
             });
             removeCoopChannel(code);
+            return { guessResult, guess: guessEntry, revealedPositions, won };
         }
     }
 
-    return { guessResult, won };
+    return { guessResult, guess: guessEntry, revealedPositions: [], won };
 }
 
 export async function getCoopLobbyState(code: string) {

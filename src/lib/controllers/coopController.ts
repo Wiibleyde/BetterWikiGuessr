@@ -162,12 +162,9 @@ export async function submitCoopGuessHandler(
     }
 
     try {
-        const { guessResult, won } = await submitCoopGuess(
-            code,
-            body.playerToken,
-            trimmed,
-        );
-        return ok({ ...guessResult, won });
+        const { guessResult, guess, revealedPositions, won } =
+            await submitCoopGuess(code, body.playerToken, trimmed);
+        return ok({ ...guessResult, guess, revealedPositions, won });
     } catch (error) {
         if (error instanceof LobbyNotFoundError) return err(error.message, 404);
         if (error instanceof GameNotStartedError)

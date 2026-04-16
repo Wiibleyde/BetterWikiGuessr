@@ -66,5 +66,9 @@ export type CoopBroadcastEvent =
       }
     | {
           type: "game_won";
-          payload: { totalGuesses: number; playerCount: number };
+          payload: {
+              totalGuesses: number;
+              playerCount: number;
+              positions: WordPosition[];
+          };
       };
