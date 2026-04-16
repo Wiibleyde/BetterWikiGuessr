@@ -31,5 +31,5 @@ jobs:
             - name: Generate Prisma client
               run: bun prisma generate
 
-            - name: Run tests
-              run: bun test
+            - name: Run tests with coverage
+              run: bun test --coverage

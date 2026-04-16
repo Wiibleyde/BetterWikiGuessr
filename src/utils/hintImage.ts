@@ -1,4 +1,3 @@
-
 export function buildHintImageUrl(hintIndex: number): string {
     return `/api/game/hint/image?index=${hintIndex}`;
 }

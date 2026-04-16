@@ -54,9 +54,11 @@ export default function GameHeader({
                             </span>
                         );
                     })}
-                    {!coop && <span className="hidden sm:inline">
-                        <YesterdayWord />
-                    </span>}
+                    {!coop && (
+                        <span className="hidden sm:inline">
+                            <YesterdayWord />
+                        </span>
+                    )}
                 </div>
                 {!coop && (
                     <div className="sm:hidden text-xs text-muted">
