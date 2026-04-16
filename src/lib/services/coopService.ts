@@ -23,7 +23,6 @@ import {
     updateLobbyStatus,
 } from "@/lib/repositories/coopRepository";
 import { broadcastToLobby, removeCoopChannel } from "@/lib/supabase/broadcast";
-import type { CoopGuessEntry } from "@/types/coop";
 import type { WikiSection } from "@/types/wiki";
 import { generateLobbyCode } from "@/utils/coop";
 import { toDateKey } from "@/utils/date";
@@ -193,8 +192,6 @@ export async function submitCoopGuess(
                 occurrences: 0,
                 similarity: 0,
             },
-            guess: undefined,
-            revealedPositions: [],
             won: false,
         };
     }
@@ -230,21 +227,6 @@ export async function submitCoopGuess(
         },
     });
 
-    const guessEntry: CoopGuessEntry = {
-        id: guess.id,
-        word: guessResult.word,
-        found: guessResult.found,
-        occurrences: guessResult.occurrences,
-        similarity: guessResult.similarity,
-        positions: guessResult.positions,
-        proximityReason: guessResult.proximityReason,
-        createdAt: guess.createdAt.toISOString(),
-        player: {
-            id: player.id,
-            displayName: player.displayName,
-        },
-    };
-
     // Check win
     const allFoundWords = guessResult.found
         ? [...revealedWords, guessResult.word]
@@ -264,11 +246,11 @@ export async function submitCoopGuess(
                 positions: revealedPositions,
             });
             removeCoopChannel(code);
-            return { guessResult, guess: guessEntry, revealedPositions, won };
+            return { guessResult, won };
         }
     }
 
-    return { guessResult, guess: guessEntry, revealedPositions: [], won };
+    return { guessResult, won };
 }
 
 export async function getCoopLobbyState(code: string) {
