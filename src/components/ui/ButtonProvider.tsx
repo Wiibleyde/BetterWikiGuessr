@@ -1,9 +1,8 @@
-import type { SocialProvider } from "@/hooks/useAuth";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/utils/cn";
 
 interface ButtonProviderProps {
-    name: SocialProvider;
+    name: string;
     label: string;
     icon: React.ReactNode;
     className?: string;

@@ -1,8 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth/auth";
 import { checkRateLimit } from "@/lib/auth/rate-limit";
-import { prisma } from "@/lib/prisma";
-import { createServerClient } from "@/lib/supabase/server";
 import type { AuthUser } from "@/types/auth";
 import { err } from "./response";
 
@@ -29,25 +28,16 @@ export function withErrorHandler(handler: Handler): Handler {
 }
 
 /**
- * Verifies the Supabase session and injects the authenticated user into the handler.
+ * Verifies the BetterAuth session and injects the authenticated user into the handler.
  * Returns 401 if the user is not authenticated.
  */
 export function withAuth(handler: AuthHandler): Handler {
     return async (request: NextRequest): Promise<NextResponse> => {
-        const supabase = await createServerClient();
-        const {
-            data: { user: authUser },
-        } = await supabase.auth.getUser();
-        if (!authUser) {
+        const session = await auth.api.getSession({ headers: request.headers });
+        if (!session?.user) {
             return err("Non authentifié", 401);
         }
-        const profile = await prisma.user.findUnique({
-            where: { id: authUser.id },
-        });
-        if (!profile) {
-            return err("Non authentifié", 401);
-        }
-        return handler(request, profile as AuthUser);
+        return handler(request, session.user as AuthUser);
     };
 }
 
