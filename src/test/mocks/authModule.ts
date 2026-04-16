@@ -2,6 +2,10 @@ import { mock } from "bun:test";
 
 export const getSessionMock = mock();
 export const findUniqueMock = mock();
+export const exchangeCodeForSessionMock = mock(async () => ({
+    data: {},
+    error: null,
+}));
 
 mock.module("@/lib/supabase/server", () => ({
     createServerClient: () => ({
@@ -16,10 +20,7 @@ mock.module("@/lib/supabase/server", () => ({
                 }
                 return { data: { user: null }, error: null };
             },
-            exchangeCodeForSession: async () => ({
-                data: {},
-                error: null,
-            }),
+            exchangeCodeForSession: exchangeCodeForSessionMock,
         },
     }),
     createServerClientFromRequest: () => ({

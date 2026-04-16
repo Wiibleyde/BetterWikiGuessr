@@ -6,3 +6,4 @@ process.env.DISCORD_CLIENT_SECRET ??= "test-discord-client-secret";
 process.env.NEXT_PUBLIC_SUPABASE_URL ??= "http://localhost:8000";
 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??= "test-supabase-anon-key";
 process.env.GAME_TIMEZONE ??= "Europe/Paris";
+process.env.SITE_URL ??= "https://wikiguessr.example.com";
