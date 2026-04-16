@@ -19,7 +19,7 @@ Un jeu de devinettes quotidien basé sur Wikipédia. Chaque jour, une page Wikip
 - Masquage intelligent des mots avec ponctuation visible
 - Correspondance floue pour accepter les propositions proches
 - Indices image progressifs après plusieurs essais
-- Authentification Discord via Better Auth
+- Authentification Discord via Supabase Auth
 - Sauvegarde de progression pour les utilisateurs connectés
 - Classements, statistiques de profil et historique
 - Mode coopératif en temps réel
@@ -35,7 +35,7 @@ Un jeu de devinettes quotidien basé sur Wikipédia. Chaque jour, une page Wikip
 | Etat client | React Context + hooks |
 | Data fetching | TanStack Query 5 |
 | HTTP | Axios |
-| Authentification | Better Auth + Discord OAuth |
+| Authentification | Supabase Auth + Discord OAuth |
 | Base de données | PostgreSQL via Prisma 7 |
 | Temps réel | Supabase Realtime |
 | Validation | Zod |
@@ -69,7 +69,7 @@ Copier le fichier d'exemple et renseigner les valeurs :
 cp .env.example .env
 ```
 
-Le `.env.example` contient toutes les variables nécessaires (Supabase self-hosted, PostgreSQL, Better Auth, Discord OAuth, etc.). Les variables propres à l'application Next.js se trouvent dans la section **WikiGuessr App** du fichier.
+Le `.env.example` contient toutes les variables nécessaires (Supabase self-hosted, PostgreSQL, Discord OAuth, etc.). Les variables propres à l'application Next.js se trouvent dans la section **WikiGuessr App** du fichier.
 
 ### Lancer en local
 
@@ -150,13 +150,13 @@ bun run db:migrate     # Créer/appliquer une migration Prisma
 | GET | `/api/historic` | Retourne l'historique des articles |
 | GET | `/api/leaderboard` | Retourne les classements |
 | GET | `/api/profile/stats` | Retourne les statistiques du profil |
-| GET / POST | `/api/auth/[...betterauth]` | Endpoints Better Auth |
+| GET | `/api/auth/callback/[provider]` | Callback OAuth Supabase |
 
 ## Base de données
 
-Le schéma Prisma couvre les modèles Better Auth et les modèles applicatifs suivants :
+Le schéma Prisma couvre les modèles applicatifs suivants :
 
-- `User`, `Session`, `Account`, `Verification`
+- `User` (profil synchronisé depuis `auth.users` via un trigger)
 - `DailyWikiPage`, `GameResult`, `GameState`
 
 Le client Prisma généré est placé dans `generated/prisma/` et ne doit pas être modifié manuellement.

@@ -1,3 +1,4 @@
+import type { SocialProvider } from "@/hooks/useAuth";
 import type { User } from "../../generated/prisma/client";
 
 export type AuthUser = User;
@@ -22,7 +23,7 @@ export interface ProfileStats {
 }
 
 export interface LoginProvider {
-    name: string;
+    name: SocialProvider;
     label: string;
     icon: React.ReactNode;
     className?: string;
