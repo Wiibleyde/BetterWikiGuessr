@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-WikiGuessr is a daily word-guessing game built with Next.js 16 App Router, React 19, TypeScript 5, Tailwind CSS 4, Prisma 7, Better Auth, and Bun. Players reveal a masked Wikipedia article by guessing words. The application also supports image hints, authenticated progress persistence, leaderboards, profile stats, and article history.
+WikiGuessr is a daily word-guessing game built with Next.js 16 App Router, React 19, TypeScript 5, Tailwind CSS 4, Prisma 7, Supabase Auth, and Bun. Players reveal a masked Wikipedia article by guessing words. The application also supports image hints, authenticated progress persistence, leaderboards, profile stats, and article history.
 
 ## Tech Stack
 
@@ -13,7 +13,7 @@ WikiGuessr is a daily word-guessing game built with Next.js 16 App Router, React
 | Language | TypeScript 5 (strict mode) |
 | Styling | Tailwind CSS 4 |
 | Client state | Jotai |
-| Authentication | Better Auth with Discord OAuth |
+| Authentication | Supabase Auth with Discord OAuth |
 | Database | PostgreSQL via Prisma 7 and `@prisma/adapter-pg` |
 | Data fetching | SWR |
 | Linter / Formatter | Biome 2.2 |
@@ -34,7 +34,7 @@ src/
 │   ├── sitemap.ts                # sitemap generation
 │   ├── api/
 │   │   ├── auth/
-│   │   │   └── [...betterauth]/route.ts   # Better Auth Next.js handler
+│   │   │   └── callback/[provider]/route.ts  # Supabase OAuth code exchange
 │   │   ├── game/
 │   │   │   ├── route.ts                    # GET masked article
 │   │   │   ├── guess/route.ts              # POST guess validation
@@ -72,7 +72,8 @@ src/
 ├── controllers/                   # HTTP request validation and response shaping
 ├── hooks/                         # Client hooks for article, guesses, auth, db sync
 ├── lib/
-│   ├── auth/                      # Better Auth server/client and rate limiting
+│   ├── auth/                      # Rate limiting (auth handled by Supabase)
+│   ├── supabase/                  # Supabase SSR client (browser + server)
 │   ├── game/                      # Core game logic, normalization, daily wiki, wiki fetch
 │   ├── repositories/              # Prisma-backed repositories
 │   ├── prisma.ts                  # Prisma singleton
@@ -87,7 +88,7 @@ src/
 ├── utils/                         # Response helpers, handlers, styling, image processing
 ├── env.ts                         # Runtime env validation with Zod
 ├── instrumentation.ts             # Startup DB check and daily article bootstrap
-└── proxy.ts                       # Request ID header injection
+└── proxy.ts                       # Request ID header injection + Supabase session refresh
 prisma/
 ├── schema.prisma                  # Prisma schema
 └── migrations/                    # Migration history
@@ -142,10 +143,13 @@ generated/prisma/                  # Generated Prisma client (do not edit)
 
 ## Authentication
 
-- Authentication is handled through Better Auth.
-- The server auth configuration lives in `src/lib/auth/auth.ts`.
-- The React client lives in `src/lib/auth/client.ts`.
+- Authentication is handled through Supabase Auth (GoTrue) with `@supabase/ssr`.
+- The Supabase server client lives in `src/lib/supabase/server.ts`.
+- The Supabase browser client lives in `src/lib/supabase/client.ts`.
 - Discord is the configured social provider.
+- Session refresh is handled in `src/proxy.ts` (Next.js 16 proxy file).
+- OAuth callback is handled by `src/app/api/auth/callback/[provider]/route.ts`.
+- The `User` table in Prisma is a profile table synced from `auth.users` via a PostgreSQL trigger.
 - Authenticated endpoints currently include:
   - `GET /api/game/state`
   - `PUT /api/game/state`
@@ -157,12 +161,9 @@ generated/prisma/                  # Generated Prisma client (do not edit)
 - Prisma schema is in `prisma/schema.prisma`.
 - The generated client output is `generated/prisma/`.
 - Always use the Prisma singleton from `src/lib/prisma.ts` for database access.
-- Current schema includes Better Auth core models:
-  - `User`
-  - `Session`
-  - `Account`
-  - `Verification`
+- The `User` model is a profile table synced from Supabase `auth.users` via a DB trigger.
 - Current application models include:
+  - `User` (profile, synced from Supabase auth)
   - `DailyWikiPage`
   - `GameResult`
   - `GameState`
@@ -200,8 +201,9 @@ generated/prisma/                  # Generated Prisma client (do not edit)
 | Variable | Required | Description |
 | --- | --- | --- |
 | `DATABASE_URL` | Yes | PostgreSQL connection string |
-| `BETTER_AUTH_SECRET` | Yes | Better Auth secret, minimum 32 characters |
-| `BETTER_AUTH_URL` | Yes | Public base URL for Better Auth |
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase API URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anonymous key |
+| `SUPABASE_SERVICE_ROLE_KEY` | No | Supabase service role key (for admin operations) |
 | `DISCORD_CLIENT_ID` | Yes for Discord auth | Discord OAuth client ID |
 | `DISCORD_CLIENT_SECRET` | Yes for Discord auth | Discord OAuth client secret |
 | `GAME_TIMEZONE` | No | Daily game timezone, defaults to `Europe/Paris` |
@@ -237,5 +239,5 @@ bun run db:migrate
 - Do not edit `generated/prisma/`.
 - Do not instantiate Prisma clients ad hoc.
 - Do not bypass service and repository layers for new server-side features unless there is a clear reason.
-- Do not document the old JWT cookie auth flow; the project now uses Better Auth.
+- Do not document the old Better Auth or JWT cookie auth flow; the project now uses Supabase Auth.
 - Do not describe `POST /api/game/state` or legacy Discord callback routes; they are no longer the current API surface.

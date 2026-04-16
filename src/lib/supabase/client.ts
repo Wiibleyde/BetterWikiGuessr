@@ -1,6 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
-let client: ReturnType<typeof createClient> | null = null;
+let client: SupabaseClient | null = null;
 
 type RuntimeEnv = {
     NEXT_PUBLIC_SUPABASE_URL?: string;
@@ -16,9 +17,7 @@ function getRuntimeEnv(): RuntimeEnv {
     );
 }
 
-export function getSupabaseBrowserClient(): ReturnType<
-    typeof createClient
-> | null {
+export function getSupabaseBrowserClient(): SupabaseClient | null {
     if (client) return client;
     const runtimeEnv = getRuntimeEnv();
     const url =
@@ -30,6 +29,6 @@ export function getSupabaseBrowserClient(): ReturnType<
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
         "";
     if (!url || !key) return null;
-    client = createClient(url, key);
+    client = createBrowserClient(url, key);
     return client;
 }
