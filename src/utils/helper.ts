@@ -1,6 +1,10 @@
 import type { RevealedMap, WordPosition } from "@/types/game";
 
-export const plural = (count: number, singular: string, plural: string) => {
+export const plural = (
+    count: number,
+    singular: string,
+    plural: string,
+): string => {
     return `${count} ${count === 1 ? singular : plural}`;
 };
 

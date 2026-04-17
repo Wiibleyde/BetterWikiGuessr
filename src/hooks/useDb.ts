@@ -1,10 +1,10 @@
 import axios from "axios";
 import { useCallback, useEffect, useRef } from "react";
+import { checkWinCondition } from "@/lib/game/progress";
+import { fetchStateFromServer, pushStateToServer } from "@/lib/query/client";
 import type { GameCache } from "@/types/game";
 import { loadCache, saveCache } from "@/utils/cache";
-import { checkWinCondition } from "@/utils/game";
 import { normalizeHintImageUrls } from "@/utils/hintImage";
-import { fetchStateFromServer, pushStateToServer } from "@/utils/server";
 import { useAuth } from "./useAuth";
 import useGame from "./useGame";
 import { useGameState } from "./useGameState";

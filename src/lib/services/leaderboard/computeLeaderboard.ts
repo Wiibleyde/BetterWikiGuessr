@@ -1,22 +1,17 @@
+import { HINT_PENALTY } from "@/constants/game";
+import {
+    getBestScoreByUser,
+    getMostWins,
+    getVictoriesGroupedByUser,
+} from "@/lib/repositories/gameResultRepository";
+import { getUserWhereIdIn } from "@/lib/repositories/userRepository";
 import type {
     LeaderboardCategoryData,
     LeaderboardCategoryMeta,
     LeaderboardEntry,
 } from "@/types/leaderboard";
-import { HINT_PENALTY } from "../constants/game";
-import {
-    getBestScoreByUser,
-    getMostWins,
-    getVictoriesGroupedByUser,
-} from "./repositories/gameResultRepository";
-import { getUserWhereIdIn } from "./repositories/userRepository";
 
 const LEADERBOARD_LIMIT = 20;
-
-// ---------------------------------------------------------------------------
-// Registre des catégories — ajouter une entrée ici suffit pour créer
-// une nouvelle catégorie de classement.
-// ---------------------------------------------------------------------------
 
 const CATEGORIES: LeaderboardCategoryMeta[] = [
     {
@@ -46,18 +41,11 @@ const CATEGORIES: LeaderboardCategoryMeta[] = [
     },
 ];
 
-// ---------------------------------------------------------------------------
-// Fonctions de calcul par catégorie
-// ---------------------------------------------------------------------------
-
 type CategoryComputer = () => Promise<LeaderboardEntry[]>;
 
 async function computeWinStreak(): Promise<LeaderboardEntry[]> {
-    // Récupérer toutes les victoires avec la date de la page, groupées par user
-
     const results = await getVictoriesGroupedByUser();
 
-    // Grouper par userId
     const byUser = new Map<
         string,
         {
@@ -80,7 +68,6 @@ async function computeWinStreak(): Promise<LeaderboardEntry[]> {
         entry.dates.push(r.dailyWikiPage.date);
     }
 
-    // Calculer la plus longue série consécutive pour chaque user
     const streaks: {
         userId: string;
         name: string;
@@ -92,8 +79,6 @@ async function computeWinStreak(): Promise<LeaderboardEntry[]> {
 
     for (const [userId, data] of byUser) {
         const sorted = data.dates.map((d) => d.getTime()).sort((a, b) => a - b);
-
-        // Éliminer les doublons (même jour)
         const unique = [
             ...new Set(sorted.map((t) => Math.floor(t / 86400000))),
         ];
@@ -117,6 +102,7 @@ async function computeWinStreak(): Promise<LeaderboardEntry[]> {
                 currentStart = i;
             }
         }
+
         if (currentStreak > maxStreak) {
             maxStreak = currentStreak;
             maxStart = currentStart;
@@ -155,10 +141,7 @@ async function computeWinStreak(): Promise<LeaderboardEntry[]> {
 }
 
 async function computeBestGuess(): Promise<LeaderboardEntry[]> {
-    // Meilleure perf = le score le plus bas (guessCount + hintsUsed * HINT_PENALTY)
     const results = await getBestScoreByUser();
-
-    // Garder la meilleure perf par user
     const best = new Map<string, LeaderboardEntry & { rawValue: number }>();
 
     for (const r of results) {
@@ -174,6 +157,7 @@ async function computeBestGuess(): Promise<LeaderboardEntry[]> {
                 r.hintsUsed > 0
                     ? `${r.dailyWikiPage.title} (${date}) — ${r.guessCount} essai${r.guessCount !== 1 ? "s" : ""} + ${r.hintsUsed} indice${r.hintsUsed !== 1 ? "s" : ""}`
                     : `${r.dailyWikiPage.title} (${date})`;
+
             best.set(r.userId, {
                 rank: 0,
                 userId: r.userId,
@@ -200,8 +184,6 @@ async function computeBestGuess(): Promise<LeaderboardEntry[]> {
 
 async function computeMostWins(): Promise<LeaderboardEntry[]> {
     const results = await getMostWins();
-
-    // Récupérer les infos users en une seule requête
     const userIds = results.map((r) => r.userId);
     const users = await getUserWhereIdIn(userIds);
     const userMap = new Map(users.map((u) => [u.id, u]));
@@ -218,19 +200,11 @@ async function computeMostWins(): Promise<LeaderboardEntry[]> {
     });
 }
 
-// ---------------------------------------------------------------------------
-// Registre catégorie → fonction de calcul
-// ---------------------------------------------------------------------------
-
 const COMPUTERS: Record<string, CategoryComputer> = {
     "win-streak": computeWinStreak,
     "best-guess": computeBestGuess,
     "most-wins": computeMostWins,
 };
-
-// ---------------------------------------------------------------------------
-// Export principal
-// ---------------------------------------------------------------------------
 
 export async function computeLeaderboard(): Promise<LeaderboardCategoryData[]> {
     const results: LeaderboardCategoryData[] = [];

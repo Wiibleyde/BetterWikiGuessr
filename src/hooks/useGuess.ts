@@ -1,9 +1,9 @@
 import { useCallback } from "react";
 import { normalizeWord } from "@/lib/game/normalize";
+import { checkWinCondition } from "@/lib/game/progress";
 import { useSubmitGuess } from "@/lib/query";
 import type { StoredGuess } from "@/types/game";
 import { saveCache } from "@/utils/cache";
-import { checkWinCondition } from "@/utils/game";
 import { applyPositions } from "@/utils/helper";
 import useArticle from "./useArticle";
 import useGame from "./useGame";

@@ -14,5 +14,6 @@ export const queryClient = new QueryClient({
     },
 });
 
+export * from "./client";
 export * from "./hook";
-export * from "./queries";
+export * from "./wiki";

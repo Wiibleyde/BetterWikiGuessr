@@ -1,8 +1,14 @@
 import type { AuthUser } from "@/types/auth";
-import type { DailyWikiPage } from "../../../generated/prisma/client";
+import type {
+    BestScoreRow,
+    GameResultWithDailyPage,
+    MostWinsRow,
+    VictoryRow,
+} from "@/types/repository";
+import type { DailyWikiPage, Prisma } from "../../../generated/prisma/client";
 import { prisma } from "../prisma";
 
-export const getVictoriesGroupedByUser = async () => {
+export const getVictoriesGroupedByUser = async (): Promise<VictoryRow[]> => {
     const results = await prisma.gameResult.findMany({
         where: { won: true },
         select: {
@@ -15,7 +21,7 @@ export const getVictoriesGroupedByUser = async () => {
     return results;
 };
 
-export const getBestScoreByUser = async () => {
+export const getBestScoreByUser = async (): Promise<BestScoreRow[]> => {
     const results = await prisma.gameResult.findMany({
         where: { won: true },
         select: {
@@ -30,7 +36,7 @@ export const getBestScoreByUser = async () => {
     return results;
 };
 
-export const getMostWins = async () => {
+export const getMostWins = async (): Promise<MostWinsRow[]> => {
     const results = await prisma.gameResult.groupBy({
         by: ["userId"],
         where: { won: true },
@@ -46,7 +52,7 @@ export const createOrUpdateGameResult = async (
     user: AuthUser,
     guessCount: number,
     safeHintsUsed: number,
-) => {
+): Promise<Prisma.GameResultGetPayload<object>> => {
     const result = await prisma.gameResult.upsert({
         where: {
             userId_dailyWikiPageId: {
@@ -66,7 +72,9 @@ export const createOrUpdateGameResult = async (
     return result;
 };
 
-export const getGameResultsByUserId = async (userId: string) => {
+export const getGameResultsByUserId = async (
+    userId: string,
+): Promise<GameResultWithDailyPage[]> => {
     const results = await prisma.gameResult.findMany({
         where: { userId },
         include: { dailyWikiPage: { select: { date: true, title: true } } },

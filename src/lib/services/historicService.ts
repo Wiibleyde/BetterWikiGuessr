@@ -1,4 +1,4 @@
-import { computeHistoricPages } from "@/lib/historic";
+import { computeHistoricPages } from "@/lib/services/historic/computeHistoricPages";
 import type { PageEntry } from "@/types/historic";
 
 export async function getHistoric(): Promise<PageEntry[]> {

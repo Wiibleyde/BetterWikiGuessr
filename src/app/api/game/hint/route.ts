@@ -1,15 +1,6 @@
-import type { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth/auth";
 import { getHintHandler } from "@/lib/controllers/gameController";
-import type { AuthUser } from "@/types/auth";
-import { withErrorHandler } from "@/utils/handler";
+import { withErrorHandler, withOptionalAuth } from "@/utils/handler";
 
 export const dynamic = "force-dynamic";
 
-async function hintHandler(request: NextRequest): Promise<NextResponse> {
-    const session = await auth.api.getSession({ headers: request.headers });
-    const user = (session?.user as AuthUser | undefined) ?? null;
-    return getHintHandler(request, user);
-}
-
-export const POST = withErrorHandler(hintHandler);
+export const POST = withErrorHandler(withOptionalAuth(getHintHandler));

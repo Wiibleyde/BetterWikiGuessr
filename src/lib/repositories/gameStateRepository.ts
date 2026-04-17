@@ -1,11 +1,15 @@
 import type { AuthUser } from "@/types/auth";
-import type { DailyWikiPage, Prisma } from "../../../generated/prisma/client";
+import type {
+    DailyWikiPage,
+    GameState,
+    Prisma,
+} from "../../../generated/prisma/client";
 import { prisma } from "../prisma";
 
 export const getGameStateByUserAndDailyPage = async (
     user: AuthUser,
     dailyPage: DailyWikiPage,
-) => {
+): Promise<GameState | null> => {
     const gameState = await prisma.gameState.findUnique({
         where: {
             userId_dailyWikiPageId: {
@@ -24,7 +28,7 @@ export const createOrUpdateGameState = async (
     revealedJson: Prisma.InputJsonValue,
     revealedImagesJson: Prisma.InputJsonValue,
     won: boolean,
-) => {
+): Promise<GameState> => {
     const gameState = await prisma.gameState.upsert({
         where: {
             userId_dailyWikiPageId: {

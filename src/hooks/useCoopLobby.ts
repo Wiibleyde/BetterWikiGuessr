@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { computeRevealPercentage } from "@/lib/game/progress";
 import type { CoopJoinResponse, CoopLobbyState } from "@/types/coop";
-import { computeRevealPercentage } from "@/utils/game";
 import { applyPositions } from "@/utils/helper";
 import { useCoopState } from "./useCoopState";
 

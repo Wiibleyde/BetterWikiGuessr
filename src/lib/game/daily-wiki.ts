@@ -2,8 +2,8 @@ import { todayKeyInGameTZ } from "@/lib/game/date";
 import { fetchRandomWikiPage } from "@/lib/game/wiki";
 import type { prisma } from "@/lib/prisma";
 import {
-    createArticle,
     getTodaysArticle,
+    upsertTodaysArticle,
 } from "../repositories/articleRepository";
 
 type DailyWikiPage = Awaited<
@@ -38,25 +38,7 @@ export async function ensureDailyWikiPage(): Promise<DailyWikiPage> {
 
     const wikiPage = await fetchRandomWikiPage(1500);
 
-    try {
-        const created = await createArticle(wikiPage);
-
-        setCache(created);
-        return created;
-    } catch (error: unknown) {
-        // Handle race condition: another request may have created the page
-        const isUniqueViolation =
-            error instanceof Error &&
-            error.message.includes("Unique constraint");
-
-        if (isUniqueViolation) {
-            const fallback = await getTodaysArticle();
-            if (fallback) {
-                setCache(fallback);
-                return fallback;
-            }
-        }
-
-        throw error;
-    }
+    const page = await upsertTodaysArticle(wikiPage);
+    setCache(page);
+    return page;
 }

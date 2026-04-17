@@ -17,14 +17,14 @@ export function saveCache(
     revealed: RevealedMap,
     saved?: boolean,
     revealedImages?: string[],
-) {
+): void {
     localStorage.setItem(
         `${STORAGE_KEY_PREFIX}${date}`,
         JSON.stringify({ guesses, revealed, saved, revealedImages }),
     );
 }
 
-export function clearOldCaches(currentDate: string) {
+export function clearOldCaches(currentDate: string): void {
     for (let i = localStorage.length - 1; i >= 0; i--) {
         const key = localStorage.key(i);
         if (

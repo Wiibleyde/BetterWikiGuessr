@@ -8,7 +8,7 @@ import {
     fetchLeaderboard,
     fetchProfileStats,
     fetchYesterdayWord,
-} from "./queries";
+} from "./client";
 
 /** Fetch the current masked game article */
 export const useFetchGame = (enabled = true) => {

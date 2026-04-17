@@ -99,6 +99,13 @@ export async function completeGameHandler(
         return err("Liste de mots manquante", 400);
     }
 
+    const safeGuessedWords = guessedWords.filter(
+        (word): word is string => typeof word === "string" && word.length > 0,
+    );
+    if (safeGuessedWords.length !== guessedWords.length) {
+        return err("Liste de mots invalide", 400);
+    }
+
     const safeHintsUsed =
         typeof hintsUsed === "number" && hintsUsed >= 0
             ? Math.floor(hintsUsed)
@@ -108,7 +115,7 @@ export async function completeGameHandler(
         const result = await completeGame(
             user,
             guessCount,
-            guessedWords as string[],
+            safeGuessedWords,
             safeHintsUsed,
         );
         return ok({ success: true, resultId: result.resultId });
@@ -130,8 +137,15 @@ export async function revealAllHandler(
         return err("Liste de mots requise", 400);
     }
 
+    const safeWords = words.filter(
+        (word): word is string => typeof word === "string" && word.length > 0,
+    );
+    if (safeWords.length !== words.length) {
+        return err("Liste de mots invalide", 400);
+    }
+
     try {
-        const positions = await revealAll(words as string[]);
+        const positions = await revealAll(safeWords);
         return ok({ positions });
     } catch (error) {
         if (error instanceof GameVerificationError) {

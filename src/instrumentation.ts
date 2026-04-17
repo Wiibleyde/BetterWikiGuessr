@@ -6,8 +6,8 @@ export async function register() {
 
         const { ensureDailyWikiPage } = await import("@/lib/game/daily-wiki");
 
-        const { dailyPurge } = await import("@/lib/batchs/purge");
-        const { startDailyCron } = await import("@/lib/batchs/dailyPage");
+        const { dailyPurge } = await import("@/lib/batches/purge");
+        const { startDailyCron } = await import("@/lib/batches/dailyPage");
 
         try {
             await ensureDailyWikiPage();

@@ -1,5 +1,5 @@
 import type { MaskedArticle, RevealedMap, WordToken } from "@/types/game";
-import { posKey } from "./helper";
+import { posKey } from "@/utils/helper";
 
 export function computeRevealPercentage(
     revealed: RevealedMap,
@@ -18,6 +18,7 @@ export function checkWinCondition(
     const titleWords = article.sections[0]?.titleTokens.filter(
         (t): t is WordToken => t.type === "word",
     );
+
     return (
         titleWords !== undefined &&
         titleWords.length > 0 &&

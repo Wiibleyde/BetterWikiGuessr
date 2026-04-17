@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react";
+import { checkWinCondition } from "@/lib/game/progress";
 import { useFetchGame, useFetchYesterdayWord } from "@/lib/query";
 import { clearOldCaches, loadCache } from "@/utils/cache";
-import { checkWinCondition } from "@/utils/game";
 import { normalizeHintImageUrls } from "@/utils/hintImage";
 import useGame from "./useGame";
 import { useGameState } from "./useGameState";

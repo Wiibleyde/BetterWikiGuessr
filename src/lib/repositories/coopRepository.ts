@@ -1,3 +1,9 @@
+import type {
+    CoopGuessWithPlayer,
+    CoopLobbyWithPlayers,
+    CoopLobbyWithState,
+    CoopPlayerWithLobby,
+} from "@/types/repository";
 import type { Prisma } from "../../../generated/prisma/client";
 import { prisma } from "../prisma";
 
@@ -6,7 +12,7 @@ export async function createLobby(
     leaderName: string,
     leaderToken: string,
     leaderId?: string,
-) {
+): Promise<CoopLobbyWithPlayers> {
     return prisma.coopLobby.create({
         data: {
             code,
@@ -23,7 +29,9 @@ export async function createLobby(
     });
 }
 
-export async function getLobbyByCode(code: string) {
+export async function getLobbyByCode(
+    code: string,
+): Promise<CoopLobbyWithState | null> {
     return prisma.coopLobby.findUnique({
         where: { code },
         include: {
@@ -38,7 +46,10 @@ export async function getLobbyByCode(code: string) {
     });
 }
 
-export async function updateLobbyStatus(code: string, status: string) {
+export async function updateLobbyStatus(
+    code: string,
+    status: string,
+): Promise<Prisma.CoopLobbyGetPayload<object>> {
     return prisma.coopLobby.update({
         where: { code },
         data: { status },
@@ -51,7 +62,7 @@ export async function setLobbyWikiPage(
     wikiSections: Prisma.InputJsonValue,
     wikiImages: string[],
     wikiUrl: string,
-) {
+): Promise<Prisma.CoopLobbyGetPayload<object>> {
     return prisma.coopLobby.update({
         where: { code },
         data: {
@@ -69,20 +80,25 @@ export async function addPlayer(
     displayName: string,
     token: string,
     userId?: string,
-) {
+): Promise<Prisma.CoopPlayerGetPayload<object>> {
     return prisma.coopPlayer.create({
         data: { lobbyId, displayName, token, userId },
     });
 }
 
-export async function getPlayerByToken(token: string) {
+export async function getPlayerByToken(
+    token: string,
+): Promise<CoopPlayerWithLobby | null> {
     return prisma.coopPlayer.findUnique({
         where: { token },
         include: { lobby: true },
     });
 }
 
-export async function getPlayerByUserAndLobby(userId: string, lobbyId: number) {
+export async function getPlayerByUserAndLobby(
+    userId: string,
+    lobbyId: number,
+): Promise<Prisma.CoopPlayerGetPayload<object> | null> {
     return prisma.coopPlayer.findFirst({
         where: { userId, lobbyId },
     });
@@ -100,7 +116,7 @@ export async function addGuess(
     occurrences: number,
     similarity: number,
     positions: Prisma.InputJsonValue,
-) {
+): Promise<CoopGuessWithPlayer> {
     return prisma.coopGuess.create({
         data: {
             lobbyId,
@@ -133,7 +149,9 @@ export async function getAllGuessedWords(lobbyId: number): Promise<string[]> {
     return guesses.map((g) => g.word);
 }
 
-export async function removePlayer(playerId: number) {
+export async function removePlayer(
+    playerId: number,
+): Promise<Prisma.CoopPlayerGetPayload<object>> {
     return prisma.coopPlayer.delete({ where: { id: playerId } });
 }
 
@@ -141,7 +159,9 @@ export async function transferLeadership(
     _lobbyId: number,
     oldLeaderId: number,
     newLeaderId: number,
-) {
+): Promise<
+    [Prisma.CoopPlayerGetPayload<object>, Prisma.CoopPlayerGetPayload<object>]
+> {
     return prisma.$transaction([
         prisma.coopPlayer.update({
             where: { id: oldLeaderId },
@@ -154,11 +174,15 @@ export async function transferLeadership(
     ]);
 }
 
-export async function deleteLobby(code: string) {
+export async function deleteLobby(
+    code: string,
+): Promise<Prisma.CoopLobbyGetPayload<object>> {
     return prisma.coopLobby.delete({ where: { code } });
 }
 
-export async function deleteOldLobbies(date: Date) {
+export async function deleteOldLobbies(
+    date: Date,
+): Promise<Prisma.BatchPayload> {
     return prisma.coopLobby.deleteMany({
         where: { createdAt: { lt: date } },
     });
